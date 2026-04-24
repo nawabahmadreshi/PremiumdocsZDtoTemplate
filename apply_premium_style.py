@@ -9,6 +9,7 @@ Usage:
     python3 apply_premium_style.py
 """
 
+import shutil
 from pathlib import Path
 from bs4 import BeautifulSoup, NavigableString, Tag
 import re
@@ -18,10 +19,14 @@ from urllib.parse import urlparse
 from config import Config
 
 
-INPUT_FILE_RAW = Path(__file__).parent / "Identity_Survey_Hub_User_Guide.html"
-INPUT_FILE_FALLBACK = Path(__file__).parent / "Identity_Survey_Hub_Styled.html"
-TEMPLATE_FILE = Path(__file__).parent / "app/static/template.html"
-OUTPUT_FILE = Path(__file__).parent / "Identity_Survey_Hub_Styled.html"
+PROJECT_ROOT = Path(__file__).parent
+IMAGES_DIR = PROJECT_ROOT / "images"
+TEMPLATE_FILE = PROJECT_ROOT / "app/static/template.html"
+
+
+INPUT_FILE_RAW = PROJECT_ROOT / "Identity_Survey_Hub_User_Guide.html"
+INPUT_FILE_FALLBACK = PROJECT_ROOT / "Identity_Survey_Hub_Styled.html"
+OUTPUT_FILE = PROJECT_ROOT / "Identity_Survey_Hub_Styled.html"
 
 
 def get_input_file():
@@ -68,7 +73,11 @@ def extract_content(input_html: str):
 
     # Fallback: use the whole body
     body = soup.find("body")
-    return title, body
+    if body:
+        return title, body
+
+    # Final fallback: return the entire soup (for fragments)
+    return title, soup
 
 
 def group_into_doc_sections(raw_soup):
@@ -348,7 +357,7 @@ def download_and_localize_images(output_html: str) -> str:
     return str(soup)
 
 
-def apply_style():
+def apply_style(manual_title=None):
     input_file = get_input_file()
     print(f"Reading: {input_file}")
     input_html = input_file.read_text(encoding="utf-8")
@@ -357,7 +366,18 @@ def apply_style():
     template = TEMPLATE_FILE.read_text(encoding="utf-8")
 
     print("Extracting content...")
-    title, content_soup = extract_content(input_html)
+    extracted_title, content_soup = extract_content(input_html)
+    
+    title = manual_title or extracted_title
+
+    # Ensure images directory exists
+    if not IMAGES_DIR.exists():
+        IMAGES_DIR.mkdir()
+
+    # Copy custom logo.svg if it exists in project root
+    src_logo = PROJECT_ROOT / "logo.svg"
+    if src_logo.exists():
+        shutil.copy2(src_logo, IMAGES_DIR / "logo.svg")
 
     print("Grouping into doc sections...")
     structured = group_into_doc_sections(content_soup)

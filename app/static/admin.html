@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aquera Documentation Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --aquera: rgb(0, 96, 164);
+      --aquera-dark: rgb(0, 76, 128);
+      --ink: #0f172a;
+      --muted: #475569;
+      --glass: rgba(255, 255, 255, 0.85);
+      --border: rgba(0, 96, 164, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+      background: 
+        radial-gradient(1000px 600px at 10% 10%, rgba(0, 96, 164, 0.1), transparent 50%),
+        radial-gradient(800px 500px at 90% 90%, rgba(0, 96, 164, 0.08), transparent 50%),
+        #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 540px;
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 48px;
+      box-shadow: 0 24px 64px -12px rgba(0, 96, 164, 0.12);
+      text-align: center;
+      transition: transform 0.4s ease;
+    }
+
+    .logo {
+      height: 38px;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin: 0 0 12px;
+      color: var(--aquera);
+    }
+
+    p {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      margin: 0 0 32px;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 18px;
+      background: var(--aquera);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 10px 20px -5px rgba(0, 96, 164, 0.3);
+    }
+
+    .action-btn:hover {
+      background: var(--aquera-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px -5px rgba(0, 96, 164, 0.4);
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
+    }
+
+    .action-btn:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* Processing State */
+    .status-area {
+      display: none;
+      margin-top: 24px;
+    }
+
+    .card.is-processing .status-area {
+      display: block;
+    }
+
+    .card.is-processing #setupArea {
+      display: none;
+    }
+
+    /* Progress Bar */
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(0, 96, 164, 0.08);
+      border-radius: 99px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--aquera), #60a5fa);
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card.is-processing .progress-track {
+      display: block;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(0, 96, 164, 0.1);
+      border-top-color: var(--aquera);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .log {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .step-item {
+      font-size: 14px;
+      padding: 8px 0;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: color 0.3s ease;
+    }
+
+    .step-item.is-active {
+      color: var(--aquera);
+      font-weight: 700;
+    }
+
+    .step-item.is-done {
+      color: #10b981;
+    }
+
+    /* Success State */
+    .success-area {
+      display: none;
+      margin-top: 24px;
+    }
+
+    .card.is-success #setupArea {
+      display: none;
+    }
+
+    .card.is-success .success-area {
+      display: block;
+    }
+
+    .download-btn {
+      background: #10b981;
+      box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.3);
+    }
+
+    .download-btn:hover {
+      background: #059669;
+      box-shadow: 0 14px 28px -5px rgba(16, 185, 129, 0.4);
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="card" id="appCard">
+    <img src="/static/images/logo.svg" alt="Aquera" class="logo">
+    <h1>Documentation Hub</h1>
+    <p>Refresh and sync your <b>Zendesk Guide</b> articles directly into a premium offline documentation bundle.</p>
+    
+    <div id="setupArea">
+      <div style="margin-bottom: 24px; text-align: left;">
+        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--aquera); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Zendesk Article ID</label>
+        <input type="text" id="articleIdInput" value="33370331621527" placeholder="e.g. 123456789" style="width: 100%; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--border); background: white; font-size: 15px; font-weight: 600; outline: none; transition: border-color 0.2s;">
+      </div>
+
+      <button class="action-btn" id="generateBtn" onclick="generate()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 2v6h-6"></path>
+          <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+          <path d="M3 22v-6h6"></path>
+          <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+        </svg>
+        Sync & Generate Bundle
+      </button>
+    </div>
+
+    <div class="status-area">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div id="stepsContainer" style="text-align: left; max-width: 280px; margin: 0 auto;">
+        <div class="step-item" id="step1">○ Fetching from Zendesk</div>
+        <div class="step-item" id="step2">○ Clean & Apply Style</div>
+        <div class="step-item" id="step3">○ Preparing Download</div>
+      </div>
+    </div>
+
+    <div class="success-area">
+      <p style="margin-bottom: 20px; color: #059669; font-weight: 600;">✨ Generation Complete!</p>
+      <button class="action-btn download-btn" onclick="download()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download Documentation ZIP
+      </button>
+      <button style="margin-top: 16px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-weight: 600; font-size: 14px;" onclick="reset()">Generate another</button>
+    </div>
+  </div>
+
+  <script>
+    const card = document.getElementById('appCard');
+    const msg = document.getElementById('statusMessage');
+
+    async function generate() {
+      const articleIdInput = document.getElementById('articleIdInput');
+      const articleId = articleIdInput ? articleIdInput.value.trim() : '33370331621527';
+      
+      if (!articleId) {
+        alert('Please enter a valid Zendesk Article ID');
+        return;
+      }
+
+      card.className = 'card is-processing';
+      
+      const s1 = document.getElementById('step1');
+      const s2 = document.getElementById('step2');
+      const s3 = document.getElementById('step3');
+      const fill = document.getElementById('progressFill');
+
+      // Reset
+      fill.style.width = '0%';
+      [s1, s2, s3].forEach(s => {
+        s.className = 'step-item';
+        s.textContent = s.textContent.replace('✓', '○').replace('●', '○');
+      });
+
+      // Step 1: Fetch
+      s1.className = 'step-item is-active';
+      s1.textContent = '● Fetching from Zendesk';
+      fill.style.width = '10%';
+
+      try {
+        const response = await fetch('/generate', { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ article_id: articleId })
+        });
+        
+        // Update to 40% after fetch initiates
+        fill.style.width = '40%';
+        
+        // Step 2: Clean & Style
+        s1.className = 'step-item is-done';
+        s1.textContent = '✓ Fetching from Zendesk';
+        
+        s2.className = 'step-item is-active';
+        s2.textContent = '● Clean & Apply Style';
+        fill.style.width = '70%';
+        await new Promise(r => setTimeout(r, 2000));
+        
+        s2.className = 'step-item is-done';
+        s2.textContent = '✓ Clean & Apply Style';
+
+        // Step 3: Bundle
+        s3.className = 'step-item is-active';
+        s3.textContent = '● Preparing Download';
+        fill.style.width = '90%';
+        await new Promise(r => setTimeout(r, 1500));
+        
+        s3.className = 'step-item is-done';
+        s3.textContent = '✓ Preparing Download';
+        fill.style.width = '100%';
+
+        const result = await response.json();
+        if (result.success) {
+          setTimeout(() => {
+            card.className = 'card is-success';
+          }, 500);
+        } else {
+          alert('Error during generation: ' + result.error);
+          reset();
+        }
+      } catch (err) {
+        alert('Network error. Is the server running?');
+        reset();
+      }
+    }
+
+    function download() {
+      window.location.href = '/download';
+    }
+
+    function reset() {
+      card.className = 'card';
+    }
+  </script>
+</body>
+</html>

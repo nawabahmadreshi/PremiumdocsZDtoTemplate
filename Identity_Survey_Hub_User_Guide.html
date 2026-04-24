@@ -1,735 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8" />
-  <title>Identity Survey Hub User Guide - Aquera Documentation</title>
-  <meta content="width=device-width, initial-scale=1" name="viewport" />
-  <style>
-    :root {
-      --aquera: rgb(0, 96, 164);
-      --aquera-dark: rgb(0, 76, 128);
-
-      --ink: #0f172a;
-      --muted: #475569;
-      --muted2: #64748b;
-      --line: #e5e7eb;
-      --card: #fff;
-
-      --shadow1: 0 1px 2px rgba(0, 0, 0, .06);
-      --shadow2: 0 18px 44px rgba(2, 6, 23, .12);
-
-      --r12: 12px;
-      --r16: 16px;
-      --r22: 22px;
-
-      --max: 1100px;
-      --contentMax: 760px;
-
-      --scrollOffset: 130px;
-      --scrollOffsetHidden: 40px;
-      --panelTop: 86px;
-      --panelTopHidden: 20px;
-    }
-
-    body {
-      margin: 0;
-      font-family: Inter, Segoe UI, Arial, sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(1200px 700px at 15% -5%, rgba(0, 96, 164, .10), transparent 55%),
-        radial-gradient(900px 600px at 95% 10%, rgba(0, 96, 164, .08), transparent 50%),
-        linear-gradient(135deg, #eff6ff, #f3f4f6);
-      min-height: 100vh;
-    }
-
-    /* ================= Header ================= */
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 60;
-      background: rgba(255, 255, 255, .92);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(229, 231, 235, .7);
-      box-shadow: var(--shadow1);
-      transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-
-    .header.isHidden {
-      transform: translateY(-100%);
-      box-shadow: none;
-      backdrop-filter: none;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .headerInner {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    @media(min-width:768px) {
-      .headerInner {
-        padding: 12px 24px;
-      }
-    }
-
-    .logo {
-      height: 40px;
-      width: auto;
-      display: block;
-    }
-
-    .menuBtn {
-      margin-left: auto;
-      border: 1px solid rgba(0, 96, 164, .18);
-      background: linear-gradient(180deg, rgba(0, 96, 164, 1), rgba(0, 76, 128, 1));
-      color: #fff;
-      padding: 9px 12px;
-      border-radius: 12px;
-      font-weight: 900;
-      cursor: pointer;
-      box-shadow: 0 10px 20px rgba(0, 96, 164, .18);
-    }
-
-    .menuBtn:focus {
-      outline: 2px solid rgba(0, 96, 164, .35);
-      outline-offset: 2px;
-    }
-
-    @media(min-width:768px) {
-      .menuBtn {
-        display: none;
-      }
-    }
-
-    /* ================= Layout ================= */
-    .page {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 2px 12px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: stretch;
-    }
-
-    @media(min-width:768px) {
-      .page {
-        padding: 4px 24px 24px;
-        flex-direction: row;
-        gap: 12px;
-        align-items: flex-start;
-      }
-    }
-
-    /* ================= Shared panel helpers ================= */
-    .panelCard {
-      background: var(--card);
-      border: 1px solid rgba(229, 231, 235, .9);
-      border-radius: var(--r16);
-      box-shadow: var(--shadow2);
-      padding: 16px;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      overflow: visible;
-    }
-
-    @media(min-width:768px) {
-      .panelSticky {
-        position: sticky;
-        top: var(--panelTop);
-        align-self: flex-start;
-        transition: top 0.3s ease;
-      }
-
-      .header.isHidden ~ .mainCont .panelSticky,
-      .header.isHidden ~ .page .panelSticky,
-      body:has(.header.isHidden) .panelSticky {
-         top: var(--panelTopHidden);
-      }
-    }
-
-    .panelHead {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin: 0 0 16px;
-    }
-
-    .panelTitle {
-      pointer-events: none;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 12px;
-      font-weight: 950;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 0;
-      min-width: 0;
-    }
-
-    .panelDot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: var(--aquera);
-      box-shadow: 0 6px 14px rgba(0, 96, 164, .22);
-      flex: 0 0 auto;
-    }
-
-    .panelTitleRow {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .collapseBtn {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      border: 1px solid rgba(2, 6, 23, 0.08);
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(12px);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 14px rgba(2, 6, 23, 0.06);
-      color: var(--muted);
-      padding: 0;
-      position: relative;
-    }
-
-    .collapseBtn svg {
-      width: 20px;
-      height: 20px;
-      transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .collapseBtn:hover {
-      background: #fff;
-      transform: translateY(-1px);
-      box-shadow: 0 10px 24px rgba(0, 96, 164, 0.12);
-      color: var(--aquera);
-    }
-
-    body.isLeftCollapsed .collapseBtn svg { transform: rotate(180deg); }
-    body.isRightCollapsed .collapseBtn svg { transform: rotate(180deg); }
-
-    .floatingReopen {
-      display: none;
-      position: fixed;
-      z-index: 80;
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      border: 1px solid rgba(2, 6, 23, 0.08);
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 12px 30px rgba(2, 6, 23, 0.12);
-      color: var(--aquera);
-      transition: all 0.3s ease;
-    }
-
-    .floatingReopen:hover {
-      background: #fff;
-      transform: scale(1.05) translateY(-2px);
-      box-shadow: 0 16px 38px rgba(2, 6, 23, 0.16);
-    }
-
-    .floatingReopen svg {
-      width: 22px;
-      height: 22px;
-    }
-
-    .floatingReopen:focus {
-      outline: 2px solid rgba(0, 96, 164, .35);
-      outline-offset: 2px;
-    }
-
-    /* ================= Left TOC ================= */
-    .tocCol {
-      width: 100%;
-    }
-
-    .tocList {
-      display: grid;
-      gap: 4px;
-      margin-top: 12px;
-      padding-right: 4px;
-    }
-
-    @media(max-width:767px) {
-      #mobileToc {
-        max-height: calc(100vh - 72px);
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-    }
-
-    @media(min-width:768px) {
-      .tocCol {
-        width: 280px;
-        flex: 0 0 280px;
-      }
-    }
-
-    .isHidden {
-      display: none;
-    }
-
-    #mobileToc.isHidden {
-      display: none;
-    }
-
-    @media(min-width:768px) {
-      #mobileToc.isHidden {
-        display: block;
-      }
-    }
-
-    .tocList, .tocSub, .tocSub2, .tocSub3, .tocSub4 {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .tocList {
-      margin-top: 12px;
-    }
-
-    .tocList, .tocSub, .tocSub2, .tocSub3 {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .tocSub {
-      margin-left: 18px;
-      padding-left: 10px;
-      border-left: 2px solid rgba(0, 96, 164, .12);
-      display: none;
-    }
-    .tocSub2 {
-      margin-left: 16px;
-      border-left: 2px dotted rgba(0, 96, 164, .18);
-    }
-    .tocSub3 {
-      margin-left: 28px;
-      border-left: 2px dotted rgba(0, 96, 164, .22);
-    }
-    .tocSub4 {
-      margin-left: 12px;
-      border-left: 1px dotted rgba(0, 96, 164, .28);
-    }
-    .tocLink {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 10px;
-      border-radius: 14px;
-      text-decoration: none;
-      color: var(--aquera);
-      font-weight: 900;
-      transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
-    }
-
-    .tocLink::before {
-      content: "";
-      width: 7px;
-      height: 18px;
-      border-radius: 999px;
-      background: transparent;
-      transition: background-color 160ms ease;
-      flex: 0 0 auto;
-    }
-
-    .tocLink:hover {
-      background: rgba(0, 96, 164, .26);
-      box-shadow: inset 0 0 0 2px rgba(0, 96, 164, .28);
-      transform: translateX(1px);
-    }
-
-    .tocLink:hover::before {
-      background: rgba(0, 96, 164, .55);
-    }
-
-    .tocLink.isActive {
-      background: rgba(0, 96, 164, .36);
-      box-shadow: inset 0 0 0 2px rgba(0, 96, 164, .42);
-    }
-
-    .tocLink.isActive::before {
-      background: var(--aquera);
-    }
-
-    body.isLeftCollapsed .tocCol {
-      display: none !important;
-    }
-
-    body.isLeftCollapsed #leftReopenBtn {
-      display: grid;
-    }
-
-    #leftReopenBtn {
-      left: 12px;
-      top: 170px;
-    }
-
-    /* ================= Center Content Card ================= */
-    .card {
-      flex: 1;
-      background: var(--card);
-      border: 1px solid rgba(229, 231, 235, .9);
-      border-radius: var(--r22);
-      box-shadow: var(--shadow2);
-      overflow: hidden;
-      min-width: 0;
-    }
-
-    .cardHeader {
-      padding: 10px 18px;
-      border-bottom: 1px solid rgba(229, 231, 235, .9);
-      background: linear-gradient(180deg, rgba(0, 96, 164, .06), transparent);
-    }
-
-    .cardBody {
-      padding: 12px;
-      max-width: var(--contentMax);
-      margin: 0 auto;
-    }
-
-    .docSection {
-      padding: 0 0 8px;
-    }
-
-    [id] {
-      scroll-margin-top: var(--scrollOffset);
-    }
-
-    .docSection:last-child {
-      border-bottom: none;
-    }
-
-    .stickySectionHeader {
-      position: sticky;
-      top: calc(var(--scrollOffset) - 58px);
-      z-index: 5;
-      background: transparent;
-      padding: 0;
-      border: none;
-    }
-
-    .stickySectionHeader h2 {
-      margin: 0;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-      color: var(--aquera);
-      margin: 8px 0 4px;
-      letter-spacing: -.01em;
-    }
-
-    h2 {
-      font-size: 21px;
-      font-weight: 950;
-    }
-
-    h3 {
-      font-size: 17px;
-      font-weight: 900;
-    }
-
-    p {
-      margin: 0 0 6px;
-      line-height: 1.55;
-      color: var(--ink);
-    }
-
-    .cardBody p, .cardBody li {
-      line-height: 1.65;
-      color: var(--ink);
-      font-size: 15px;
-      margin-bottom: 8px;
-    }
-
-    .cardBody p {
-      margin-left: 10px;
-    }
-
-    .cardBody ol,
-    .cardBody ul {
-      margin: 10px 0;
-      padding-left: 60px !important;
-      list-style-position: outside;
-    }
-
-    .cardBody li > ol,
-    .cardBody li > ul {
-      padding-left: 50px !important;
-      margin: 10px 0;
-    }
-
-    .cardBody img:not(.logo):not(.inline-icon) {
-      width: min(var(--contentMax), 100%);
-      border: 1px solid rgba(229, 231, 235, .95);
-      border-radius: 12px;
-      box-shadow: 0 14px 30px rgba(2, 6, 23, .08);
-      display: block;
-      margin: 14px 0 14px 4px;
-    }
-
-    .cardBody img.inline-icon {
-      display: inline-block;
-      vertical-align: middle;
-      margin: 0 4px;
-      border: none;
-      box-shadow: none;
-      border-radius: 0;
-      max-height: 1.15em;
-      width: auto !important;
-    }
-
-    .mediaSmall {
-      width: min(380px, 100%);
-    }
-
-    figcaption.caption {
-      font-size: 12px;
-      color: var(--muted2);
-      line-height: 1.4;
-      padding-left: 2px;
-    }
-
-    figcaption.caption strong {
-      color: var(--muted);
-    }
-
-    /* ================= Footer ================= */
-    .footer {
-      text-align: center;
-      color: #9ca3af;
-      font-size: 12px;
-      padding: 16px 18px;
-      border-top: 1px solid rgba(229, 231, 235, .9);
-      background: linear-gradient(180deg, transparent, rgba(2, 6, 23, .02));
-    }
-
-    @media print {
-      .menuBtn,
-      #leftReopenBtn,
-      #rightReopenBtn,
-      .tocCol,
-      .modalOverlay {
-        display: none !important;
-      }
-
-      .page {
-        padding: 0 !important;
-      }
-
-      .card {
-        box-shadow: none !important;
-        border: none !important;
-      }
-
-      .stickySectionHeader {
-        position: static !important;
-        box-shadow: none !important;
-      }
-
-      body {
-        background: #fff !important;
-      }
-    }
-
-    /* TOC scroll container */
-    #mobileToc {
-      max-height: calc(100vh - 140px);
-      overflow-y: auto;
-      overscroll-behavior: contain;
-    }
-
-    /* ===== Tables: branded and polished ===== */
-    table thead th {
-      background-color: #eef5fb;
-    }
-  </style>
-
-  <style id="aqueraEnhancements">
-    /* Responsive images */
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-
-    /* Preserve list hierarchy (nested lists inside li) */
-    .docSection ol,
-    .docSection ul {
-      padding-left: 22px;
-    }
-
-    .docSection li > ol,
-    .docSection li > ul {
-      margin: 8px 0 10px 0;
-    }
-
-    .docSection li {
-      margin-bottom: 8px;
-    }
-
-    ol.steps {
-      padding-left: 0;
-    }
-
-    ol.steps > li {
-      padding-left: 2px;
-    }
-
-    /* ===== SimpleTable (branded + polished) ===== */
-    .docSection table,
-    table.simpleTable {
-      width: min(var(--contentMax), 100%);
-      border-collapse: separate;
-      border-spacing: 0;
-      margin: 14px 0 18px;
-      border: 1px solid rgba(229, 231, 235, .95);
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 12px 26px rgba(2, 6, 23, .08);
-      background: #fff;
-    }
-
-    .docSection table td,
-    .docSection table th,
-    table.simpleTable td,
-    table.simpleTable th {
-      padding: 11px 12px;
-      border-bottom: 1px solid rgba(229, 231, 235, .9);
-      border-right: 1px solid rgba(229, 231, 235, .9);
-      vertical-align: top;
-      font-size: 14px;
-      line-height: 1.55;
-      color: var(--ink);
-    }
-
-    .docSection table tr:last-child td,
-    table.simpleTable tr:last-child td {
-      border-bottom: none;
-    }
-
-    .docSection table th:last-child,
-    .docSection table td:last-child,
-    table.simpleTable th:last-child,
-    table.simpleTable td:last-child {
-      border-right: none;
-    }
-
-    /* Existing header rows (if present) */
-    .docSection table thead th,
-    table.simpleTable thead th {
-      background: rgba(0, 96, 164, .06);
-      color: var(--aquera);
-      font-weight: 900;
-      text-align: center;
-    }
-
-    /* Brand first row of bodyless tables */
-    .docSection table:not(:has(thead)) tr:first-child td,
-    table.simpleTable:not(:has(thead)) tr:first-child td {
-      background: rgba(0, 96, 164, .06);
-      color: var(--aquera);
-      font-weight: 900;
-    }
-
-    /* Zebra + strong first column for 2+ column tables */
-    .docSection table tbody tr:not(.tableBrandRow):nth-child(even) td,
-    table.simpleTable tbody tr:not(.tableBrandRow):nth-child(even) td {
-      background: rgba(2, 6, 23, .012);
-    }
-
-    .docSection table tbody tr:not(.tableBrandRow) td:first-child,
-    table.simpleTable tbody tr:not(.tableBrandRow) td:first-child {
-      font-weight: 900;
-      color: var(--ink);
-      background: rgba(0, 96, 164, .04);
-      width: 220px;
-    }
-
-    @media(max-width:680px) {
-      .docSection table tbody tr:not(.tableBrandRow) td:first-child,
-      table.simpleTable tbody tr:not(.tableBrandRow) td:first-child {
-        width: auto;
-      }
-    }
-
-    /* Unordered Lists styling in docSection */
-    .docSection ul {
-      margin: 10px 0;
-      padding-left: 24px;
-      display: grid;
-      gap: 6px;
-    }
-
-    .docSection ul li {
-      line-height: 1.6;
-    }
-  </style>
-</head>
-
-<body>
-  <header class="header">
-    <div class="headerInner">
-      <img alt="Aquera Logo" class="logo" src="https://static.aquera.com/logo.png" />
-      <button class="menuBtn" onclick="toggleToc()" type="button">Menu</button>
-    </div>
-  </header>
-
-  <div class="page">
-    <!-- LEFT: TOC -->
-    <aside class="tocCol panelSticky">
-      <nav aria-label="Table of contents" class="panelCard isHidden" id="mobileToc">
-        <div class="panelHead">
-          <div class="panelTitleRow">
-            <button aria-label="Hide table of contents" class="collapseBtn" id="leftCollapseBtn" type="button">
-              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-            </button>
-            <h2 class="panelTitle" id="table-of-contents"><span class="panelDot"></span>Table of contents</h2>
-          </div>
-          <span></span>
-        </div>
-        <div class="tocList">
-          <!-- Table of contents is generated automatically from document headings -->
-        </div>
-      </nav>
-    </aside>
-
-    <!-- CENTER: CONTENT -->
-    <main class="card">
-      <div class="cardHeader">
-        <h1 class="cardTitle">Identity Survey Hub User Guide</h1>
-        <p class="cardSubtitle">Aquera Documentation</p>
-      </div>
-      <div class="cardBody">
-        <div><h1 id="h_01JZSQ1FANKH8X3W7JACJW3HPR">Overview</h1><p><strong>Identity Survey Hub</strong> is a structured onboarding and discovery platform that replaces meeting-heavy application intake processes with automated, trackable workflows purpose-built for IGA and IDP integrations. It enables application owners, IAM teams, and stakeholders to collaboratively provide validated onboarding data—covering ownership, access models, authentication methods, provisioning requirements, and compliance attributes—through configurable questionnaires with delegation, SLAs, and escalation controls. By centralizing and standardizing application discovery, Identity Survey Hub accelerates IGA and SSO onboarding, improves data completeness, reduces dependency on manual coordination, and creates a reusable, governance-ready application inventory.</p><h1 id="h_01JZSQ71FCMNR3W7N4YZA362E3">Key Features</h1><p>The following are the key features of the Identity Survey Hub:</p><ul>
+<h1 id="h_01JZSQ1FANKH8X3W7JACJW3HPR">Overview</h1><p><strong>Identity Survey Hub</strong> is a structured onboarding and discovery platform that replaces meeting-heavy application intake processes with automated, trackable workflows purpose-built for IGA and IDP integrations. It enables application owners, IAM teams, and stakeholders to collaboratively provide validated onboarding data—covering ownership, access models, authentication methods, provisioning requirements, and compliance attributes—through configurable questionnaires with delegation, SLAs, and escalation controls. By centralizing and standardizing application discovery, Identity Survey Hub accelerates IGA and SSO onboarding, improves data completeness, reduces dependency on manual coordination, and creates a reusable, governance-ready application inventory.</p><h1 id="h_01JZSQ71FCMNR3W7N4YZA362E3">Key Features</h1><p>The following are the key features of the Identity Survey Hub:</p><ul>
 <li class="wysiwyg-list-bold">
 <strong>Simplified Asset Discovery</strong><ul>
 <li>Questionnaire-driven approach for efficient asset identification and data collection.</li>
@@ -882,7 +151,7 @@
 <li>Ensure accuracy and completeness of asset data provided.</li>
 </ul></td>
 </tr>
-</tbody></table></figure><h1 id="h_01K3GDQ9YBW26CTBSP7SF5HPRQ">Getting Started</h1><p>Welcome to <strong>Identity Survey Hub</strong>! This section guides you through the initial steps to access your tenant and complete the required setup after your organization has been onboarded.</p><p>Once your organization’s environment has been set up, you will receive a sign-up email at your registered email address. This email contains a secure activation link that allows you to access your dedicated tenant. Refer to the <a href="#h_01KHT9W397J9MJ9X073GCRK3ED">Creating Your Account (First-Time Users)</a> section to access your tenant and create your account.</p><section class="docSection" id="creating-your-account-first-time-users"><div class="stickySectionHeader"><h2>Creating Your Account (First-Time Users)</h2></div><p>Perform the following steps to create your account as a first-time user using the email you received:</p><ol>
+</tbody></table></figure><h1 id="h_01K3GDQ9YBW26CTBSP7SF5HPRQ">Getting Started</h1><p>Welcome to <strong>Identity Survey Hub</strong>! This section guides you through the initial steps to access your tenant and complete the required setup after your organization has been onboarded.</p><p>Once your organization’s environment has been set up, you will receive a sign-up email at your registered email address. This email contains a secure activation link that allows you to access your dedicated tenant. Refer to the <a href="#h_01KHT9W397J9MJ9X073GCRK3ED">Creating Your Account (First-Time Users)</a> section to access your tenant and create your account.</p><h2 id="h_01KHT9W397J9MJ9X073GCRK3ED">Creating Your Account (First-Time Users)</h2><p>Perform the following steps to create your account as a first-time user using the email you received:</p><ol>
 <li>Click the <strong>Go to Your Tenant</strong> link. The <strong>Log In</strong> screen appears.</li>
 <li>Click <strong>Sign Up</strong>. The <strong>Create Your Account</strong> screen appears.</li>
 <li>Enter the following data on the <strong>Create Your Account</strong> screen:<ul>
@@ -902,7 +171,7 @@
 <li>Click the <strong>Sign Up</strong> button. A verification code will be sent to your email address.</li>
 <li>Verify your email address by entering the OTP in the <strong>Enter Code</strong> field on the <strong>Check Your Email </strong>screen. If you do not receive the email, click <strong>Click to Resend </strong>to send it again.</li>
 <li>Click <strong>Verify Email</strong>. The <strong>Registration Successful</strong> message appears. </li>
-</ol><p>You can now log in using your username and password, through single sign-on (SSO), or by authenticating with a one-time password (OTP) sent to your email.</p></section><section class="docSection" id="first-login"><div class="stickySectionHeader"><h2>First Login</h2></div><p>On your first login, the <strong>Welcome to the Identity Survey Hub</strong> screen appears to help you become familiar with the platform. It introduces the Identity Survey Hub and explains how it helps you discover, organize, and validate applications across your organization. The screen also provides a high-level overview of your questionnaires and assets.<br/><img alt="Welcome ISH.png" height="694" src="https://support.aquera.com/hc/article_attachments/38073394419863" width="2234"/></p><h3 id="h_01KGADTF5QM3RPR0JN51NBD0AJ">Take the Quick Tour</h3><p>Perform the following steps to take the quick tour to help you become familiar with the platform:</p><ul>
+</ol><p>You can now log in using your username and password, through single sign-on (SSO), or by authenticating with a one-time password (OTP) sent to your email.</p><h2 id="h_01KHTA6NBC71QYM2QEBF8YX3N5">First Login</h2><p>On your first login, the <strong>Welcome to the Identity Survey Hub</strong> screen appears to help you become familiar with the platform. It introduces the Identity Survey Hub and explains how it helps you discover, organize, and validate applications across your organization. The screen also provides a high-level overview of your questionnaires and assets.<br/><img alt="Welcome ISH.png" height="694" src="https://support.aquera.com/hc/article_attachments/38073394419863" width="2234"/></p><h3 id="h_01KGADTF5QM3RPR0JN51NBD0AJ">Take the Quick Tour</h3><p>Perform the following steps to take the quick tour to help you become familiar with the platform:</p><ul>
 <li>Click <strong>Take Quick Tour</strong> to start a guided walkthrough of the Inventory workflow.</li>
 <li>Each step includes short videos that explain key features and actions.</li>
 <li>Use <strong>Next</strong> to move to the following screen.</li>
@@ -917,7 +186,7 @@
 <strong>Notifications</strong>: Create, manage, and list all email templates.</li>
 <li>
 <strong>File Collection</strong>: Configure audit file uploads, global FTP configurations, IGA global settings, and file retention settings.</li>
-</ul><p><img alt="Settings.png" src="https://support.aquera.com/hc/article_attachments/36090425940887"/></p></section><section class="docSection" id="organization"><div class="stickySectionHeader"><h2>Organization</h2></div><p>The Organization section allows administrators to manage all master data for the organization in one place. It defines the core identity of the organization and the operational defaults used across surveys, notifications, and workflows.</p><p>The Organization section includes the following tabs:</p><h3 id="h_01K71PV55Z21QZ98NCPD73WKKP">Basic Details</h3><p>The Basic Details tab allows administrators to view and manage the administrator and organization details. It has the following sections:</p><h4 id="h_01KG1VERV8GHR7RH8JP35QAA09">Admin Details</h4><ul>
+</ul><p><img alt="Settings.png" src="https://support.aquera.com/hc/article_attachments/36090425940887"/></p><h2 id="h_01K49FK5KP6SEE59X7V5FV066M">Organization</h2><p>The Organization section allows administrators to manage all master data for the organization in one place. It defines the core identity of the organization and the operational defaults used across surveys, notifications, and workflows.</p><p>The Organization section includes the following tabs:</p><h3 id="h_01K71PV55Z21QZ98NCPD73WKKP">Basic Details</h3><p>The Basic Details tab allows administrators to view and manage the administrator and organization details. It has the following sections:</p><h4 id="h_01KG1VERV8GHR7RH8JP35QAA09">Admin Details</h4><ul>
 <li>
 <strong>Admin Name</strong>: Name of the admin.</li>
 <li>
@@ -1067,7 +336,7 @@
 <li>Select the disabled system asset type you want to enable.</li>
 <li>Click the <strong>vertical ellipsis icon</strong> (⋮). The <strong>Enable</strong> option appears.</li>
 <li>Click <strong>Enable</strong> to make the asset type available for further use.</li>
-</ol></section><section class="docSection" id="users"><div class="stickySectionHeader"><h2>Users</h2></div><p>The Users section allows administrators to manage access to the Identity Survey Hub in a role-based manner. It explains how to add users who assist in completing the asset inventory process and assign roles based on their responsibilities.</p><p>The Identity Survey Hub offers different roles for users depending on their intended use. Each user will have one of the following roles:</p><ul>
+</ol><h2 id="h_01K3G0R2AF5SAMTKR9SYT4JMKP">Users</h2><p>The Users section allows administrators to manage access to the Identity Survey Hub in a role-based manner. It explains how to add users who assist in completing the asset inventory process and assign roles based on their responsibilities.</p><p>The Identity Survey Hub offers different roles for users depending on their intended use. Each user will have one of the following roles:</p><ul>
 <li>Admin</li>
 <li>Asset Owner</li>
 <li>Collaborator</li>
@@ -1127,7 +396,7 @@
 <li>Select the user you want to edit. You can use the <strong>Search</strong> <strong>users</strong> box to find a specific user.</li>
 <li>Click the vertical ellipsis (<strong>⋮</strong>) to display the <strong>Delete</strong> option.</li>
 <li>Click <strong>Delete</strong>. A confirmation pop-up window appears. Click <strong>Delete</strong> to remove the selected user.</li>
-</ol></section><section class="docSection" id="notifications"><div class="stickySectionHeader"><h2>Notifications</h2></div><p>The Notifications section allows administrators to create and manage email templates and configure the sender email address across all processes. It consolidates all templates in a centralized location for streamlined access and efficient management.</p><p>The Notification section includes the following tabs:</p><h3 id="h_01KPQ9Z4XTH73ZKQXGN0Y36QRH">Email Templates</h3><p>The Email Templates tab allows administrators to create and manage email templates.</p><p>Perform the following steps to create an email template:</p><ol>
+</ol><h2 id="h_01K3G1AYJEYE4VB7VJ08NJY9H3">Notifications</h2><p>The Notifications section allows administrators to create and manage email templates and configure the sender email address across all processes. It consolidates all templates in a centralized location for streamlined access and efficient management.</p><p>The Notification section includes the following tabs:</p><h3 id="h_01KPQ9Z4XTH73ZKQXGN0Y36QRH">Email Templates</h3><p>The Email Templates tab allows administrators to create and manage email templates.</p><p>Perform the following steps to create an email template:</p><ol>
 <li>Navigate to the <strong>Notifications</strong> section in the left panel under the <strong>Settings</strong> screen.</li>
 <li>Click <strong>Create Email Template</strong> under the <strong>Email Templates</strong> tab. The <strong>Create Email Template</strong> screen appears.</li>
 <li>Enter the following details in the <strong>Create Email Template</strong> screen:<ul>
@@ -1286,7 +555,7 @@
 </li>
 <li>Click <strong>Set Primary</strong>. The <strong>Set Primary Email</strong> pop-up window appears. Click <strong>Continue</strong> to set the selected email address as the primary address for sending notifications.</li>
 <li>Click <strong>Delete.</strong> A confirmation pop-up window appears. Click <strong>Delete</strong> to remove the selected sender email address.</li>
-</ol></section><section class="docSection" id="file-collection"><div class="stickySectionHeader"><h2>File Collection</h2></div><p>The File Collection section allows administrators to configure audit file upload settings, global FTP configurations, IGA global settings, and file retention settings for applications in a centralized location for streamlined access and efficient management.</p><p>Perform the following steps to configure file collection settings:</p><ol>
+</ol><h2 id="h_01KF0CNDMV3E3ZEQ1STJHM3ZKH">File Collection</h2><p>The File Collection section allows administrators to configure audit file upload settings, global FTP configurations, IGA global settings, and file retention settings for applications in a centralized location for streamlined access and efficient management.</p><p>Perform the following steps to configure file collection settings:</p><ol>
 <li>Click the <strong>Settings</strong> icon at the top right corner of the page in the Identity Survey Hub portal.</li>
 <li>Navigate to the <strong>File Collection</strong> section in the left panel under the <strong>Settings</strong> screen.</li>
 </ol><p>The <strong>File Collection</strong> section includes the following tabs:</p><h3 id="h_01KF0CNDMVXFJGQK3YW8KRX2Z9">Configuration</h3><p>The Configuration tab allows administrators to configure audit file uploads for applications. These audit files can include images or videos of user data that serve as audit proof.</p><p><strong>Note</strong>: When the audit file configuration is updated in this tab, the same changes are reflected in the <a href="#h_01KMMRRWQ4EJNM6ZEV3W0CF6CM">Advanced Configuration</a> tab for the application.</p><p>The following table lists the columns displayed in the<strong> Configuration</strong> tab:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
@@ -1450,7 +719,7 @@
 </p><div class="note-callout">
 <div class="note-icon" id="custom-note-icon"><p>Note:</p></div>
 <div class="note-content"><p class="normal-text">This <strong>Setup Progress</strong> section is visible only once. After you complete all 7 steps, it will no longer be displayed under the <strong>Home</strong> tab. Once the setup is complete, logging in to the portal will take you directly to the <strong>Survey</strong> tab under <strong>Collection</strong>.</p></div>
-</div><figure class="wysiwyg-image wysiwyg-image-resized"><img alt="SetUp Progress.png" height="1336" src="https://support.aquera.com/hc/article_attachments/38212961094935" width="2016"/></figure></section><section class="docSection" id="essential-setup"><div class="stickySectionHeader"><h2>Essential Setup</h2></div><p>These are the foundational tasks or prerequisites needed to get your Identity Survey Hub platform up and running:</p><h3 id="h_01K4MAXP9R055DQ09A16J03526">Set Up Email Domain</h3><p>Configure your email domain to ensure that automated emails appear authentic and professional, coming from your own organization.</p><p>Click <strong>Get Started</strong> and refer to the <a href="#h_01KGAEFW4M3F8BTRK06TDWTTAZ">Sender Configuration</a> section to configure the email domain.</p><h3 id="h_01K4MBFNY7Q9827YKJYTHW4V3K">Configure Asset Categories</h3><p>Create a logical structure for organizing assets to enhance navigation and management.</p><p>Click <strong>Get Started</strong> and refer to the <a href="#h_01KG1VPTPQ5RGHVTNG1M0ESQ50">Asset Types</a> section to configure asset types.</p><h3 id="h_01K4MBPETRRZHEJXVA376K8613">Configure Questionnaires</h3><p>Design a consistent, automated form to capture high-quality asset information every time you add an asset.</p><p>Click <strong>Configure</strong> and refer to the <a href="#01K0E1VYXFCPVGYCKX1BWVTHBF">Create and Manage Questionnaires</a> section to create and manage questionnaires for the survey, staging, discovery, inventory, and onboarding phases.</p><h3 id="h_01K4MC077K0820ZKVMDQSHV67G">Invite Users</h3><p>Facilitate team collaboration by inviting users and defining their access rights within asset workflows.</p><p>Click <strong>Add Users</strong> and refer to the <a href="#h_01K0DZTSYJV4Y87M3KJ2X98N1G">Add and Manage Users </a>section to add the relevant users and assign each of them a role to assist with completing the asset inventory process.</p></section><section class="docSection" id="ready-to-launch"><div class="stickySectionHeader"><h2>Ready to Launch</h2></div><p>Create and deploy your first survey to start collecting valuable insights about your asset.</p><h3 id="h_01K4MCF91XBD8FJZANPM2BMMXX">Create Your First Survey</h3><p>Follow the complete workflow to see how your setup works together to collect meaningful data about assets.</p><p>Click <strong>Create Survey</strong> and refer to the <a href="#h_01K06JKMTRQBK98D5755XSN4YT">Admin Workflow: Creating and Managing Asset Surveys</a> section to create and manage surveys aimed to gather preliminary information about IT assets.</p></section><section class="docSection" id="optional-enhancement"><div class="stickySectionHeader"><h2>Optional Enhancement</h2></div><p>Complete the following settings if you would like to further customize your platform beyond the basics:</p><h3 id="h_01K4MCVSQKMJ0PJKKFZX0SG1AS">Add More Organization Details</h3><p>Provide comprehensive information about your organization to enrich workflows and reporting.</p><p>Click <strong>Complete Profile</strong> and refer to the <a href="#h_01K71PV55Z21QZ98NCPD73WKKP">Basic Details</a> section under <a href="#h_01K49FK5KP6SEE59X7V5FV066M">Organization</a> to add more organization details.</p><h3 id="h_01K4MD3PQ9834EWMZ8NVTNJEXG">Configure Email Templates</h3><p>Streamline communication with branded, automated templates for emails (for example, invites and notifications).</p><p>Click <strong>Configure</strong> and refer to the <a href="#h_01K0E9224204C918MRE4R7430W">Create and Manage Email Templates</a><a href="#h_01K0DZTSYJV4Y87M3KJ2X98N1G"> </a>section to customize email templates for communication across all processes.</p></section><section class="docSection" id="dashboard"><div class="stickySectionHeader"><h2>Dashboard</h2></div><p>This section explains each part of your dashboard, its purpose, and how to interpret the data for effective asset management.</p><h3 id="h_01K9W237A480S7GESH93AR3VMY">Summary Metrics</h3><p>This section provides a clear visual overview of all assets currently in the pipeline. It shows the total number of assets being managed and how they are distributed across different phases: <strong>Staging</strong>, <strong>Discovery</strong>, and <strong>Inventory</strong>. This helps you quickly assess overall activity, track progress, and identify areas that may need more attention or resources.<br/><img alt="Dashboard.png" height="518" src="https://support.aquera.com/hc/article_attachments/38073394431255" width="2788"/></p><h3 id="h_01K9W2FAD578J2HZZ2B4BWFDC6">Phase Breakdown Charts</h3><p>This phase breakdown chart visually displays the number of assets in each phase: Staging, Discovery, and Inventory. Each chart uses different colors to represent asset statuses, giving a quick snapshot of progress within each phase.<br/><img alt="Stage Breakdown.png" height="430" src="https://support.aquera.com/hc/article_attachments/38073394432151" width="2536"/></p><h3 id="h_01K9W2X676WSSX33ZXMN72D5PS">Asset Ownership Overview</h3><p>This section displays the distribution of assets among asset owners and indicates the current stage of each asset.<br/><img alt="Asset Ownership Overview.png" height="596" src="https://support.aquera.com/hc/article_attachments/38073369957143" width="2520"/></p><h3 id="h_01K9W322D256TFHCFZ4QV7YQ35">Asset Types Distribution</h3><p>The asset types distribution bar chart shows the number of assets by type, such as Application, Cloud, Cloud Storage, Data Storage, SaaS Application, and others. It helps you understand which types of assets are most common and how they are distributed across different phases.<br/><img alt="Assets by Type.png" height="852" src="https://support.aquera.com/hc/article_attachments/38073369958423" width="2732"/></p><h3 id="h_01K9W37MVHDVH8EEBNENJZ4TMR">Questionnaire Progress</h3><p>The questionnaire management bar chart tracks progress by questionnaire status. It shows how much of each questionnaire has been completed, not started, and pending, and helps you identify which ones need follow-up or additional effort.<br/><img alt="Questionnaire Progress.png" class="wysiwyg-image-resized" height="600" src="https://support.aquera.com/hc/article_attachments/38073369958935" width="1260"/></p><h3 id="h_01K9W3C4HJF5MAGCPX11G9GT47">Questionnaires by Asset Type</h3><p>The questionnaires by asset type pie chart shows the percentage of active questionnaires distributed by asset type. This helps you see which types of assets require the most attention for questionnaire completion, aiding in resource planning for compliance and data collection.<br/><img alt="Questionnaires by Asset Type.png" height="738" src="https://support.aquera.com/hc/article_attachments/38073369959959" width="1286"/></p><h3 id="h_01K9W4H765J291FNE88JMZXSFG">Question Completion Quality</h3><p>This section displays the completeness of the questionnaires, indicating the percentage of mandatory fields and optional fields that have been filled out.<br/> </p><p><img alt="Questionnaire Completion Summary.png" height="672" src="https://support.aquera.com/hc/article_attachments/38073394435735" width="2646"/>On the right, a list shows the completion percentage for each questionnaire section.</p><p>This breakdown helps identify which sections need more attention, allowing teams to focus on improving overall completion rates.</p><h1 id="h_01K4PGX7W3FZ1G7VZYGZK1F32M">Collection</h1><p>The <strong>Collection</strong> tab serves as your operational hub, where you initiate and manage surveys, staging, and discovery workflows.</p></section><section class="docSection" id="lifecycle-of-the-asset"><div class="stickySectionHeader"><h2>Lifecycle of the Asset</h2></div><p>The Asset Lifecycle consists of several key stages that represent the journey of an IT asset from identification to full cataloging:</p><p><img alt="LifeCycle of the Asset.png" src="https://support.aquera.com/hc/article_attachments/36090423611927"/></p><ol>
+</div><figure class="wysiwyg-image wysiwyg-image-resized"><img alt="SetUp Progress.png" height="1336" src="https://support.aquera.com/hc/article_attachments/38212961094935" width="2016"/></figure><h2 id="h_01K4MAQWKPTW2ZH6MZ1HM72DQJ">Essential Setup</h2><p>These are the foundational tasks or prerequisites needed to get your Identity Survey Hub platform up and running:</p><h3 id="h_01K4MAXP9R055DQ09A16J03526">Set Up Email Domain</h3><p>Configure your email domain to ensure that automated emails appear authentic and professional, coming from your own organization.</p><p>Click <strong>Get Started</strong> and refer to the <a href="#h_01KGAEFW4M3F8BTRK06TDWTTAZ">Sender Configuration</a> section to configure the email domain.</p><h3 id="h_01K4MBFNY7Q9827YKJYTHW4V3K">Configure Asset Categories</h3><p>Create a logical structure for organizing assets to enhance navigation and management.</p><p>Click <strong>Get Started</strong> and refer to the <a href="#h_01KG1VPTPQ5RGHVTNG1M0ESQ50">Asset Types</a> section to configure asset types.</p><h3 id="h_01K4MBPETRRZHEJXVA376K8613">Configure Questionnaires</h3><p>Design a consistent, automated form to capture high-quality asset information every time you add an asset.</p><p>Click <strong>Configure</strong> and refer to the <a href="#01K0E1VYXFCPVGYCKX1BWVTHBF">Create and Manage Questionnaires</a> section to create and manage questionnaires for the survey, staging, discovery, inventory, and onboarding phases.</p><h3 id="h_01K4MC077K0820ZKVMDQSHV67G">Invite Users</h3><p>Facilitate team collaboration by inviting users and defining their access rights within asset workflows.</p><p>Click <strong>Add Users</strong> and refer to the <a href="#h_01K0DZTSYJV4Y87M3KJ2X98N1G">Add and Manage Users </a>section to add the relevant users and assign each of them a role to assist with completing the asset inventory process.</p><h2 id="h_01K4MCB02T2YK0H9PWZQFMA9TQ">Ready to Launch</h2><p>Create and deploy your first survey to start collecting valuable insights about your asset.</p><h3 id="h_01K4MCF91XBD8FJZANPM2BMMXX">Create Your First Survey</h3><p>Follow the complete workflow to see how your setup works together to collect meaningful data about assets.</p><p>Click <strong>Create Survey</strong> and refer to the <a href="#h_01K06JKMTRQBK98D5755XSN4YT">Admin Workflow: Creating and Managing Asset Surveys</a> section to create and manage surveys aimed to gather preliminary information about IT assets.</p><h2 id="h_01K4MCSRGE60VZN1EJAYJG0VHP">Optional Enhancement</h2><p>Complete the following settings if you would like to further customize your platform beyond the basics:</p><h3 id="h_01K4MCVSQKMJ0PJKKFZX0SG1AS">Add More Organization Details</h3><p>Provide comprehensive information about your organization to enrich workflows and reporting.</p><p>Click <strong>Complete Profile</strong> and refer to the <a href="#h_01K71PV55Z21QZ98NCPD73WKKP">Basic Details</a> section under <a href="#h_01K49FK5KP6SEE59X7V5FV066M">Organization</a> to add more organization details.</p><h3 id="h_01K4MD3PQ9834EWMZ8NVTNJEXG">Configure Email Templates</h3><p>Streamline communication with branded, automated templates for emails (for example, invites and notifications).</p><p>Click <strong>Configure</strong> and refer to the <a href="#h_01K0E9224204C918MRE4R7430W">Create and Manage Email Templates</a><a href="#h_01K0DZTSYJV4Y87M3KJ2X98N1G"> </a>section to customize email templates for communication across all processes.</p><h2 id="h_01K9W1XTMZNZZMCJF7BFX1KMVF">Dashboard</h2><p>This section explains each part of your dashboard, its purpose, and how to interpret the data for effective asset management.</p><h3 id="h_01K9W237A480S7GESH93AR3VMY">Summary Metrics</h3><p>This section provides a clear visual overview of all assets currently in the pipeline. It shows the total number of assets being managed and how they are distributed across different phases: <strong>Staging</strong>, <strong>Discovery</strong>, and <strong>Inventory</strong>. This helps you quickly assess overall activity, track progress, and identify areas that may need more attention or resources.<br/><img alt="Dashboard.png" height="518" src="https://support.aquera.com/hc/article_attachments/38073394431255" width="2788"/></p><h3 id="h_01K9W2FAD578J2HZZ2B4BWFDC6">Phase Breakdown Charts</h3><p>This phase breakdown chart visually displays the number of assets in each phase: Staging, Discovery, and Inventory. Each chart uses different colors to represent asset statuses, giving a quick snapshot of progress within each phase.<br/><img alt="Stage Breakdown.png" height="430" src="https://support.aquera.com/hc/article_attachments/38073394432151" width="2536"/></p><h3 id="h_01K9W2X676WSSX33ZXMN72D5PS">Asset Ownership Overview</h3><p>This section displays the distribution of assets among asset owners and indicates the current stage of each asset.<br/><img alt="Asset Ownership Overview.png" height="596" src="https://support.aquera.com/hc/article_attachments/38073369957143" width="2520"/></p><h3 id="h_01K9W322D256TFHCFZ4QV7YQ35">Asset Types Distribution</h3><p>The asset types distribution bar chart shows the number of assets by type, such as Application, Cloud, Cloud Storage, Data Storage, SaaS Application, and others. It helps you understand which types of assets are most common and how they are distributed across different phases.<br/><img alt="Assets by Type.png" height="852" src="https://support.aquera.com/hc/article_attachments/38073369958423" width="2732"/></p><h3 id="h_01K9W37MVHDVH8EEBNENJZ4TMR">Questionnaire Progress</h3><p>The questionnaire management bar chart tracks progress by questionnaire status. It shows how much of each questionnaire has been completed, not started, and pending, and helps you identify which ones need follow-up or additional effort.<br/><img alt="Questionnaire Progress.png" class="wysiwyg-image-resized" height="600" src="https://support.aquera.com/hc/article_attachments/38073369958935" width="1260"/></p><h3 id="h_01K9W3C4HJF5MAGCPX11G9GT47">Questionnaires by Asset Type</h3><p>The questionnaires by asset type pie chart shows the percentage of active questionnaires distributed by asset type. This helps you see which types of assets require the most attention for questionnaire completion, aiding in resource planning for compliance and data collection.<br/><img alt="Questionnaires by Asset Type.png" height="738" src="https://support.aquera.com/hc/article_attachments/38073369959959" width="1286"/></p><h3 id="h_01K9W4H765J291FNE88JMZXSFG">Question Completion Quality</h3><p>This section displays the completeness of the questionnaires, indicating the percentage of mandatory fields and optional fields that have been filled out.<br/> </p><p><img alt="Questionnaire Completion Summary.png" height="672" src="https://support.aquera.com/hc/article_attachments/38073394435735" width="2646"/>On the right, a list shows the completion percentage for each questionnaire section.</p><p>This breakdown helps identify which sections need more attention, allowing teams to focus on improving overall completion rates.</p><h1 id="h_01K4PGX7W3FZ1G7VZYGZK1F32M">Collection</h1><p>The <strong>Collection</strong> tab serves as your operational hub, where you initiate and manage surveys, staging, and discovery workflows.</p><h2 id="h_01K3G1KBF09FFAP9R7H3HHEN95">Lifecycle of the Asset</h2><p>The Asset Lifecycle consists of several key stages that represent the journey of an IT asset from identification to full cataloging:</p><p><img alt="LifeCycle of the Asset.png" src="https://support.aquera.com/hc/article_attachments/36090423611927"/></p><ol>
 <li>
 <strong>Survey</strong>: The initial phase involves administrators sending simple questionnaires to asset owners or relevant stakeholders to collect basic information about IT assets.</li>
 <li>
@@ -1459,7 +728,7 @@
 <strong>Discovery</strong>: This phase involves a collection of detailed data about IT assets through extended questionnaires. The gathered information is then validated and enhanced as necessary to support the final onboarding process.</li>
 <li>
 <strong>Inventory</strong>: The final stage involves transferring fully validated and enriched asset data into the official asset catalog and onboarding it to the IGA/SSO platform. This ensures accurate tracking, compliance, and effective management of IT assets throughout their lifecycle.</li>
-</ol></section><section class="docSection" id="survey"><div class="stickySectionHeader"><h2>Survey</h2></div><p>The initial phase involves collecting data through surveys distributed to asset owners or relevant stakeholders. These surveys aim to gather preliminary information about IT assets.</p><p>This section describes the workflows for both Admins and Survey Recipients. Admins are responsible for creating, configuring, and distributing asset surveys, as well as managing responses and suggestions. Survey Recipients complete the surveys by providing basic asset information for validation and further enrichment in later phases.</p><p><img alt="Survey.png" src="https://support.aquera.com/hc/article_attachments/36090425944087"/></p><h3 id="h_01K30RM346NTJ4P6Q529Z92KWS">Roles &amp; Their Responsibilities</h3><p>The following table lists the key actors involved in the survey phase and their respective responsibilities:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
+</ol><h2 id="h_01JZSQXDCYBVJ4NT0B33RT3DSC">Survey</h2><p>The initial phase involves collecting data through surveys distributed to asset owners or relevant stakeholders. These surveys aim to gather preliminary information about IT assets.</p><p>This section describes the workflows for both Admins and Survey Recipients. Admins are responsible for creating, configuring, and distributing asset surveys, as well as managing responses and suggestions. Survey Recipients complete the surveys by providing basic asset information for validation and further enrichment in later phases.</p><p><img alt="Survey.png" src="https://support.aquera.com/hc/article_attachments/36090425944087"/></p><h3 id="h_01K30RM346NTJ4P6Q529Z92KWS">Roles &amp; Their Responsibilities</h3><p>The following table lists the key actors involved in the survey phase and their respective responsibilities:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
 <tr>
 <td><strong>Role</strong></td>
 <td><strong>Responsibilities</strong></td>
@@ -1716,7 +985,7 @@
 <li>Click <strong>Upload CSV</strong> to add assets to the asset list once the file is added.</li>
 </ol>
 </li>
-</ol></section><section class="docSection" id="staging"><div class="stickySectionHeader"><h2>Staging</h2></div><p>The <strong>Staging</strong> is the intermediate phase where IT assets are cataloged using surveys and structured questionnaires to build a reliable inventory foundation. During this stage, assets are primarily populated from survey responses, although a few can be added manually or imported directly from IGA applications. The collected information is then validated and enriched to create a comprehensive asset inventory that supports subsequent discovery and onboarding activities.</p><p>Assets are grouped into collection groups based on asset types. Administrators create and configure these groups, while Asset Owners and Collaborators supply the required information. This role-based coordination ensures a reliable foundation for the organization's IT asset catalog, supporting identity and access management and setting the stage for further discovery and onboarding activities.</p><p><img alt="Staging.png" src="https://support.aquera.com/hc/article_attachments/36090423614359"/></p><h3 id="h_01K35XS4C1Y1ZB9CDRTBJY465K">Collection</h3><p>A <strong>Collection</strong> groups related assets together, making it easier for administrators to manage the inventory by handling one set at a time. This approach enables them to validate information, send reminders, or escalate issues without being overwhelmed by the entire catalog. Because each Collection is clearly defined, administrators, asset owners, and collaborators know exactly which assets require attention and understand their status in the process. Once every asset in a collection has been reviewed and approved, those assets can move forward to the next phase.</p><h3 id="01K3JV0F9NQJ0YG2R48XWB5NZ0">Roles &amp; Their Responsibilities</h3><p>The following table lists the key actors involved in the staging phase and their respective responsibilities:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
+</ol><h2 id="h_01K30EGC6WYY9T9QM5E2RTYD0Y">Staging</h2><p>The <strong>Staging</strong> is the intermediate phase where IT assets are cataloged using surveys and structured questionnaires to build a reliable inventory foundation. During this stage, assets are primarily populated from survey responses, although a few can be added manually or imported directly from IGA applications. The collected information is then validated and enriched to create a comprehensive asset inventory that supports subsequent discovery and onboarding activities.</p><p>Assets are grouped into collection groups based on asset types. Administrators create and configure these groups, while Asset Owners and Collaborators supply the required information. This role-based coordination ensures a reliable foundation for the organization's IT asset catalog, supporting identity and access management and setting the stage for further discovery and onboarding activities.</p><p><img alt="Staging.png" src="https://support.aquera.com/hc/article_attachments/36090423614359"/></p><h3 id="h_01K35XS4C1Y1ZB9CDRTBJY465K">Collection</h3><p>A <strong>Collection</strong> groups related assets together, making it easier for administrators to manage the inventory by handling one set at a time. This approach enables them to validate information, send reminders, or escalate issues without being overwhelmed by the entire catalog. Because each Collection is clearly defined, administrators, asset owners, and collaborators know exactly which assets require attention and understand their status in the process. Once every asset in a collection has been reviewed and approved, those assets can move forward to the next phase.</p><h3 id="01K3JV0F9NQJ0YG2R48XWB5NZ0">Roles &amp; Their Responsibilities</h3><p>The following table lists the key actors involved in the staging phase and their respective responsibilities:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
 <tr>
 <td><strong>Role</strong></td>
 <td><strong>Responsibilities</strong></td>
@@ -2146,7 +1415,7 @@
 <li>Click <strong>Submit </strong>once all questions are answered and reviewed. An email notification will then be sent to the corresponding asset owner.</li>
 <li>Repeat steps 1 through 7 for each questionnaire if multiple questionnaires are assigned to the asset.</li>
 <li>When all questionnaires are answered for the asset, the status of the asset changes from <strong>Pending</strong> to <strong>Review</strong>. Refer to the <a href="#01K3JVYS1TA83JHWFAY35XZ155">Asset Lifecycle Stages, Description, and Actions</a> section for more details on the asset status.</li>
-</ol></section><section class="docSection" id="discovery"><div class="stickySectionHeader"><h2>Discovery</h2></div><p>This phase involves the comprehensive collection of detailed IT asset data through extended questionnaires. The information gathered is then validated and enriched with the technical, security, operational, and access-model details needed to support the final onboarding process. This phase transforms the validated but high-level asset profile (from Staging) into a complete and authoritative system definition suitable for governance, compliance, and provisioning operations.</p><p>Assets are organized into collection groups based on asset type. Administrators create and configure these groups, while Asset Owners and Collaborators provide the necessary details. Once all information has been verified for accuracy, the corresponding assets can advance to the final inventory phase.</p><p><img alt="Discovery.png" src="https://support.aquera.com/hc/article_attachments/36090423615255"/></p><h3 id="01K44GVMF6NSH0RG3BE42ZK7PZ">Roles &amp; Their Responsibilities</h3><p>The following table lists the key actors involved in the discovery phase and their respective responsibilities:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
+</ol><h2 id="h_01K3JBZC517KBD8HPW5RVHDX0K">Discovery</h2><p>This phase involves the comprehensive collection of detailed IT asset data through extended questionnaires. The information gathered is then validated and enriched with the technical, security, operational, and access-model details needed to support the final onboarding process. This phase transforms the validated but high-level asset profile (from Staging) into a complete and authoritative system definition suitable for governance, compliance, and provisioning operations.</p><p>Assets are organized into collection groups based on asset type. Administrators create and configure these groups, while Asset Owners and Collaborators provide the necessary details. Once all information has been verified for accuracy, the corresponding assets can advance to the final inventory phase.</p><p><img alt="Discovery.png" src="https://support.aquera.com/hc/article_attachments/36090423615255"/></p><h3 id="01K44GVMF6NSH0RG3BE42ZK7PZ">Roles &amp; Their Responsibilities</h3><p>The following table lists the key actors involved in the discovery phase and their respective responsibilities:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
 <tr>
 <td><strong>Role</strong></td>
 <td><strong>Responsibilities</strong></td>
@@ -2509,13 +1778,13 @@
 <li>Click <strong>Submit </strong>once all questions are answered and reviewed. An email notification will then be sent to the corresponding asset owner.</li>
 <li>Repeat steps 1 through 7 for each questionnaire if multiple questionnaires are assigned to the asset.</li>
 <li>When all questionnaires are answered for the asset, the asset's status changes from <strong>Pending</strong> to <strong>Review</strong>. Refer to the <a href="#01K44DE1BKDWY5HHN147M6KQ4W">Asset Lifecycle Stages, Description, and Actions</a> section for more details on the asset's status.</li>
-</ol><h1 id="h_01K44Q6FDNEM1BTZCH6MG9XF0J">Inventory</h1><p>The final stage involves transferring fully validated and enriched asset data into the official asset catalog and onboarding it to the IGA/SSO platform. This ensures accurate tracking, compliance, and effective lifecycle management of IT assets. Maintaining an up-to-date IT inventory is essential as it boosts operational efficiency, enhances cybersecurity, supports regulatory compliance, and drives informed decisions on budgeting, maintenance, procurement, and asset retirement. Additionally, it helps prevent waste from duplicate purchases, over-licensing, and underutilization, while maximizing asset utilization and overall productivity.</p><p>To access the Inventory tab, log in to the Identity Survey Hub portal and navigate to the <strong>Inventory</strong> tab located on the main screen.</p><div class="note-callout">
+</ol><h1 id="h_01K44Q6FDNEM1BTZCH6MG9XF0J">Inventory</h1><p>The final stage involves transferring fully validated and enriched asset data into the official asset catalog and onboarding it to the IGA/SSO platform. This ensures accurate tracking, compliance, and effective lifecycle management of IT assets. Maintaining an up-to-date IT inventory is essential as it boosts operational efficiency, enhances cybersecurity, supports regulatory compliance, and drives informed decisions on budgeting, maintenance, procurement, and asset retirement. Additionally, it helps prevent waste from duplicate purchases, over-licensing, and underutilization, while maximizing asset utilization and overall productivity.</p><p>To access the Inventory tab, log in to the Identity Survey Hub portal and navigate to the <strong>Inventory</strong> tab located on the main screen.</p><!--Note--><div class="note-callout">
 <div class="note-icon" id="custom-note-icon">
 <p><em class="fas-duotone fas-notes"></em></p>
 <p><strong>Note</strong>:</p>
 </div>
 <div class="note-content"><p class="normal-text">The <strong>Inventory</strong> tab is accessible only to <strong>Admins</strong> and offers a comprehensive overview of assets environment.</p></div>
-</div></section><section class="docSection" id="inventory-summary-panel"><div class="stickySectionHeader"><h2>Inventory Summary Panel</h2></div><p>The summary panel displays the following key metrics:<br/><img alt="UpdatedInventory Summary.png" height="420" src="https://support.aquera.com/hc/article_attachments/38045087292823" width="2806"/></p><ul>
+</div><h2 id="h_01KG42VDAHHMGG1Q92SHABA4EH">Inventory Summary Panel</h2><p>The summary panel displays the following key metrics:<br/><img alt="UpdatedInventory Summary.png" height="420" src="https://support.aquera.com/hc/article_attachments/38045087292823" width="2806"/></p><ul>
 <li>
 <strong>Total Assets</strong>: Displays the count of validated assets in the inventory, sorted by asset types, including <strong>Application</strong>, <strong>Workload</strong>, <strong>Server</strong>, <strong>Database</strong>, <strong>Virtual Group</strong>, <strong>Cloud</strong> <strong>Resource</strong>, etc.</li>
 <li>
@@ -2526,10 +1795,10 @@
 <strong>IDP Setup Complete</strong>: Displays the number of assets with completed IDP configurations.</li>
 <li>
 <strong>Fully Configured SSO</strong>: Displays the number of assets with fully configured SSO.</li>
-</ul></section><section class="docSection" id="search-and-filter-assets"><div class="stickySectionHeader"><h2>Search and Filter Assets</h2></div><ul>
+</ul><h2 id="h_01KG44KQE1JX1GADN3T45WK5CH">Search and Filter Assets</h2><ul>
 <li>Use the<strong> Search Asset </strong>search bar located just below the summary panel to locate a specific asset.</li>
 <li>Enable <strong>Show Unscheduled Assets Only</strong> to view assets that are not yet scheduled for the file collection.</li>
-</ul></section><section class="docSection" id="asset-list-table"><div class="stickySectionHeader"><h2>Asset List Table</h2></div><p>Below the search bar, a table displays details for each asset. Column headers include:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table class="wysiwyg-table-resized">
+</ul><h2 id="h_01KG44KY7T9QEDMR6QGGV7G1XH">Asset List Table</h2><p>Below the search bar, a table displays details for each asset. Column headers include:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table class="wysiwyg-table-resized">
 <colgroup>
 <col/>
 <col/>
@@ -2686,13 +1955,13 @@
 <li>Click <strong>Add Comment</strong> to post your comment. All comments appear below the <strong>Comments</strong> box with timestamps.</li>
 </ul>
 </li>
-</ol><h3 id="h_01KGANSA6B5MA32CAQEQAVFBT0">Create SP Config Task</h3><p>For assets with <strong>IDP Configured</strong> status, the <strong>Create SP Config Task</strong> option is available. After clicking this option, you are navigated to the <strong>SSO Onboarding Wizard</strong> screen to complete the SSO onboarding process. Refer to the <a href="#h_01KH15FKV7CG1FERT3V5DPNSFD">Admin Creates a Review Task for the Asset Owner</a> section for detailed instructions on completing SSO onboarding.</p></section><section class="docSection" id="scheduling-assets-for-file-collection"><div class="stickySectionHeader"><h2>Scheduling Assets for File Collection</h2></div><p>This section describes how to schedule assets in Inventory for file collection.</p><p>Perform the following steps to create a schedule for the assets in Inventory:</p><ol>
+</ol><h3 id="h_01KGANSA6B5MA32CAQEQAVFBT0">Create SP Config Task</h3><p>For assets with <strong>IDP Configured</strong> status, the <strong>Create SP Config Task</strong> option is available. After clicking this option, you are navigated to the <strong>SSO Onboarding Wizard</strong> screen to complete the SSO onboarding process. Refer to the <a href="#h_01KH15FKV7CG1FERT3V5DPNSFD">Admin Creates a Review Task for the Asset Owner</a> section for detailed instructions on completing SSO onboarding.</p><h2 id="h_01KGARYNX25T5Z0K2K4VDWWQB0">Scheduling Assets for File Collection</h2><p>This section describes how to schedule assets in Inventory for file collection.</p><p>Perform the following steps to create a schedule for the assets in Inventory:</p><ol>
 <li>Select the checkboxes to the left of the <strong>Assets</strong> column in the asset list table. Click the checkbox in the <strong>Assets</strong> column header to select all assets.<br/><img alt="Inventory Scheduling.png" class="wysiwyg-image-resized" height="1520" src="https://support.aquera.com/hc/article_attachments/38074661452695" width="2756"/>
 </li>
 <li>Once assets are selected, the <strong>Schedule</strong> option appears above the asset list table.</li>
 <li>Click <strong>Schedule</strong>. The <strong>Create Schedule</strong> screen appears, displaying all selected assets. </li>
 <li>Refer to the <a href="#h_01KEV84804NY54ZJQME214AR2H">Create Schedule</a> section for detailed instructions on scheduling file collection for assets.</li>
-</ol></section><section class="docSection" id="manage-correlation-rules"><div class="stickySectionHeader"><h2>Manage Correlation Rules</h2></div><p>The <strong>Manage Correlation Rules</strong> option allows you to configure correlation rules for assets. For example, when an asset in the inventory is onboarded to the IGA application, the correlation key is essential to identify the same users between the inventory application and the IGA application, ensuring a smoother IGA process.</p><h3 id="h_01KGARMTBF29R045K9ZAT2Y6AT">Add a New Correlation Rule</h3><p>Perform the following steps to add a new correlation rule:</p><ol>
+</ol><h2 id="h_01KG454S3FG2X2ZFP8WXE330FT">Manage Correlation Rules</h2><p>The <strong>Manage Correlation Rules</strong> option allows you to configure correlation rules for assets. For example, when an asset in the inventory is onboarded to the IGA application, the correlation key is essential to identify the same users between the inventory application and the IGA application, ensuring a smoother IGA process.</p><h3 id="h_01KGARMTBF29R045K9ZAT2Y6AT">Add a New Correlation Rule</h3><p>Perform the following steps to add a new correlation rule:</p><ol>
 <li>Click <strong>Manage Correlation Rules</strong>. The <strong>Manage Correlation Rules</strong> screen appears.</li>
 <li>On the <strong>Manage Correlation Rules</strong> screen, click <strong>Add New Correlation</strong> <strong>Rule</strong>. The <strong>Add New Correlation Rule</strong> screen appears.</li>
 <li>On the <strong>Add New Correlation Rule</strong> screen, enter the following details:<ul>
@@ -2708,7 +1977,7 @@
 <li>To update an existing correlation rule, click the <strong>Edit</strong> icon and make the necessary changes.</li>
 <li>To delete a correlation rule, click the <strong>Delete</strong> icon corresponding to the rule.</li>
 <li>Use the <strong>Correlation Rule Name</strong> search bar to quickly find a specific rule.</li>
-</ol></section><section class="docSection" id="download"><div class="stickySectionHeader"><h2>Download</h2></div><p>Click the <strong>download</strong> icon on the right side of the search bar, enabling users to export the asset list for offline use or reporting.</p></section><section class="docSection" id="create-task"><div class="stickySectionHeader"><h2>Create Task</h2></div><p>Use the <strong>Create Task</strong> button to create a task for yourself as an Admin or assign it to the appropriate asset owner. Refer to the <a href="#h_01KGAN38PNX6G5RZZNPV5MPY49">Create Task</a> section for detailed instructions on creating a task.</p><h1 id="h_01KETZHVJX6JFS6TNS76E32042">File Collection</h1><p>Identity Survey Hub enables the system to collect and display identity data from a disconnected application using a file-based approach. Disconnected applications are those that do not provide APIs for direct integration with other applications, databases, or services. In such scenarios, files act as the primary source of identity data.</p><p>This section explains how administrators manage files using the File Collection module. It describes the procedures for scheduling file uploads, configuring reminder and escalation emails, setting up audit file uploads, and configuring SFTP connections. You can also configure the IGA global settings to determine whether a correlation check is performed against an IGA file during file uploads. This approach helps keep data up to date and supports the overall integrity of the application.</p><p>In the file collection workflow, administrators must add file-based applications, after which scheduled groups are created. The added applications can then be selected and assigned to the appropriate scheduled group for file upload processing.</p></section><section class="docSection" id="accessing-file-collection"><div class="stickySectionHeader"><h2>Accessing File Collection</h2></div><p>Log in to the Identity Survey Hub portal and navigate to the <strong>File Collection</strong> tab located on the main screen.</p><p><strong>Note</strong>: The <strong>File Collection</strong> tab is not visible by default. It is available only to users who have opted in. If you can't see the tab, you can contact the Aquera Support team to enable access.</p></section><section class="docSection" id="add-application"><div class="stickySectionHeader"><h2>Add Application</h2></div><p>Applications in the Inventory with an attached resource file are automatically added to the File Collection. Perform the following steps to add more applications manually:</p><p><strong>Note</strong>: The fields marked with a red asterisk <span>(</span><span>*</span><span>)</span> are mandatory.</p><ol>
+</ol><h2 id="h_01KGASYW46PS7SNZDP1SASGP5K">Download</h2><p>Click the <strong>download</strong> icon on the right side of the search bar, enabling users to export the asset list for offline use or reporting.</p><h2 id="h_01KG454YSH901Q1XJPN02M2YBW">Create Task</h2><p>Use the <strong>Create Task</strong> button to create a task for yourself as an Admin or assign it to the appropriate asset owner. Refer to the <a href="#h_01KGAN38PNX6G5RZZNPV5MPY49">Create Task</a> section for detailed instructions on creating a task.</p><h1 id="h_01KETZHVJX6JFS6TNS76E32042">File Collection</h1><p>Identity Survey Hub enables the system to collect and display identity data from a disconnected application using a file-based approach. Disconnected applications are those that do not provide APIs for direct integration with other applications, databases, or services. In such scenarios, files act as the primary source of identity data.</p><p>This section explains how administrators manage files using the File Collection module. It describes the procedures for scheduling file uploads, configuring reminder and escalation emails, setting up audit file uploads, and configuring SFTP connections. You can also configure the IGA global settings to determine whether a correlation check is performed against an IGA file during file uploads. This approach helps keep data up to date and supports the overall integrity of the application.</p><p>In the file collection workflow, administrators must add file-based applications, after which scheduled groups are created. The added applications can then be selected and assigned to the appropriate scheduled group for file upload processing.</p><h2 id="h_01KE6QZQ512JF927ZT99M3DRRX">Accessing File Collection</h2><p>Log in to the Identity Survey Hub portal and navigate to the <strong>File Collection</strong> tab located on the main screen.</p><p><strong>Note</strong>: The <strong>File Collection</strong> tab is not visible by default. It is available only to users who have opted in. If you can't see the tab, you can contact the Aquera Support team to enable access.</p><h2 id="h_01KK99V74GZS0GMJ4GRBAGR0P3">Add Application</h2><p>Applications in the Inventory with an attached resource file are automatically added to the File Collection. Perform the following steps to add more applications manually:</p><p><strong>Note</strong>: The fields marked with a red asterisk <span>(</span><span>*</span><span>)</span> are mandatory.</p><ol>
 <li>Click <strong>Add Application</strong>. The <strong>Add New Application</strong> screen appears.<br/><img alt="Add Application.png" height="638" src="https://support.aquera.com/hc/article_attachments/39873759458839" width="3636"/>
 </li>
 <li>Enter the following details in the <strong>Add New Application</strong> screen:<ul>
@@ -2726,7 +1995,7 @@
 <p>Click <strong>Add Application</strong>. The application is added to the list of applications located under the dashboards. Once added, you must set up the application for file collection. Refer to the <a href="#h_01KKE5DH9JREJHZDHD2ZC1Z8BF">Configure Application for File Upload</a> for more information.</p>
 <p><strong>Note</strong>: Any application you add manually to the File Collection is automatically added to the Inventory.</p>
 </li>
-</ol></section><section class="docSection" id="configure-application-for-file-upload"><div class="stickySectionHeader"><h2>Configure Application for File Upload</h2></div><p class="wysiwyg-text-align-left">Perform the following steps to configure the application for the file upload:</p><ol>
+</ol><h2 id="h_01KKE5DH9JREJHZDHD2ZC1Z8BF">Configure Application for File Upload</h2><p class="wysiwyg-text-align-left">Perform the following steps to configure the application for the file upload:</p><ol>
 <li>Click the application name. The application configuration screen will appear.</li>
 <li>Enter the values for the following fields under the <strong>Configuration</strong> tab:<ul>
 <li value="3">
@@ -2915,7 +2184,7 @@
 </ol>
 </li>
 <li>Click <strong>Save</strong> <strong>Changes</strong> to save the configuration.</li>
-</ol><h3 id="h_01KPMVPWGTR41GG4NTCRHVPWZ1">Data</h3><p>The Data tab displays the data from the resource files uploaded in the application. If all four resource files are uploaded, for example, <strong>Users</strong>, <strong>Groups</strong>, <strong>Roles</strong>, and <strong>Entitlements</strong>, you can view all four sections under this tab, each showing its corresponding data.</p><p>Click on any record to open a panel that shows detailed user information.</p><h3 id="h_01K9PFZ1JMG8C52HP8AH98KJ0S">Schema</h3><p>The Schema tab contains the attributes of all supported resource types. Each resource type is displayed in a separate subsection. For example, if <strong>User</strong> and <strong>Employee</strong> resource types are present, each will appear in a different subsection. </p><p>The Schema tab also provides key information about each attribute, such as the attribute name, data type, whether it is required or optional, and its mutability.</p><p>Once you have reviewed all the data, return to the main File Collection configuration page by clicking the left arrow located next to the application name at the top of the screen. This can be done at any stage, regardless of which tab you are currently viewing.</p><p>After the application setup for file collection is complete, you can start creating groups for the file collection schedule. Refer to the <a href="#h_01KKB20GREVVZQD3RC46XQQ80B">Scheduled Group</a> for more information.</p></section><section class="docSection" id="scheduled-group"><div class="stickySectionHeader"><h2>Scheduled Group</h2></div><p>A Scheduled Group is a configuration in the File Collection module that allows administrators to group one or more file-based applications and define a schedule for their file uploads. It helps manage when and how files are collected, and enables the configuration of reminders, escalation notifications, and other upload settings for the associated applications.</p><h3 id="h_01KKBGJG9GFGWM7H0HQC8VAVT4">Create a Schedule Group</h3><p>This section explains how admins set a file upload schedule and notification configurations for applications. Perform the following steps to create a schedule for applications:</p><ol>
+</ol><h3 id="h_01KPMVPWGTR41GG4NTCRHVPWZ1">Data</h3><p>The Data tab displays the data from the resource files uploaded in the application. If all four resource files are uploaded, for example, <strong>Users</strong>, <strong>Groups</strong>, <strong>Roles</strong>, and <strong>Entitlements</strong>, you can view all four sections under this tab, each showing its corresponding data.</p><p>Click on any record to open a panel that shows detailed user information.</p><h3 id="h_01K9PFZ1JMG8C52HP8AH98KJ0S">Schema</h3><p>The Schema tab contains the attributes of all supported resource types. Each resource type is displayed in a separate subsection. For example, if <strong>User</strong> and <strong>Employee</strong> resource types are present, each will appear in a different subsection. </p><p>The Schema tab also provides key information about each attribute, such as the attribute name, data type, whether it is required or optional, and its mutability.</p><p>Once you have reviewed all the data, return to the main File Collection configuration page by clicking the left arrow located next to the application name at the top of the screen. This can be done at any stage, regardless of which tab you are currently viewing.</p><p>After the application setup for file collection is complete, you can start creating groups for the file collection schedule. Refer to the <a href="#h_01KKB20GREVVZQD3RC46XQQ80B">Scheduled Group</a> for more information.</p><h2 id="h_01KKB20GREVVZQD3RC46XQQ80B">Scheduled Group</h2><p>A Scheduled Group is a configuration in the File Collection module that allows administrators to group one or more file-based applications and define a schedule for their file uploads. It helps manage when and how files are collected, and enables the configuration of reminders, escalation notifications, and other upload settings for the associated applications.</p><h3 id="h_01KKBGJG9GFGWM7H0HQC8VAVT4">Create a Schedule Group</h3><p>This section explains how admins set a file upload schedule and notification configurations for applications. Perform the following steps to create a schedule for applications:</p><ol>
 <li>Click the <strong>Create Schedule Group icon</strong> located at the top-left of the screen. The <strong>Create schedule group</strong> screen will appear.<br/><img alt="Create Schedule Group.png" height="334" src="https://support.aquera.com/hc/article_attachments/39873759458967" width="1170"/>
 </li>
 <li>Enter a name for your schedule group in the <strong>Name</strong> field.<br/><strong>Note</strong>: The name must not exceed 255 characters.</li>
@@ -3088,7 +2357,7 @@
 </ul>
 </li>
 <li class="wysiwyg-text-align-left">Click <strong>Set Escalation</strong>. The escalation will be set, and escalation emails will be sent to the configured recipients and file uploaders of the application.</li>
-</ol></section><section class="docSection" id="all-application-view"><div class="stickySectionHeader"><h2>All Application View</h2></div><p>You can select <strong>All Applications</strong> to view all application statuses, identity count dashboards, a search bar, filter options, an activity log for all applications, a download option, and a table listing all applications.</p><h3 id="h_01KKE2CPY61XBBNX27B2023RB9">List of All Applications</h3><p>This section lists all applications that have been added to different schedule groups, as well as those not part of any schedule group. The following column headers are displayed under the dashboards:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
+</ol><h2 id="h_01KKE24WQ7WYT1TFZQSWGABC2E">All Application View</h2><p>You can select <strong>All Applications</strong> to view all application statuses, identity count dashboards, a search bar, filter options, an activity log for all applications, a download option, and a table listing all applications.</p><h3 id="h_01KKE2CPY61XBBNX27B2023RB9">List of All Applications</h3><p>This section lists all applications that have been added to different schedule groups, as well as those not part of any schedule group. The following column headers are displayed under the dashboards:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
 <tr>
 <td><strong>Header</strong></td>
 <td><strong>Description</strong></td>
@@ -3184,7 +2453,7 @@
 <li>Which users have access to which applications</li>
 <li>Which users belong to which groups</li>
 <li>What roles, entitlements, or permission levels are assigned to those users</li>
-</ul><p>This tab allows you to search for users, groups, roles, or entitlements across multiple applications listed in the <strong>Inventory</strong>. You can also filter by a specific application to view users associated with that application, along with their group memberships, roles, and entitlements, all displayed in a tree graph format.<br/>Click <strong>Applications</strong> to view the application list from the <strong>Inventory</strong> and search for identity data associated with a specific set of applications. By default, all applications will be selected. To search for a specific application, enter its name in the <strong>Search Application</strong> text box. Click the checkbox adjacent to each application to select or deselect applications for your analysis. Your selection will be retained unless you change it again.</p></section><section class="docSection" id="resource-search"><div class="stickySectionHeader"><h2>Resource Search</h2></div><p>You can search for a resource type across multiple applications by selecting the resource type, attribute, operator, and entering its respective value under the <strong>Access Graph</strong> tab.</p><p>Below are a few examples of different search functions based on the different resource types:</p><h3 id="h_01K6Z8E83ATKWRXPNNZCCPCZWT">User Search</h3><p>Perform the following steps to search for a specific user record across multiple applications:</p><ol>
+</ul><p>This tab allows you to search for users, groups, roles, or entitlements across multiple applications listed in the <strong>Inventory</strong>. You can also filter by a specific application to view users associated with that application, along with their group memberships, roles, and entitlements, all displayed in a tree graph format.<br/>Click <strong>Applications</strong> to view the application list from the <strong>Inventory</strong> and search for identity data associated with a specific set of applications. By default, all applications will be selected. To search for a specific application, enter its name in the <strong>Search Application</strong> text box. Click the checkbox adjacent to each application to select or deselect applications for your analysis. Your selection will be retained unless you change it again.</p><h2 id="h_01K6Z8B8150M2WD8WDMY4VBP6M">Resource Search</h2><p>You can search for a resource type across multiple applications by selecting the resource type, attribute, operator, and entering its respective value under the <strong>Access Graph</strong> tab.</p><p>Below are a few examples of different search functions based on the different resource types:</p><h3 id="h_01K6Z8E83ATKWRXPNNZCCPCZWT">User Search</h3><p>Perform the following steps to search for a specific user record across multiple applications:</p><ol>
 <li>Log in to the Identity Survey Hub portal and navigate to the <strong>Access Graph</strong> tab located in the top menu.</li>
 <li>Select <strong>User</strong> from the <strong>Select Resource Type</strong> dropdown.</li>
 <li>Select the user attribute from the <strong>Select Attribute Filter</strong> dropdown menu.</li>
@@ -3312,7 +2581,7 @@
 <li>Click <strong>Edit</strong> to modify the questionnaire as per your requirement.</li>
 <li>Click <strong>Save as Copy </strong>to apply changes to a new copy of the questionnaire.</li>
 <li>Alternatively, click the vertical ellipsis (<strong>⋮</strong>) next to the questionnaire name, select <strong>Create Copy</strong> to create a duplicate of the questionnaire with a different name. Modify and use the copied questionnaire without affecting the original.</li>
-</ol><h3 id="h_01KGH5T1EE76ZMNJ03FJG66022">Include app-specific questionnaires</h3><p>Enable the <strong>Include app-specific questionnaires </strong>checkbox to display questionnaires that are specific to each application. These questionnaires are named after the application itself and are designed specifically for that app. Instead of using a generic questionnaire for every asset type, you can use these application-specific questionnaires during the inventory process.</p><h1 id="h_01KB51NPVWWHCG9C73Q6EP6YT4">Task</h1><p>Task Management provides a centralized workspace for tracking all Identity Survey Hub activities assigned to users. Tasks are generated during the Survey, Staging, Discovery, and Inventory Maintenance phases, and ensure that asset data is captured, validated, and reviewed in a timely manner.</p></section><section class="docSection" id="accessing-the-tasks-tab"><div class="stickySectionHeader"><h2>Accessing the Tasks Tab</h2></div><p>Log in to the Identity Survey Hub portal and navigate to the <strong>Task</strong> tab located in the main screen. The page displays the summary of task metrics at the top, search and filtering options, along with the task creation option, and a list of created tasks in a table format.</p></section><section class="docSection" id="task-dashboard-overview"><div class="stickySectionHeader"><h2>Task Dashboard Overview</h2></div><p>The task dashboard provides a quick snapshot of all tasks in the system. At the top of the page, key metrics give real-time visibility into task progress, priorities, and due dates.</p><h3 id="h_01KGEBNF818R2657XC21XS0B9A">Task Status Summary</h3><ul>
+</ol><h3 id="h_01KGH5T1EE76ZMNJ03FJG66022">Include app-specific questionnaires</h3><p>Enable the <strong>Include app-specific questionnaires </strong>checkbox to display questionnaires that are specific to each application. These questionnaires are named after the application itself and are designed specifically for that app. Instead of using a generic questionnaire for every asset type, you can use these application-specific questionnaires during the inventory process.</p><h1 id="h_01KB51NPVWWHCG9C73Q6EP6YT4">Task</h1><p>Task Management provides a centralized workspace for tracking all Identity Survey Hub activities assigned to users. Tasks are generated during the Survey, Staging, Discovery, and Inventory Maintenance phases, and ensure that asset data is captured, validated, and reviewed in a timely manner.</p><h2 id="01KEV8C4JHEGZ9SRMBN7GNFS74">Accessing the Tasks Tab</h2><p>Log in to the Identity Survey Hub portal and navigate to the <strong>Task</strong> tab located in the main screen. The page displays the summary of task metrics at the top, search and filtering options, along with the task creation option, and a list of created tasks in a table format.</p><h2 id="h_01KGEBCEAVEC0D8XRRCGYN4WNR">Task Dashboard Overview</h2><p>The task dashboard provides a quick snapshot of all tasks in the system. At the top of the page, key metrics give real-time visibility into task progress, priorities, and due dates.</p><h3 id="h_01KGEBNF818R2657XC21XS0B9A">Task Status Summary</h3><ul>
 <li>
 <strong>Total Tasks</strong>: Total number of tasks in the system.</li>
 <li>
@@ -3333,7 +2602,7 @@
 <li>
 <strong>Low Priority</strong>: Number of low-priority tasks.</li>
 </ul><h3 id="h_01KGEC2E3PRRVJX63SH20FX0FR">Due Date Alert</h3><ul><li>
-<strong>Past Due Date</strong>: Number of tasks that have crossed their due date.</li></ul></section><section class="docSection" id="search-and-filter"><div class="stickySectionHeader"><h2>Search and Filter</h2></div><h3 id="h_01KGECCZM49Z37EV2K37DV5698">Search Task</h3><p>Use the <strong>Search Task</strong> bar to quickly locate specific tasks by entering relevant keywords. The search works across task fields such as the task <strong>ID</strong> and <strong>Summary</strong>, and the results update dynamically as you type, making it easy to find the exact task you are looking for.</p><h3 id="h_01KGECEZZR7VBDCFHSAV4DKGHE">Filter Tasks</h3><p>Click <strong>Filter</strong> to narrow down tasks using the following criteria:</p><ul>
+<strong>Past Due Date</strong>: Number of tasks that have crossed their due date.</li></ul><h2 id="01KEV8C4JHM9P0H54R19B4BJ4K">Search and Filter</h2><h3 id="h_01KGECCZM49Z37EV2K37DV5698">Search Task</h3><p>Use the <strong>Search Task</strong> bar to quickly locate specific tasks by entering relevant keywords. The search works across task fields such as the task <strong>ID</strong> and <strong>Summary</strong>, and the results update dynamically as you type, making it easy to find the exact task you are looking for.</p><h3 id="h_01KGECEZZR7VBDCFHSAV4DKGHE">Filter Tasks</h3><p>Click <strong>Filter</strong> to narrow down tasks using the following criteria:</p><ul>
 <li>Assignee</li>
 <li>Task Type</li>
 <li>Task Status</li>
@@ -3341,7 +2610,7 @@
 <li>Priority</li>
 <li>Created By</li>
 <li>Approval Status</li>
-</ul><p>You can apply one or multiple filters at the same time to refine your results.</p><h3 id="h_01KE6SJNZ4AS3PQ70ETZDD7D2D">Clear All Filters</h3><p>The <strong>Clear All</strong> option removes all active filters and restores the task list to its default view.</p></section><section class="docSection" id="task-list-table"><div class="stickySectionHeader"><h2>Task List Table</h2></div><p>Tasks are displayed in a tabular layout. Each row represents a single task.</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
+</ul><p>You can apply one or multiple filters at the same time to refine your results.</p><h3 id="h_01KE6SJNZ4AS3PQ70ETZDD7D2D">Clear All Filters</h3><p>The <strong>Clear All</strong> option removes all active filters and restores the task list to its default view.</p><h2 id="h_01KB555030E4FDRVSS5Z9MC75Y">Task List Table</h2><p>Tasks are displayed in a tabular layout. Each row represents a single task.</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
 <tr>
 <td><strong>Column Name</strong></td>
 <td><strong>Description</strong></td>
@@ -3386,7 +2655,7 @@
 <td>Phase</td>
 <td>Indicates the phase during which the task was created. For example, Survey, Staging, Discovery, or Inventory.</td>
 </tr>
-</tbody></table></figure></section><section class="docSection" id="create-task"><div class="stickySectionHeader"><h2>Create Task</h2></div><p>You can use the <strong>Create Task</strong> button to create a task for yourself as an Admin or assign it to the appropriate asset owner.</p><p><strong>Note</strong>: The fields marked with a red asterisk <span>(</span><span>*</span><span>)</span> are mandatory.</p><ol>
+</tbody></table></figure><h2 id="h_01KGAN38PNX6G5RZZNPV5MPY49">Create Task</h2><p>You can use the <strong>Create Task</strong> button to create a task for yourself as an Admin or assign it to the appropriate asset owner.</p><p><strong>Note</strong>: The fields marked with a red asterisk <span>(</span><span>*</span><span>)</span> are mandatory.</p><ol>
 <li>Click the <strong>Create Task</strong> button to open the <strong>Create Task</strong> screen.</li>
 <li>Enter the following data in the <strong>Create Task</strong> screen:<ul>
 <li>
@@ -3411,7 +2680,7 @@
 </li>
 <li>After entering all the required information, click <strong>Create Task</strong>. The task will be created, and notifications will be sent to both the reporter and the assignee.</li>
 <li>The created task will appear under the <strong>Task</strong> tab, where you can track all tasks in one place.</li>
-</ol></section><section class="docSection" id="task-management"><div class="stickySectionHeader"><h2>Task Management</h2></div><p>To manage a task from the task list, perform the following steps:</p><ol>
+</ol><h2 id="h_01KE724723NG6DDGWWARNM9S1C">Task Management</h2><p>To manage a task from the task list, perform the following steps:</p><ol>
 <li>Click anywhere on a task row in the task list to view its detailed information.</li>
 <li>On the task details page, you can view the following information:<ul>
 <li>Task ID, Summary, Priority level, and Status (displayed at the top)</li>
@@ -3466,7 +2735,7 @@
 <strong>Application</strong>: Displays all transaction details related to applications.</li>
 <li>
 <strong>Audit</strong>: Records events and changes within the system.</li>
-</ul></section><section class="docSection" id="application"><div class="stickySectionHeader"><h2>Application</h2></div><p>The Application tab displays logs containing all transaction details for an application and shows the following column headers:</p><ul>
+</ul><h2 id="h_01KM0463VB0XZKE43EQ20VXY50">Application</h2><p>The Application tab displays logs containing all transaction details for an application and shows the following column headers:</p><ul>
 <li>
 <strong>Applications</strong>: The name of the application for which the log entry was created.</li>
 <li class="wysiwyg-list-color"><span><strong>Date</strong>: The date and time when the application log was generated.</span></li>
@@ -3494,7 +2763,7 @@
 </ul>
 </li>
 <li>Click the <strong>Timezone icon</strong> (<img alt="2023-04-04_15-21-59.png" height="15" src="https://support.aquera.com/hc/article_attachments/39175709824279" width="17"/>) to choose whether to display log timestamps in your local time or in UTC. The displayed date and time will adjust based on your selection.</li>
-</ul><p>Click the <strong>Refresh icon</strong>(<img alt="Refresh Icon.png" class="wysiwyg-image-resized" height="30" src="https://support.aquera.com/hc/article_attachments/39380513576983" width="34"/>) to reload the page content.</p></section><section class="docSection" id="audit"><div class="stickySectionHeader"><h2>Audit</h2></div><p>An audit log records events and changes that occur within the system, helping you track activities and monitor updates over time. Each audit log entry captures key details such as what action was performed, where it was performed, and when it occurred. Audit logs provide a clear history of user activities and system changes, making it easy to track actions and review past events.</p><p><span>The Audit tab displays logs with the following columns:</span></p><ul>
+</ul><p>Click the <strong>Refresh icon</strong>(<img alt="Refresh Icon.png" class="wysiwyg-image-resized" height="30" src="https://support.aquera.com/hc/article_attachments/39380513576983" width="34"/>) to reload the page content.</p><h2 id="h_01KM03MY9HQERS5ZPHQDNV4MES">Audit</h2><p>An audit log records events and changes that occur within the system, helping you track activities and monitor updates over time. Each audit log entry captures key details such as what action was performed, where it was performed, and when it occurred. Audit logs provide a clear history of user activities and system changes, making it easy to track actions and review past events.</p><p><span>The Audit tab displays logs with the following columns:</span></p><ul>
 <li>
 <strong>Applications</strong>: The name of the application for which the log entry was created.</li>
 <li class="wysiwyg-list-color"><span><strong>Date</strong>: The date and time when the audit log was generated.</span></li>
@@ -3506,222 +2775,4 @@
 <span><strong>Request Source</strong>: The source that initiated the operation. Example: </span>Aquera-Console, Postman</li>
 <li class="wysiwyg-list-color"><span><strong>Status</strong>: The status of the operation.</span></li>
 <li class="wysiwyg-list-color"><span><strong>Resource</strong>: The resource path associated with the operation.</span></li>
-</ul><h3 id="h_01HTY7QRT6NK7GFP9S8CX1KRJC">Searching Audit Logs</h3><p>You can search audit logs by entering the value in the <strong>Enter value </strong>search box. Refer to the <a href="#h_01GX5W016H3WYZZ31YFWFQMEJ2">Searching Application Logs</a> section for more information on how to search audit logs.</p><h3 id="h_01KMMRRWQ4DZWVD3SV2MQDC4EX">Filtering Audit Logs</h3><p> Refer to the <a href="#h_01KMMKQEJAN7C5YACPHR4CW8A6">Filtering Application Logs</a> section for more information on how to filter audit logs.</p></section></div>
-      </div>
-      <footer class="footer">
-        © 2026 Aquera, Inc. All rights reserved.
-      </footer>
-    </main>
-  </div>
-
-  <script>
-    function toggleToc() {
-      document.getElementById('mobileToc').classList.toggle('isHidden');
-    }
-
-    function setLeftCollapsed(isCollapsed) {
-      document.body.classList.toggle('isLeftCollapsed', isCollapsed);
-      try { localStorage.setItem('leftPanelCollapsed', isCollapsed ? '1' : '0'); } catch (e) { }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      try {
-        if (localStorage.getItem('leftPanelCollapsed') === '1') document.body.classList.add('isLeftCollapsed');
-      } catch (e) { }
-
-      function slugify(text) {
-        return text.toString().toLowerCase().trim()
-          .replace(/\s+/g, '-')
-          .replace(/[^\w-]+/g, '')
-          .replace(/--+/g, '-');
-      }
-
-      function buildDynamicToC() {
-        const tocList = document.querySelector('.tocList');
-        if (!tocList) return;
-        tocList.innerHTML = '';
-
-        let currentH1Sub = null;
-        let currentH2Sub = null;
-        let currentH3Sub = null;
-        let idCounts = {};
-
-        const contentHeadings = document.querySelectorAll('.cardBody h1, .docSection h1, .docSection h2, .docSection h3, .docSection h4');
-
-        contentHeadings.forEach(h => {
-          let id = h.id || slugify(h.textContent);
-          if (!h.id) {
-            if (idCounts[id]) {
-              idCounts[id]++;
-              id = `${id}-${idCounts[id]}`;
-            } else {
-              idCounts[id] = 1;
-            }
-            h.id = id;
-          }
-
-          const link = document.createElement('a');
-          link.className = 'tocLink';
-          link.href = '#' + h.id;
-          link.textContent = h.textContent;
-
-          if (h.tagName === 'H1') {
-            tocList.appendChild(link);
-            currentH1Sub = document.createElement('div');
-            currentH1Sub.className = 'tocSub';
-            tocList.appendChild(currentH1Sub);
-            currentH2Sub = null;
-            currentH3Sub = null;
-          } else if (h.tagName === 'H2') {
-            const parent = currentH1Sub || tocList;
-            parent.appendChild(link);
-            currentH2Sub = document.createElement('div');
-            currentH2Sub.className = 'tocSub2';
-            parent.appendChild(currentH2Sub);
-            currentH3Sub = null;
-          } else if (h.tagName === 'H3') {
-            const parent = currentH2Sub || currentH1Sub || tocList;
-            parent.appendChild(link);
-            currentH3Sub = document.createElement('div');
-            currentH3Sub.className = 'tocSub3';
-            parent.appendChild(currentH3Sub);
-          } else if (h.tagName === 'H4') {
-            const parent = currentH3Sub || currentH2Sub || currentH1Sub || tocList;
-            parent.appendChild(link);
-          }
-        });
-
-        document.querySelectorAll('.tocSub, .tocSub2, .tocSub3').forEach(sub => {
-          if (sub.children.length === 0) sub.remove();
-        });
-      }
-
-      buildDynamicToC();
-
-      const tocLinks = Array.from(document.querySelectorAll('.tocLink'));
-      const tocSubs = Array.from(document.querySelectorAll('.tocSub, .tocSub2, .tocSub3'));
-      const allTargets = Array.from(document.querySelectorAll('.cardBody h1[id], .cardBody h2[id], .cardBody h3[id], .cardBody h4[id], .docSection h1[id], .docSection h2[id], .docSection h3[id], .docSection h4[id]'));
-      const header = document.querySelector('.header');
-
-      function getOffset() {
-        return parseInt(getComputedStyle(document.documentElement).getPropertyValue(
-          document.querySelector('.header.isHidden') ? '--scrollOffsetHidden' : '--scrollOffset')) || 130;
-      }
-
-      const headingToTocLink = new Map();
-      allTargets.forEach(el => {
-        let link = tocLinks.find(a => (a.hash || '').replace('#', '') === el.id);
-        if (!link) {
-          let ancestor = el.parentElement;
-          while (ancestor && !link) {
-            if (ancestor.id) link = tocLinks.find(a => (a.hash || '').replace('#', '') === ancestor.id);
-            ancestor = ancestor.parentElement;
-          }
-        }
-        if (link) headingToTocLink.set(el.id, link);
-      });
-
-      function getActiveId() {
-        const offset = getOffset() + 40;
-        let best = null;
-        let bestTop = -Infinity;
-        for (const el of allTargets) {
-          const top = el.getBoundingClientRect().top;
-          if (top <= offset && top > bestTop) {
-            bestTop = top;
-            best = el.id;
-          }
-        }
-        return best || (allTargets[0] ? allTargets[0].id : null);
-      }
-
-      function scrollTocToLink(link) {
-        const tocScroll = document.getElementById('mobileToc');
-        if (!tocScroll || !link) return;
-        const linkRect = link.getBoundingClientRect();
-        const panelRect = tocScroll.getBoundingClientRect();
-        const linkTopInPanel = linkRect.top - panelRect.top + tocScroll.scrollTop;
-        const linkBottom = linkTopInPanel + link.offsetHeight;
-        const viewTop = tocScroll.scrollTop;
-        const viewBottom = viewTop + tocScroll.clientHeight;
-        if (linkTopInPanel < viewTop + 12 || linkBottom > viewBottom - 12) {
-          const target = linkTopInPanel - tocScroll.clientHeight / 2 + link.offsetHeight / 2;
-          tocScroll.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
-        }
-      }
-
-      let currentLink = null;
-
-      function applyHighlight(id, scrollToc) {
-        if (!id) return;
-        const link = headingToTocLink.get(id) || tocLinks.find(a => (a.hash || '').replace('#', '') === id);
-        if (!link || link === currentLink) return;
-        currentLink = link;
-
-        tocLinks.forEach(a => a.classList.toggle('isActive', a === link));
-
-        tocSubs.forEach(sub => sub.classList.remove('isOpen'));
-        let node = link;
-        while (node && !node.classList.contains('tocList')) {
-          if (node.classList.contains('tocSub') || node.classList.contains('tocSub2') || node.classList.contains('tocSub3') || node.classList.contains('tocSub4')) {
-            node.classList.add('isOpen');
-          }
-          const sibling = node.nextElementSibling;
-          if (sibling && (sibling.classList.contains('tocSub') || sibling.classList.contains('tocSub2') || sibling.classList.contains('tocSub3') || sibling.classList.contains('tocSub4'))) {
-            sibling.classList.add('isOpen');
-          }
-          node = node.parentElement;
-        }
-
-        if (scrollToc) {
-          requestAnimationFrame(() => requestAnimationFrame(() => scrollTocToLink(link)));
-        }
-      }
-
-      let ticking = false;
-      let fromClick = false;
-
-      window.addEventListener('scroll', () => {
-        const y = window.scrollY;
-        if (y > 10) header.classList.add('isHidden');
-        else header.classList.remove('isHidden');
-
-        if (fromClick) { fromClick = false; return; }
-        if (ticking) return;
-        ticking = true;
-        requestAnimationFrame(() => {
-          applyHighlight(getActiveId(), true);
-          ticking = false;
-        });
-      }, { passive: true });
-
-      tocLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          if (window.innerWidth < 768) document.getElementById('mobileToc').classList.add('isHidden');
-
-          const targetId = (link.hash || '').replace('#', '');
-          const targetEl = document.getElementById(targetId);
-
-          if (targetEl) {
-            const offset = getOffset();
-            const top = targetEl.getBoundingClientRect().top + window.scrollY - offset;
-            fromClick = true;
-            window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
-          }
-
-          currentLink = null;
-          applyHighlight(targetId, true);
-        });
-      });
-
-      document.getElementById('leftCollapseBtn')?.addEventListener('click', () => setLeftCollapsed(true));
-      document.getElementById('leftReopenBtn')?.addEventListener('click', () => setLeftCollapsed(false));
-
-      applyHighlight(getActiveId());
-      syncIcons();
-    });
-  </script>
-</body>
-
-</html>
+</ul><h3 id="h_01HTY7QRT6NK7GFP9S8CX1KRJC">Searching Audit Logs</h3><p>You can search audit logs by entering the value in the <strong>Enter value </strong>search box. Refer to the <a href="#h_01GX5W016H3WYZZ31YFWFQMEJ2">Searching Application Logs</a> section for more information on how to search audit logs.</p><h3 id="h_01KMMRRWQ4DZWVD3SV2MQDC4EX">Filtering Audit Logs</h3><p> Refer to the <a href="#h_01KMMKQEJAN7C5YACPHR4CW8A6">Filtering Application Logs</a> section for more information on how to filter audit logs.</p>
