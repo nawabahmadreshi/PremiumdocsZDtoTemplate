@@ -57,4 +57,4 @@ If you have updated the styles or the documentation content, you should sync it 
 - **Sticky Headers**: Section titles stay visible while scrolling for easy navigation.
 
 ---
-© 2026 Aquera Documentation Hub
+© 2026 Documentation Hub
