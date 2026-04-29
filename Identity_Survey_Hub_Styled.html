@@ -7,7 +7,7 @@
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <style>
     :root {
-      --aquera: rgb(0, 96, 164);
+      --aquera: #0160a4;
       --aquera-dark: rgb(0, 76, 128);
 
       --ink: #0f172a;
@@ -87,7 +87,7 @@
     .menuBtn {
       margin-left: auto;
       border: 1px solid rgba(0, 96, 164, .18);
-      background: linear-gradient(180deg, rgba(0, 96, 164, 1), rgba(0, 76, 128, 1));
+      background: linear-gradient(180deg, #0160a4, rgba(0, 76, 128, 1));
       color: #fff;
       padding: 9px 12px;
       border-radius: 12px;
@@ -465,8 +465,6 @@
     }
 
     .docSection {
-      padding: 30px 0 30px;
-      border-bottom: 1px dashed rgba(229, 231, 235, .95);
       scroll-margin-top: var(--scrollOffset);
     }
 
@@ -581,30 +579,84 @@
     }
 
     @media print {
+      .header,
       .menuBtn,
       #leftReopenBtn,
       #rightReopenBtn,
       .tocCol,
+      .footer,
+      .collapseBtn,
+      .floatingReopen,
       .modalOverlay {
         display: none !important;
       }
 
-      .page {
+      body {
+        background: white !important;
         padding: 0 !important;
       }
 
+      .page {
+        display: block !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
       .card {
-        box-shadow: none !important;
         border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        background: white !important;
+      }
+
+      .cardHeader {
+        background: transparent !important;
+        border-bottom: 2px solid var(--aquera) !important;
+        padding: 0 0 20px 0 !important;
+        margin-bottom: 30px !important;
+      }
+
+      .cardBody {
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      .docSection {
+        padding: 20px 0 !important;
+        page-break-inside: avoid;
+        border-bottom: 1px solid var(--line) !important;
       }
 
       .stickySectionHeader {
         position: static !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
         box-shadow: none !important;
+        padding: 0 !important;
+        border: none !important;
       }
 
-      body {
-        background: #fff !important;
+      h1, h2, h3 {
+        page-break-after: avoid;
+        color: var(--aquera) !important;
+      }
+      
+      img {
+        max-width: 100% !important;
+        page-break-inside: avoid;
+      }
+      
+      table {
+        page-break-inside: auto;
+      }
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
       }
     }
 
@@ -701,9 +753,8 @@
     /* Brand first row of bodyless tables */
     .docSection table:not(:has(thead)) tr:first-child td,
     table.simpleTable:not(:has(thead)) tr:first-child td {
-      background: rgba(0, 96, 164, .06);
-      color: var(--aquera);
-      font-weight: 900;
+      font-weight: 950;
+      text-align: center;
     }
 
     /* Zebra + strong first column for 2+ column tables */
@@ -716,8 +767,13 @@
     table.simpleTable tbody tr:not(.tableBrandRow) td:first-child {
       font-weight: 900;
       color: var(--ink);
-      background: rgba(0, 96, 164, .04);
       width: 220px;
+    }
+
+    /* Ensure header cell in first column still looks consistent */
+    .docSection table thead th:first-child,
+    .docSection table:not(:has(thead)) tr:first-child td:first-child {
+      font-weight: 950;
     }
 
     @media(max-width:680px) {
@@ -743,7 +799,7 @@
 <body>
 <header class="header">
 <div class="headerInner">
-<img alt="Aquera Logo" class="logo" src="https://static.aquera.com/logo.png"/>
+<img alt="Logo" class="logo" src="images/logo.svg"/>
 <button class="menuBtn" onclick="toggleToc()" type="button">Menu</button>
 </div>
 </header>
@@ -3019,7 +3075,7 @@
 <li>
 <strong>Overdue</strong>: Displays the number of applications in the scheduled group for which the file was not uploaded in the last two or more instances of the recurring upload schedule.</li>
 <li>
-<strong>Identity Count</strong>: Displays the total number of users associated with all applications in the scheduled group.</li>
+<strong>Identity Count</strong>: Displays the total number of active users associated with all applications in the scheduled group.</li>
 </ul><p>The Activity Logs show the history of email notifications sent to the recipients of the applications belonging to the schedule group. For further details, refer to the <a href="#h_01KK99HB80XPPRYZE18TJM0ZP1">Activity Log</a> section.</p><h4 id="01JCN0RVJXP76H99AS6GV4QB2X">Applications</h4><p>The Applications tab allows you to add applications to the schedule group. The schedule, reminders, and escalations configured for the schedule group will only apply to the applications that are part of the schedule group.</p><p>Perform the following steps to add applications to the schedule group:</p><ol>
 <li>Click <strong>Add Application</strong>. The <strong>Add New Application</strong> screen appears.</li>
 <li>Select applications from the <strong>Application</strong> <strong>Library</strong> and click <strong>Add</strong> to move them to the <strong>Added</strong> <strong>Applications</strong> table. You can use the search bar to find a specific application before adding it.</li>
@@ -3213,7 +3269,7 @@
 <li>
 <strong>Overdue</strong>: Displays the number of applications for which the file was not uploaded in the last two or more instances of the recurring upload schedule.</li>
 <li>
-<strong>Identity Count</strong>: Displays the total number of users associated with all applications.</li>
+<strong>Identity Count</strong>: Displays the total number of active users associated with all applications.</li>
 </ul><h3 id="h_01KK99HB80NSXGT94VFZK2G17M">Filter</h3><p>The Filter option allows you to quickly narrow down applications based on their file upload status.</p><p>Perform the following steps to apply a filter:</p><ol>
 <li>Click <strong>Filte</strong>r. A dropdown list appears showing the available status options: <strong>Missing</strong>, <strong>Ready</strong>, <strong>Failed</strong>, and <strong>Overdue</strong>.</li>
 <li>Select one or more checkboxes to apply the filter based on your use case. The application list table and file collection dashboard will be updated instantly to display only the applications that match the selected status(es).</li>
@@ -3600,7 +3656,7 @@
         let currentH3Sub = null;
         let idCounts = {};
 
-        const contentHeadings = document.querySelectorAll('.cardTitle, h1, h2, h3, h4');
+        const contentHeadings = document.querySelectorAll('.cardBody h1, .cardBody h2, .cardBody h3, .cardBody h4, .docSection h1, .docSection h2, .docSection h3, .docSection h4');
 
         contentHeadings.forEach(h => {
           let id = h.id || slugify(h.textContent);
@@ -3654,7 +3710,7 @@
 
       const tocLinks = Array.from(document.querySelectorAll('.tocLink'));
       const tocSubs = Array.from(document.querySelectorAll('.tocSub, .tocSub2, .tocSub3'));
-      const allTargets = Array.from(document.querySelectorAll('.cardTitle[id], .cardHeader h1[id], .cardBody h1[id], .cardBody h2[id], .cardBody h3[id], .cardBody h4[id], .docSection h1[id], .docSection h2[id], .docSection h3[id], .docSection h4[id]'));
+      const allTargets = Array.from(document.querySelectorAll('.cardBody h1[id], .cardBody h2[id], .cardBody h3[id], .cardBody h4[id], .docSection h1[id], .docSection h2[id], .docSection h3[id], .docSection h4[id]'));
       const header = document.querySelector('.header');
 
       function getOffset() {
