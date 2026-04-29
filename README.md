@@ -1,4 +1,4 @@
-# Aquera Premium Documentation Hub
+# Premium Documentation Hub
 
 A portable, beautifully styled documentation hub for Aquera. This project transforms Zendesk help articles into a premium, responsive local documentation experience and packages it into a portable macOS application for easy distribution.
 
@@ -6,8 +6,8 @@ A portable, beautifully styled documentation hub for Aquera. This project transf
 
 If you have received the **Aquera_Hub_Portable.zip** file, follow these steps to view the documentation:
 
-1.  **Unzip**: Extract the `Aquera_Hub_Portable.zip` file to your folder of choice.
-2.  **Launch**: Right-click on **`Aquera Hub.app`** and select **Open** (the first time you open it, macOS may ask for confirmation—simply click "Open").
+1.  **Unzip**: Extract the `A_Hub_Portable.zip` file to your folder of choice.
+2.  **Launch**: Right-click on **`A Hub.app`** and select **Open** (the first time you open it, macOS may ask for confirmation—simply click "Open").
 3.  **Wait for Setup**: A terminal window will briefly appear to ensure you have the necessary components.
 4.  **View**: Your default browser will automatically open to `http://127.0.0.1:5001`, where you can browse the documentation.
 
