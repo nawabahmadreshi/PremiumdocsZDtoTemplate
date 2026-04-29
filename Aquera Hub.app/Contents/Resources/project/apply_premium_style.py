@@ -139,9 +139,10 @@ def fix_broken_crossrefs(output_html: str) -> str:
     """
     Find all internal links whose href target doesn't exist in the document.
     For each broken link, try to match its text against an existing heading ID.
-    Updates the href to the best matching heading's ID.
+    Updates the href to the best matching heading's ID and generates a report.
     """
     soup = BeautifulSoup(output_html, "html.parser")
+    broken_links = []
 
     # Build a map: normalised heading text -> id
     heading_text_to_id = {}
@@ -163,34 +164,67 @@ def fix_broken_crossrefs(output_html: str) -> str:
         if target_id in all_ids:
             continue  # already valid
 
-        # Try to match link text to a heading id
-        link_text = link.get_text(strip=True).lower()
+        # This is a broken link
+        link_text = link.get_text(strip=True)
         matched_id = None
 
+        # Try to match link text to a heading id
+        normalized_text = link_text.lower()
+
         # Hardcoded overrides for known broken links
-        if "add and manage users" in link_text:
+        if "add and manage users" in normalized_text:
             matched_id = "users"
         
         # Exact match
-        if not matched_id and link_text in heading_text_to_id:
-            matched_id = heading_text_to_id[link_text]
+        if not matched_id and normalized_text in heading_text_to_id:
+            matched_id = heading_text_to_id[normalized_text]
         elif not matched_id:
-            # Partial match — find heading whose text contains or is contained in link_text
+            # Partial match — find heading whose text contains or is contained in normalized_text
             for htext, hid in heading_text_to_id.items():
-                if link_text in htext or htext in link_text:
+                if normalized_text in htext or htext in normalized_text:
                     matched_id = hid
                     break
 
         if matched_id:
+            old_href = href
             link["href"] = f"#{matched_id}"
             fixed += 1
+            broken_links.append({
+                "text": link_text,
+                "old_target": old_href,
+                "status": "FIXED",
+                "new_target": f"#{matched_id}"
+            })
         else:
             # Last resort: slugify the link text and use that
-            fallback_id = slugify(link_text)
+            fallback_id = slugify(normalized_text)
+            old_href = href
             link["href"] = f"#{fallback_id}"
             fixed += 1
+            broken_links.append({
+                "text": link_text,
+                "old_target": old_href,
+                "status": "UNCERTAIN (FALLBACK USED)",
+                "new_target": f"#{fallback_id}"
+            })
 
-    print(f"  Fixed {fixed} broken cross-references.")
+    # Generate the report file
+    report_path = PROJECT_ROOT / "broken_links_report.txt"
+    with open(report_path, "w", encoding="utf-8") as f:
+        f.write("=== BROKEN LINKS REPORT ===\n")
+        f.write(f"Generated on: {os.popen('date').read()}\n")
+        f.write(f"Total Broken Links Found: {len(broken_links)}\n")
+        f.write(f"Links Automatically Fixed: {fixed}\n\n")
+        
+        if not broken_links:
+            f.write("No broken links found! Great job.\n")
+        else:
+            f.write(f"{'LINK TEXT':<40} | {'OLD TARGET':<30} | {'STATUS':<25} | {'NEW TARGET'}\n")
+            f.write("-" * 120 + "\n")
+            for item in broken_links:
+                f.write(f"{item['text'][:38]:<40} | {item['old_target'][:28]:<30} | {item['status']:<25} | {item['new_target']}\n")
+
+    print(f"  Fixed {fixed} broken cross-references. Report saved to {report_path.name}")
     return str(soup)
 
 
