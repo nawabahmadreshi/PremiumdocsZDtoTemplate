@@ -206,6 +206,70 @@
       box-shadow: 0 14px 28px -5px rgba(16, 185, 129, 0.4);
     }
 
+    /* Report Area */
+    .report-area {
+      display: none;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .report-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #ea580c;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .report-table-container {
+      max-height: 250px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: white;
+    }
+
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .report-table th {
+      background: #f8fafc;
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+    }
+
+    .report-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.03);
+      color: var(--ink);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .badge-fixed { background: #dcfce7; color: #166534; }
+    .badge-uncertain { background: #ffedd5; color: #9a3412; }
+
+
   </style>
 </head>
 <body>
@@ -266,6 +330,29 @@
       </button>
 
       <button style="margin-top: 20px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-weight: 600; font-size: 14px;" onclick="reset()">Generate another</button>
+      
+      <div id="reportArea" class="report-area">
+        <div class="report-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          Broken Links Scan Results
+        </div>
+        <p style="font-size: 12px; margin-bottom: 12px;">The following internal links were identified as broken and fixed automatically where possible.</p>
+        <div class="report-table-container">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Link Text</th>
+                <th>Status</th>
+                <th>New Target</th>
+              </tr>
+            </thead>
+            <tbody id="reportTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size: 11px; margin-top: 12px; color: var(--muted);">A full detailed report has been saved to <b>broken_links_report.txt</b></p>
+      </div>
     </div>
 
     <!-- Branding Settings -->
@@ -418,6 +505,28 @@
 
         const result = await response.json();
         if (result.success) {
+          // Populate broken links report
+          const reportArea = document.getElementById('reportArea');
+          const tableBody = document.getElementById('reportTableBody');
+          tableBody.innerHTML = '';
+          
+          if (result.broken_links && result.broken_links.length > 0) {
+            result.broken_links.forEach(link => {
+              const row = document.createElement('tr');
+              const isFixed = link.status === 'FIXED';
+              row.innerHTML = `
+                <td>${link.text}</td>
+                <td><span class="badge ${isFixed ? 'badge-fixed' : 'badge-uncertain'}">${link.status}</span></td>
+                <td><code>${link.new_target}</code></td>
+              `;
+              tableBody.appendChild(row);
+            });
+            reportArea.style.display = 'block';
+          } else {
+            tableBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px; color: #059669; font-weight: 600;">No broken links found!</td></tr>';
+            reportArea.style.display = 'block';
+          }
+
           setTimeout(() => {
             card.className = 'card is-success';
           }, 500);
@@ -441,6 +550,7 @@
 
     function reset() {
       card.className = 'card';
+      document.getElementById('reportArea').style.display = 'none';
     }
   </script>
 </body>

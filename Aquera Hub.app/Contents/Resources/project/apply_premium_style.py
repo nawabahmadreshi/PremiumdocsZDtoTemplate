@@ -225,7 +225,7 @@ def fix_broken_crossrefs(output_html: str) -> str:
                 f.write(f"{item['text'][:38]:<40} | {item['old_target'][:28]:<30} | {item['status']:<25} | {item['new_target']}\n")
 
     print(f"  Fixed {fixed} broken cross-references. Report saved to {report_path.name}")
-    return str(soup)
+    return str(soup), broken_links
 
 
 def fix_images(output_html: str) -> str:
@@ -448,7 +448,7 @@ def apply_style(manual_title=None):
         shutil.copy2(custom_logo, IMAGES_DIR / "logo.svg") # We keep it named logo.svg in the bundle for simplicity
 
     print("Fixing broken cross-references...")
-    output = fix_broken_crossrefs(output)
+    output, broken_links = fix_broken_crossrefs(output)
 
     print("Normalising images...")
     output = fix_images(output)
@@ -468,6 +468,7 @@ def apply_style(manual_title=None):
 
     OUTPUT_FILE.write_text(output, encoding="utf-8")
     print(f"\n✅ Done! Styled output saved to:\n   {OUTPUT_FILE.absolute()}")
+    return broken_links
 
 
 if __name__ == "__main__":
