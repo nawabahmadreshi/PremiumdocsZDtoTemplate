@@ -20,7 +20,7 @@ If you have received the **Aquera_Hub_Portable.zip** file, follow these steps to
 ### Project Structure
 - `app/`: The Flask backend and documentation processor.
 - `app/static/`: CSS and HTML templates for the premium look.
-- `Identity_Survey_Hub_Styled.html`: The final generated documentation file.
+- `outputfile.html`: The final generated documentation file.
 - `apply_premium_style.py`: The core script that applies the premium template to the raw content.
 - `sync_premium_doc.py`: Fetches the latest content from Zendesk.
 
