@@ -1,0 +1,195 @@
+:root {
+  --aquera: rgb(0, 96, 164);
+  --aquera-dark: rgb(0, 76, 128);
+
+  --ink: #0f172a;
+  --muted: #475569;
+  --muted2: #64748b;
+  --line: #e5e7eb;
+  --card: #fff;
+
+  --shadow1: 0 1px 2px rgba(0, 0, 0, .06);
+  --shadow2: 0 18px 44px rgba(2, 6, 23, .12);
+
+  --r12: 12px;
+  --r16: 16px;
+  --r22: 22px;
+
+  --max: 1320px;
+  --contentMax: 920px;
+
+  --scrollOffset: 130px;
+  --scrollOffsetHidden: 40px;
+  --panelTop: 86px;
+  --panelTopHidden: 20px;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, Segoe UI, Arial, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 700px at 15% -5%, rgba(0, 96, 164, .10), transparent 55%),
+    radial-gradient(900px 600px at 95% 10%, rgba(0, 96, 164, .08), transparent 50%),
+    linear-gradient(135deg, #eff6ff, #f3f4f6);
+  min-height: 100vh;
+}
+
+/* ================= Header ================= */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: rgba(255, 255, 255, .92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(229, 231, 235, .7);
+  box-shadow: var(--shadow1);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.headerInner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+
+/* ================= Layout ================= */
+.page {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 28px 24px 70px;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.panelCard {
+  background: var(--card);
+  border: 1px solid rgba(229, 231, 235, .9);
+  border-radius: var(--r16);
+  box-shadow: var(--shadow2);
+  padding: 16px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelSticky {
+  position: sticky;
+  top: var(--panelTop);
+  align-self: flex-start;
+}
+
+.panelTitle {
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panelDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--aquera);
+}
+
+/* ================= TOC ================= */
+.tocCol {
+  width: 280px;
+  flex: 0 0 280px;
+}
+
+.tocLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 12px;
+  border-radius: 12px;
+  text-decoration: none !important;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 13.5px;
+  transition: all 200ms ease;
+}
+
+.tocLink:hover, .tocLink.isActive {
+  background: rgba(0, 96, 164, 0.08);
+  color: var(--aquera);
+}
+
+/* ================= Content Card ================= */
+.card {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid rgba(229, 231, 235, .9);
+  border-radius: var(--r22);
+  box-shadow: var(--shadow2);
+  overflow: hidden;
+}
+
+.cardHeader {
+  padding: 28px;
+  border-bottom: 1px solid rgba(229, 231, 235, .9);
+  background: linear-gradient(180deg, rgba(0, 96, 164, .06), transparent);
+}
+
+.cardTitle {
+  margin: 0;
+  text-align: center;
+  color: var(--aquera);
+  font-size: 28px;
+  font-weight: 950;
+}
+
+.cardBody {
+  padding: 28px;
+  max-width: var(--contentMax);
+  margin: 0 auto;
+}
+
+.docSection {
+  scroll-margin-top: var(--scrollOffset);
+}
+
+.stickySectionHeader {
+  position: sticky;
+  top: calc(var(--scrollOffset) - 58px);
+  z-index: 5;
+  padding: 10px 0;
+  /* Removed background, backdrop-filter, border, and shadow for a cleaner look */
+}
+
+h1, h2, h3 { color: var(--aquera); margin: 18px 0 10px; }
+p, li { line-height: 1.7; color: var(--ink); font-size: 15px; margin-bottom: 12px; }
+
+img {
+  width: 100%;
+  max-width: 860px;
+  border-radius: 12px;
+  box-shadow: 0 14px 30px rgba(2, 6, 23, .08);
+  margin: 20px 0;
+}
+
+.footer {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 12px;
+  padding: 16px;
+  border-top: 1px solid rgba(229, 231, 235, .9);
+}

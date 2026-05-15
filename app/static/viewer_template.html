@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquera Hub | Premium Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        :root {
+            --aquera: #0060a4;
+            --aquera-dark: #004c80;
+            --sidebar-bg: rgba(255, 255, 255, 0.95);
+            --border: rgba(0, 96, 164, 0.1);
+            --ink: #0f172a;
+            --muted: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        body, html { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: #f8fafc; color: var(--ink); }
+
+        /* Layout */
+        .app-container { display: flex; flex-direction: column; height: 100vh; }
+        
+        .header {
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 96, 164, 0.04);
+        }
+
+        .main-content { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+        /* Sidebar TOC */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 50;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-head {
+            padding: 24px 32px 12px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .toc-list { list-style: none; padding: 0 16px 32px; }
+        .toc-item {
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .toc-item:hover { background: rgba(0, 96, 164, 0.05); color: var(--aquera); }
+        .toc-item.active { background: rgba(0, 96, 164, 0.08); color: var(--aquera); font-weight: 800; }
+        .toc-item.level-2 { padding-left: 32px; font-size: 13px; font-weight: 500; }
+        .toc-item.level-3 { padding-left: 48px; font-size: 12.5px; opacity: 0.8; }
+
+        /* PDF Viewer Canvas */
+        .viewer-container {
+            flex: 1;
+            background: #f1f5f9;
+            overflow-y: auto;
+            position: relative;
+            scroll-behavior: smooth;
+            padding: 40px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            box-shadow: 0 30px 60px -12px rgba(0,0,0,0.15);
+            margin-bottom: 32px;
+            background: white;
+            max-width: 100%;
+        }
+
+        /* Loading States */
+        .loading-overlay {
+            position: fixed; top: 64px; left: 0; right: 0; bottom: 0;
+            background: white; z-index: 200;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .spinner { width: 48px; height: 48px; border: 4px solid #f1f5f9; border-top-color: var(--aquera); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="header">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <img src="data:image/svg+xml;base64,PHN2ZyBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA0NjcgMTI4IiB2aWV3Qm94PSIwIDAgNDY3IDEyOCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtNDY2LjMgODQuOXYxMi43Yy0xLjUuOC0zLjMgMS4zLTUuMiAxLjMtOCAwLTE0LjQtNC40LTE3LjYtMTAuOS01LjYgNi43LTEzLjkgMTAuOS0yMy4zIDEwLjktMTguNCAwLTMzLjEtMTUtMzMuMS0zMy44czE0LjctMzMuOCAzMy4xLTMzLjhjOC4zIDAgMTUuNSAzLjEgMjEuMSA4LjF2LTYuOGgxNS41djQ1YzAgNS43IDIuOSA3LjMgNiA3LjN6bS0yNC43LTE5LjljMC0xMC45LTguOC0xOS41LTE5LjYtMTkuNS0xMC45IDAtMTkuNiA4LjYtMTkuNiAxOS41czguNyAxOS41IDE5LjYgMTkuNWMxMC44IDAgMTkuNi04LjYgMTkuNi0xOS41em0tNjEtMzMuM3YxNC41Yy0xLjYtLjMtMy40LS43LTUuNi0uNy0xMS4zIDAtMTkuOC03LjYtMTkuOCAxOXYzM2gtMTUuNXYtNjVoMTUuNXY4LjljNC42LTYuMyAxMS42LTEwLjIgMjAuMS0xMC4yIDEuOSAwIDMuNy4yIDUuMy41em0tNTcuNSAzNS44aC01My41Yy44IDEwLjggOC41IDE4LjUgMTkuNCAxOC41IDguMyAwIDE0LjktNC40IDE3LjYtMTEuMmgxNS41Yy0zLjggMTQuMS0xNi4zIDI0LjEtMzMuMSAyNC4xLTIwLjIgMC0zNS4xLTE0LjMtMzUuMS0zMy44czE1LTMzLjggMzQuOS0zMy44YzE5LjggMCAzNC4xIDE0IDM0LjQgMzMuNXptLTUyLjItMTEuMWgzNS40Yy0yLjgtNy41LTguOC0xMi4yLTE3LjMtMTIuMi04LjggMC0xNS4yIDQuOS0xOC4xIDEyLjJ6bS04NyAxNy4xdi00MWgxNS4zdjM5YzAgOCA1LjEgMTMgMTIuMSAxM3MxMi4xLTUgMTIuMS0xM3YtMzloMTUuM3Y0MWMwIDE1LjYtMTAuMyAyNS40LTI3LjQgMjUuNHMtMjcuNC05LjgtMjcuNC0yNS40em0tNS4xIDQwLjV2MTIuN2MtMi4xLjgtNS4xIDEuMy04IDEuMy0xMS45IDAtMjIuMi05LjQtMjIuMi0yMS41di0xNS44Yy01LjYgNS0xMi43IDguMS0yMS4xIDguMS0xOC40IDAtMzMuMS0xNS0zMy4xLTMzLjhzMTQuNy0zMy44IDMzLjEtMzMuOGM4LjMgMCAxNS41IDMuMSAyMS4xIDguMXYtNi44aDE1LjV2NzIuMmMwIDUuNyAzLjggOS4zIDguNyA5LjN6bS0yOC43LTQ5YzAtMTAuOS04LjgtMTkuNS0xOS42LTE5LjUtMTAuOSAwLTE5LjYgOC42LTE5LjYgMTkuNXM4LjcgMTkuNSAxOS42IDE5LjVjMTAuOCAwIDE5LjYtOC42IDE5LjYtMTkuNXptLTg0LjEgMTEuOWgtNDBsLTcgMjAuNmgtMTcuM2wzNS40LTk3LjVoMTcuOGwzNS40IDk3LjVoLTE3LjJ6bS00LjUtMTQtMTUuNC00NS41LTE1LjMgNDUuNXoiIGZpbGw9IiMwMDYwYTQiLz48L3N2Zz4=" style="height: 28px;">
+                <div style="width: 1px; height: 24px; background: var(--border);"></div>
+                <div style="font-weight: 900; font-size: 14px; color: var(--aquera); letter-spacing: 0.05em; text-transform: uppercase;">Premium Documentation Hub</div>
+            </div>
+            <div style="font-size: 11px; font-weight: 800; color: var(--muted);">v5 STABLE RELEASE</div>
+        </header>
+
+        <main class="main-content">
+            <aside class="sidebar">
+                <div class="sidebar-head">Navigation Table</div>
+                <ul class="toc-list" id="tocList">
+                    <!-- Dynamic Outlines -->
+                </ul>
+            </aside>
+
+            <div class="viewer-container" id="viewer">
+                <!-- PDF Canvases -->
+            </div>
+        </main>
+    </div>
+
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; font-weight: 800; color: var(--aquera);">Initializing High-Fidelity TOC...</p>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        const PDF_DATA = "{{PDF_BASE64}}";
+        let pdfDoc = null;
+
+        async function init() {
+            if (!PDF_DATA || PDF_DATA.startsWith('{')) return;
+
+            try {
+                const loadingTask = pdfjsLib.getDocument({ data: atob(PDF_DATA) });
+                pdfDoc = await loadingTask.promise;
+                
+                // Render Outlines (TOC)
+                const outline = await pdfDoc.getOutline();
+                renderOutline(outline);
+
+                // Render all pages
+                for(let i=1; i<=pdfDoc.numPages; i++) {
+                    await renderPage(i);
+                }
+
+                document.getElementById('loading').style.display = 'none';
+            } catch (e) {
+                console.error("PDF Load Error", e);
+            }
+        }
+
+        async function renderPage(num) {
+            const page = await pdfDoc.getPage(num);
+            const viewport = page.getViewport({ scale: 1.5 });
+            const canvas = document.createElement('canvas');
+            canvas.id = `page-${num}`;
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            const renderContext = { canvasContext: context, viewport: viewport };
+            await page.render(renderContext).promise;
+            document.getElementById('viewer').appendChild(canvas);
+        }
+
+        function renderOutline(items, level = 1) {
+            const list = document.getElementById('tocList');
+            if (!items) return;
+
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.className = `toc-item level-${level}`;
+                li.textContent = item.title;
+                
+                li.onclick = async () => {
+                    document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+                    li.classList.add('active');
+                    
+                    try {
+                        let dest = item.dest;
+                        if (typeof dest === 'string') {
+                            dest = await pdfDoc.getDestination(dest);
+                        }
+                        
+                        if (dest) {
+                            const pageIndex = await pdfDoc.getPageIndex(dest[0]);
+                            const target = document.getElementById(`page-${pageIndex + 1}`);
+                            if (target) {
+                                // Account for header offset if needed, or just snap to start
+                                target.scrollIntoView({ behavior: 'instant', block: 'start' });
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Navigation error", err);
+                    }
+                };
+                
+                list.appendChild(li);
+                if (item.items && item.items.length > 0) {
+                    renderOutline(item.items, level + 1);
+                }
+            });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

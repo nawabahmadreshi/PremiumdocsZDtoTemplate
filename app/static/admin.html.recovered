@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aquera Documentation Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <style>
+    :root {
+      --aquera: #0060a4;
+      --aquera-dark: #004c80;
+      --ink: #0f172a;
+      --muted: #475569;
+      --glass: rgba(255, 255, 255, 0.95);
+      --border: rgba(0, 96, 164, 0.1);
+    }
+
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(1200px 800px at 0% 0%, rgba(0, 96, 164, 0.05), transparent 50%), #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 900px;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      box-shadow: 0 40px 100px -20px rgba(0, 40, 80, 0.12);
+      overflow: hidden;
+      animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card-content { padding: 48px; }
+
+    /* Tabs - ROBUST FIX */
+    .tabs {
+      display: flex;
+      gap: 32px;
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 50;
+    }
+    .tab {
+      padding: 16px 4px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .tab:hover { color: var(--aquera); }
+    .tab.active { color: var(--aquera); }
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--aquera);
+      border-radius: 3px;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Metrics */
+    .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 32px; }
+    .metric-card { background: white; padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
+    .metric-label { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+    .metric-value { font-size: 24px; font-weight: 900; color: var(--ink); }
+
+    /* Insights Grid */
+    .insights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+    .chart-box { background: white; padding: 24px; border-radius: 24px; border: 1px solid var(--border); }
+    .chart-title { font-size: 11px; font-weight: 900; color: var(--muted); text-transform: uppercase; margin-bottom: 20px; }
+
+    /* Feed */
+    .feed-container { background: white; border-radius: 24px; border: 1px solid var(--border); overflow: hidden; }
+    .feed-header { padding: 20px 24px; background: #fcfcfd; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .feed-table { width: 100%; border-collapse: collapse; }
+    .feed-table th { text-align: left; padding: 14px 24px; font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+    .feed-table td { padding: 16px 24px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+
+    .action-btn {
+      padding: 14px 24px;
+      background: var(--aquera);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn:hover { background: var(--aquera-dark); transform: translateY(-2px); }
+
+    .logo { height: 38px; margin-bottom: 24px; }
+    h1 { font-size: 32px; font-weight: 900; letter-spacing: -0.03em; margin: 0 0 12px; }
+
+  </style>
+</head>
+<body>
+
+  <div class="card" id="appCard">
+    <div class="card-content">
+      <div class="tabs">
+        <div id="tabBtnBuilder" class="tab active" onclick="switchTab('builder')">Builder</div>
+        <div id="tabBtnInsights" class="tab" onclick="switchTab('insights')">Insights</div>
+        <div id="tabBtnSettings" class="tab" onclick="switchTab('settings')">Settings</div>
+      </div>
+
+      <!-- BUILDER -->
+      <div id="tabBuilder" class="tab-content active">
+        <img src="/static/images/logo.svg" alt="Aquera" class="logo">
+        <h1>Documentation Hub</h1>
+        <p style="color:var(--muted); margin-bottom: 40px;">Sync and generate professional documentation bundles.</p>
+        <div style="max-width: 400px; margin-bottom: 32px;">
+            <label style="display:block; font-size:11px; font-weight:900; color:var(--aquera); text-transform:uppercase; margin-bottom:8px;">Article ID</label>
+            <input type="text" id="articleIdInput" value="33370331621527" style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--border); font-size:15px; font-weight:600;">
+        </div>
+        <button class="action-btn" onclick="generate()">Generate Bundle</button>
+      </div>
+
+      <!-- INSIGHTS -->
+      <div id="tabInsights" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
+            <h2 style="font-size:24px; font-weight:900; margin:0;">Analytics Dashboard</h2>
+            <button class="action-btn" onclick="fetchTracking(true)" style="padding:10px 18px; font-size:13px;">Refresh Data</button>
+        </div>
+
+        <div class="metrics-row">
+            <div class="metric-card"><div class="metric-label">Total Views</div><div id="statTotal" class="metric-value">0</div></div>
+            <div class="metric-card"><div class="metric-label">Unique Users</div><div id="statUsers" class="metric-value">0</div></div>
+            <div class="metric-card"><div class="metric-label">External Views</div><div id="statExternal" class="metric-value">0</div></div>
+        </div>
+
+        <div class="insights-grid">
+            <div class="chart-box">
+                <div class="chart-title">Top Articles</div>
+                <div id="visArticles" style="height:180px;"></div>
+            </div>
+            <div class="chart-box">
+                <div class="chart-title">User Composition</div>
+                <div id="visMix" style="height:180px;"></div>
+            </div>
+        </div>
+
+        <div class="feed-container">
+            <div class="feed-header">
+                <span style="font-weight:800; font-size:14px;">Live Engagement Feed</span>
+                <span id="rowCountText" style="font-size:12px; color:var(--muted); font-weight:700;">-</span>
+            </div>
+            <div style="max-height: 300px; overflow-y: auto;">
+                <table class="feed-table">
+                    <thead><tr><th>User</th><th>Article</th><th>Time</th></tr></thead>
+                    <tbody id="trackingTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="tabSettings" class="tab-content">
+        <h2 style="font-size:24px; font-weight:900; margin-bottom:32px;">System Settings</h2>
+        <div class="chart-box" style="text-align:left;">
+            <div class="chart-title">Storage Status</div>
+            <div id="sysArchiveSize" style="font-size:18px; font-weight:800; color:var(--aquera);">-</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('tabBtn' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.add('active');
+      document.getElementById('tab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.add('active');
+      if (tabId === 'insights' && !window._loaded) fetchTracking(false);
+      if (tabId === 'settings') fetchSystemInfo();
+    }
+
+    async function fetchTracking(refresh = false) {
+      try {
+        const res = await fetch(`/api/tracking?refresh=${refresh}`);
+        const data = await res.json();
+        if (data.success) {
+          window._loaded = true;
+          document.getElementById('statTotal').textContent = data.stats.total_views;
+          document.getElementById('statUsers').textContent = data.stats.unique_users;
+          document.getElementById('statExternal').textContent = data.stats.external_vs_internal.External;
+          renderCharts(data);
+          document.getElementById('trackingTableBody').innerHTML = data.events.slice(0, 50).map(e => `
+            <tr>
+              <td><div style="font-weight:700;">${e.user_email || 'Anonymous'}</div></td>
+              <td>${e.article_name || '-'}</td>
+              <td>${new Date(e.timestamp).toLocaleTimeString()}</td>
+            </tr>
+          `).join('');
+          document.getElementById('rowCountText').textContent = data.events.length + ' events';
+        }
+      } catch (e) {}
+    }
+
+    function renderCharts(data) {
+        vegaEmbed('#visArticles', {
+            $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+            data: { values: data.stats.top_articles },
+            width: "container", height: 140,
+            mark: { type: "bar", color: "#0060a4", cornerRadiusEnd: 4 },
+            encoding: {
+                x: { field: "count", type: "quantitative", title: null },
+                y: { field: "title", type: "nominal", sort: "-x", title: null }
+            }
+        }, {actions: false});
+
+        vegaEmbed('#visMix', {
+            $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+            data: { values: [{c:"Ext",v:data.stats.external_vs_internal.External}, {c:"Int",v:data.stats.external_vs_internal.Aquera}] },
+            width: "container", height: 140,
+            mark: { type: "arc", innerRadius: 40 },
+            encoding: {
+                theta: { field: "v", type: "quantitative" },
+                color: { field: "c", type: "nominal", scale: {range: ["#10b981", "#6366f1"]} }
+            }
+        }, {actions: false});
+    }
+
+    async function fetchSystemInfo() {
+      try {
+        const res = await fetch('/api/system/info');
+        const data = await res.json();
+        document.getElementById('sysArchiveSize').textContent = data.database.archive_size_mb + ' MB';
+      } catch (e) {}
+    }
+
+    async function generate() {
+        const id = document.getElementById('articleIdInput').value;
+        const res = await fetch('/generate', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({article_id: id}) });
+        const data = await res.json();
+        if (data.success) alert('Success!');
+    }
+  </script>
+</body>
+</html>

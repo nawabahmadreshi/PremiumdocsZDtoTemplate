@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title }} - Aquera Documentation</title>
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <style>
+    :root {
+      --aquera: rgb(0, 96, 164);
+      --aquera-dark: rgb(0, 76, 128);
+
+      --ink: #0f172a;
+      --muted: #475569;
+      --muted2: #64748b;
+      --line: #e5e7eb;
+      --card: #fff;
+
+      --shadow1: 0 1px 2px rgba(0, 0, 0, .06);
+      --shadow2: 0 18px 44px rgba(2, 6, 23, .12);
+
+      --r12: 12px;
+      --r16: 16px;
+      --r22: 22px;
+
+      --max: 1320px;
+      --contentMax: 920px;
+
+      --scrollOffset: 130px;
+      --scrollOffsetHidden: 40px;
+      --panelTop: 86px;
+      --panelTopHidden: 20px;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 700px at 15% -5%, rgba(0, 96, 164, .10), transparent 55%),
+        radial-gradient(900px 600px at 95% 10%, rgba(0, 96, 164, .08), transparent 50%),
+        linear-gradient(135deg, #eff6ff, #f3f4f6);
+      min-height: 100vh;
+    }
+
+    /* ================= Header ================= */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      background: rgba(255, 255, 255, .92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(229, 231, 235, .7);
+      box-shadow: var(--shadow1);
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    .header.isHidden {
+      transform: translateY(-100%);
+      box-shadow: none;
+      backdrop-filter: none;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .headerInner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    @media(min-width:768px) {
+      .headerInner {
+        padding: 12px 24px;
+      }
+    }
+
+    .logo {
+      height: 40px;
+      width: auto;
+      display: block;
+    }
+
+    .menuBtn {
+      margin-left: auto;
+      border: 1px solid rgba(0, 96, 164, .18);
+      background: linear-gradient(180deg, rgba(0, 96, 164, 1), rgba(0, 76, 128, 1));
+      color: #fff;
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0, 96, 164, .18);
+    }
+
+    .menuBtn:focus {
+      outline: 2px solid rgba(0, 96, 164, .35);
+      outline-offset: 2px;
+    }
+
+    @media(min-width:768px) {
+      .menuBtn {
+        display: none;
+      }
+    }
+
+    /* ================= Layout ================= */
+    .page {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 14px 12px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    @media(min-width:768px) {
+      .page {
+        padding: 28px 24px 70px;
+        flex-direction: row;
+        gap: 20px;
+        align-items: flex-start;
+      }
+    }
+
+    /* ================= Shared panel helpers ================= */
+    .panelCard {
+      background: var(--card);
+      border: 1px solid rgba(229, 231, 235, .9);
+      border-radius: var(--r16);
+      box-shadow: var(--shadow2);
+      padding: 16px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: visible;
+    }
+
+    @media(min-width:768px) {
+      .panelSticky {
+        position: sticky;
+        top: var(--panelTop);
+        align-self: flex-start;
+        transition: top 0.3s ease;
+      }
+
+      .header.isHidden ~ .mainCont .panelSticky,
+      .header.isHidden ~ .page .panelSticky,
+      body:has(.header.isHidden) .panelSticky {
+         top: var(--panelTopHidden);
+      }
+    }
+
+    .panelHead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 0 16px;
+    }
+
+    .panelTitle {
+      pointer-events: none;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0;
+      min-width: 0;
+    }
+
+    .panelDot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--aquera);
+      box-shadow: 0 6px 14px rgba(0, 96, 164, .22);
+      flex: 0 0 auto;
+    }
+
+    .panelTitleRow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .collapseBtn {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      border: 1px solid rgba(2, 6, 23, 0.08);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(12px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 14px rgba(2, 6, 23, 0.06);
+      color: var(--muted);
+      padding: 0;
+      position: relative;
+    }
+
+    .collapseBtn svg {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .collapseBtn:hover {
+      background: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0, 96, 164, 0.12);
+      color: var(--aquera);
+    }
+
+    body.isLeftCollapsed .collapseBtn svg { transform: rotate(180deg); }
+    body.isRightCollapsed .collapseBtn svg { transform: rotate(180deg); }
+
+    .floatingReopen {
+      display: none;
+      position: fixed;
+      z-index: 80;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(2, 6, 23, 0.08);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 30px rgba(2, 6, 23, 0.12);
+      color: var(--aquera);
+      transition: all 0.3s ease;
+    }
+
+    .floatingReopen:hover {
+      background: #fff;
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 16px 38px rgba(2, 6, 23, 0.16);
+    }
+
+    .floatingReopen svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .floatingReopen:focus {
+      outline: 2px solid rgba(0, 96, 164, .35);
+      outline-offset: 2px;
+    }
+    /* Left collapsed behaviors */
+    body.isLeftCollapsed .tocCol {
+      display: none !important;
+    }
+
+    body.isLeftCollapsed #leftReopenBtn {
+      display: grid !important;
+    }
+
+    /* Right collapsed behaviors (if sidebar exists) */
+    body.isRightCollapsed .rightCol {
+      display: none !important;
+    }
+
+    body.isRightCollapsed #rightReopenBtn {
+      display: grid !important;
+    }
+
+    /* ================= Left TOC ================= */
+    .tocCol {
+      width: 100%;
+    }
+
+    .tocList {
+      display: grid;
+      gap: 4px;
+      margin-top: 12px;
+      padding-right: 4px;
+    }
+
+    @media(max-width:767px) {
+      #mobileToc {
+        max-height: calc(100vh - 72px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+
+    @media(min-width:768px) {
+      .tocCol {
+        width: 280px;
+        flex: 0 0 280px;
+      }
+    }
+
+    .isHidden {
+      display: none;
+    }
+
+    #mobileToc.isHidden {
+      display: none;
+    }
+
+    @media(min-width:768px) {
+      #mobileToc.isHidden {
+        display: block;
+      }
+    }
+
+    /* ================= Modern ToC Aesthetics (World-Class Standard) ================= */
+    .tocList, .tocSub, .tocSub2, .tocSub3 {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .tocSub, .tocSub2, .tocSub3 {
+      margin-left: 14px;
+      padding-left: 14px;
+      border-left: 1.5px solid rgba(0, 184, 212, 0.15); /* Sleek guide thread */
+      display: none;
+      transition: all 0.3s ease;
+    }
+
+    .tocSub.isOpen, .tocSub2.isOpen, .tocSub3.isOpen {
+      display: flex;
+    }
+
+    .tocLink {
+      display: flex;
+      width: 100%;
+      box-sizing: border-box;
+      align-items: center;
+      gap: 12px;
+      padding: 7px 12px;
+      border-radius: 12px;
+      text-decoration: none !important;
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 13.5px;
+      line-height: 1.35;
+      transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .tocLink::before {
+      content: "";
+      width: 4px;
+      height: 14px;
+      border-radius: 8px;
+      background: transparent;
+      transition: all 200ms ease;
+      flex: 0 0 auto;
+    }
+
+    .tocLink:hover {
+      background: rgba(0, 96, 164, 0.04);
+      color: var(--aquera);
+      transform: translateX(4px);
+    }
+
+    .tocLink:hover::before {
+      background: rgba(0, 96, 164, 0.2);
+    }
+
+    /* Active State: Glassmorphism Pill */
+    .tocLink.isActive {
+      background: linear-gradient(90deg, rgba(0, 96, 164, 0.08), rgba(0, 96, 164, 0.02));
+      box-shadow: inset 0 0 0 1px rgba(0, 96, 164, 0.06);
+      color: var(--aquera);
+      font-weight: 700;
+      transform: translateX(4px);
+    }
+
+    .tocLink.isActive::before {
+      background: var(--aquera);
+      height: 18px;
+      width: 4px;
+      box-shadow: 0 0 12px rgba(0, 96, 164, 0.3);
+    }
+
+    /* Typography Matrix */
+    .tocList > .tocLink { font-weight: 700; font-size: 14px; } /* Level 1 */
+    .tocSub .tocLink { font-size: 13.5px; } /* Level 2 */
+    .tocSub2 .tocLink { font-size: 13px; color: var(--muted2); } /* Level 3 */
+    .tocSub3 .tocLink { font-size: 12.5px; color: var(--muted2); font-weight: 400; } /* Level 4 */
+
+    body.isLeftCollapsed .tocCol {
+      display: none !important;
+    }
+
+    body.isLeftCollapsed #leftReopenBtn {
+      display: grid;
+    }
+
+    #leftReopenBtn {
+      left: 12px;
+      top: 170px;
+    }
+
+    /* ================= Center Content Card ================= */
+    .card {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid rgba(229, 231, 235, .9);
+      border-radius: var(--r22);
+      box-shadow: var(--shadow2);
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .cardHeader {
+      padding: 22px 18px;
+      border-bottom: 1px solid rgba(229, 231, 235, .9);
+      background: linear-gradient(180deg, rgba(0, 96, 164, .06), transparent);
+    }
+
+    @media(min-width:768px) {
+      .cardHeader {
+        padding: 28px;
+      }
+    }
+
+    .cardTitle {
+      margin: 0;
+      text-align: center;
+      color: var(--aquera);
+      font-size: 28px;
+      font-weight: 950;
+      letter-spacing: -.02em;
+    }
+
+    .cardSubtitle {
+      margin: 6px 0 0;
+      text-align: center;
+      color: var(--muted2);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .cardBody {
+      padding: 18px;
+      max-width: var(--contentMax);
+      margin: 0 auto;
+    }
+
+    @media(min-width:768px) {
+      .cardBody {
+        padding: 28px;
+      }
+    }
+
+    .docSection {
+      scroll-margin-top: var(--scrollOffset);
+    }
+
+    .docSection:last-child {
+      border-bottom: none;
+    }
+
+    .stickySectionHeader {
+      position: sticky;
+      top: calc(var(--scrollOffset) - 58px);
+      z-index: 5;
+      padding: 10px 0 10px;
+      /* Removed background, backdrop-filter, border, and shadow for a cleaner look */
+    }
+
+    .stickySectionHeader h2 {
+      margin: 0;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      color: var(--aquera);
+      margin: 8px 0 4px;
+      letter-spacing: -.01em;
+    }
+
+    h2 {
+      font-size: 21px;
+      font-weight: 950;
+    }
+
+    h3 {
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    p {
+      margin: 0 0 6px;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+
+    .cardBody p, .cardBody li {
+      line-height: 1.65;
+      color: var(--ink);
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .cardBody p {
+      margin-left: 10px;
+    }
+
+    .cardBody ol,
+    .cardBody ul {
+      margin: 10px 0;
+      padding-left: 60px !important;
+      list-style-position: outside;
+    }
+
+    .cardBody li > ol,
+    .cardBody li > ul {
+      padding-left: 50px !important;
+      margin: 10px 0;
+    }
+
+    .cardBody img:not(.logo):not(.inline-icon) {
+      width: min(var(--contentMax), 100%);
+      border: 1px solid rgba(229, 231, 235, .95);
+      border-radius: 12px;
+      box-shadow: 0 14px 30px rgba(2, 6, 23, .08);
+      display: block;
+      margin: 14px 0 14px 4px;
+    }
+
+    .cardBody img.inline-icon {
+      display: inline-block;
+      vertical-align: middle;
+      margin: 0 4px;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      max-height: 1.15em;
+      width: auto !important;
+    }
+
+    .mediaSmall {
+      width: min(380px, 100%);
+    }
+
+    figcaption.caption {
+      font-size: 12px;
+      color: var(--muted2);
+      line-height: 1.4;
+      padding-left: 2px;
+    }
+
+    figcaption.caption strong {
+      color: var(--muted);
+    }
+
+    /* ================= Footer ================= */
+    .footer {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 12px;
+      padding: 16px 18px;
+      border-top: 1px solid rgba(229, 231, 235, .9);
+      background: linear-gradient(180deg, transparent, rgba(2, 6, 23, .02));
+    }
+
+    @media print {
+      /* Reset and Base */
+      @page {
+        size: A4;
+        margin: 20mm 15mm;
+      }
+
+      .header,
+      .menuBtn,
+      #leftReopenBtn,
+      #rightReopenBtn,
+      .tocCol,
+      .footer,
+      .collapseBtn,
+      .floatingReopen,
+      .modalOverlay {
+        display: none !important;
+      }
+
+      body {
+        background: white !important;
+        padding: 0 !important;
+        color: #000 !important;
+        font-size: 11pt !important;
+      }
+
+      .page {
+        display: block !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .card {
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        background: white !important;
+      }
+
+      .cardHeader {
+        display: none !important;
+      }
+
+      .cardBody {
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      /* PDF Cover Page */
+      .pdf-cover {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 260mm;
+        text-align: center;
+        page-break-after: always;
+        border: 1px solid #f1f5f9;
+        background: radial-gradient(circle at top right, rgba(0, 96, 164, 0.05), transparent);
+      }
+
+      .pdf-cover .logo {
+        height: 80px !important;
+        width: auto !important;
+        margin-bottom: 40px;
+      }
+
+      .pdf-cover h1 {
+        font-size: 42pt !important;
+        font-weight: 900;
+        color: var(--aquera) !important;
+        margin-bottom: 20px;
+        line-height: 1.1;
+      }
+
+      .pdf-cover .subtitle {
+        font-size: 18pt;
+        color: #475569;
+        margin-bottom: 80px;
+        font-weight: 600;
+      }
+
+      .pdf-cover .meta {
+        font-size: 11pt;
+        color: #94a3b8;
+        margin-top: auto;
+        padding-bottom: 60px;
+        border-top: 1px solid #e2e8f0;
+        width: 200px;
+        padding-top: 20px;
+      }
+
+      /* Sectioning and Breaks */
+      .docSection {
+        padding: 30px 0 !important;
+        page-break-inside: auto;
+        border-bottom: 1px solid #f1f5f9 !important;
+      }
+
+      h2 {
+        page-break-before: auto;
+        margin-top: 40px !important;
+        padding-top: 20px !important;
+        border-top: 2px solid var(--aquera) !important;
+      }
+
+      .stickySectionHeader {
+        position: static !important;
+        background: transparent !important;
+        padding: 0 !important;
+      }
+
+      h1, h2, h3 {
+        page-break-after: avoid;
+        color: var(--aquera) !important;
+      }
+      
+      img {
+        max-width: 100% !important;
+        page-break-inside: avoid;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+      }
+      
+      table {
+        page-break-inside: auto;
+        font-size: 10pt !important;
+      }
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+
+      a {
+        text-decoration: none !important;
+        color: var(--aquera) !important;
+      }
+    }
+
+    .pdf-only { display: none; }
+
+    /* TOC scroll container */
+    #mobileToc {
+      max-height: calc(100vh - 140px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    /* ===== Tables: branded and polished ===== */
+    table thead th {
+      background-color: #eef5fb;
+    }
+  </style>
+
+  <style id="aqueraEnhancements">
+    /* Responsive images */
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Preserve list hierarchy (nested lists inside li) */
+    .docSection ol,
+    .docSection ul {
+      padding-left: 22px;
+    }
+
+    .docSection li > ol,
+    .docSection li > ul {
+      margin: 8px 0 10px 0;
+    }
+
+    .docSection li {
+      margin-bottom: 8px;
+    }
+
+    ol.steps {
+      padding-left: 0;
+    }
+
+    ol.steps > li {
+      padding-left: 2px;
+    }
+
+    /* ===== SimpleTable (branded + polished) ===== */
+    .docSection table,
+    table.simpleTable {
+      width: min(var(--contentMax), 100%);
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 14px 0 18px;
+      border: 1px solid rgba(229, 231, 235, .95);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 12px 26px rgba(2, 6, 23, .08);
+      background: #fff;
+    }
+
+    .docSection table td,
+    .docSection table th,
+    table.simpleTable td,
+    table.simpleTable th {
+      padding: 11px 12px;
+      border-bottom: 1px solid rgba(229, 231, 235, .9);
+      border-right: 1px solid rgba(229, 231, 235, .9);
+      vertical-align: top;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+
+    .docSection table tr:last-child td,
+    table.simpleTable tr:last-child td {
+      border-bottom: none;
+    }
+
+    .docSection table th:last-child,
+    .docSection table td:last-child,
+    table.simpleTable th:last-child,
+    table.simpleTable td:last-child {
+      border-right: none;
+    }
+
+    /* Existing header rows (if present) */
+    .docSection table thead th,
+    table.simpleTable thead th {
+      background: rgba(0, 96, 164, .06);
+      color: var(--aquera);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    /* Brand first row of bodyless tables */
+    .docSection table:not(:has(thead)) tr:first-child td,
+    table.simpleTable:not(:has(thead)) tr:first-child td {
+      font-weight: 950;
+      text-align: center;
+    }
+
+    /* Zebra + strong first column for 2+ column tables */
+    .docSection table tbody tr:not(.tableBrandRow):nth-child(even) td,
+    table.simpleTable tbody tr:not(.tableBrandRow):nth-child(even) td {
+      background: rgba(2, 6, 23, .012);
+    }
+
+    .docSection table tbody tr:not(.tableBrandRow) td:first-child,
+    table.simpleTable tbody tr:not(.tableBrandRow) td:first-child {
+      font-weight: 900;
+      color: var(--ink);
+      width: 220px;
+    }
+
+    /* Ensure header cell in first column still looks consistent */
+    .docSection table thead th:first-child,
+    .docSection table:not(:has(thead)) tr:first-child td:first-child {
+      font-weight: 950;
+    }
+
+    @media(max-width:680px) {
+      .docSection table tbody tr:not(.tableBrandRow) td:first-child,
+      table.simpleTable tbody tr:not(.tableBrandRow) td:first-child {
+        width: auto;
+      }
+    }
+
+    /* Unordered Lists styling in docSection */
+    .docSection ul {
+      margin: 10px 0;
+      padding-left: 24px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .docSection ul li {
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="headerInner">
+      <img alt="Logo" class="logo" src="images/logo.svg" />
+      <button class="menuBtn" onclick="toggleToc()" type="button">Menu</button>
+    </div>
+  </header>
+
+  <!-- PDF Cover Page (Visible only in Print) -->
+  <div class="pdf-only pdf-cover">
+    <img src="images/logo.svg" alt="Logo" class="logo">
+    <h1>{{ title }}</h1>
+    <div class="subtitle">Official Documentation & User Guide</div>
+    <div class="meta">
+        Generated on {{ date }}<br>
+        Confidential & Proprietary
+    </div>
+  </div>
+
+  <!-- Floating reopen buttons -->
+  <button aria-label="Show table of contents" class="floatingReopen" id="leftReopenBtn" style="left:12px; top:170px; display: none;" type="button">
+    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </button>
+  <button aria-label="Show videos panel" class="floatingReopen" id="rightReopenBtn" style="right:12px; top:170px; display: none;" type="button">
+    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </button>
+
+  <div class="page">
+    <!-- LEFT: TOC -->
+    <aside class="tocCol panelSticky">
+      <nav aria-label="Table of contents" class="panelCard" id="mobileToc">
+        <div class="panelHead">
+          <div class="panelTitleRow">
+            <button aria-label="Hide table of contents" class="collapseBtn" id="leftCollapseBtn" type="button">
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+            <h2 class="panelTitle" id="table-of-contents"><span class="panelDot"></span>Table of contents</h2>
+          </div>
+          <span></span>
+        </div>
+        <div class="tocList">
+          <div style="padding: 20px; color: var(--muted); font-size: 14px;">Loading Table of Contents...</div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- CENTER: CONTENT -->
+    <main class="card">
+      <div class="cardHeader">
+        <h1 class="cardTitle">{{ title }}</h1>
+        <p class="cardSubtitle">Aquera Documentation</p>
+      </div>
+      <div class="cardBody">
+        {{ content_html }}
+      </div>
+      <footer class="footer">
+        © 2026 Aquera, Inc. All rights reserved.
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    function toggleToc() {
+      document.getElementById('mobileToc').classList.toggle('isHidden');
+    }
+
+    function setLeftCollapsed(isCollapsed) {
+      document.body.classList.toggle('isLeftCollapsed', isCollapsed);
+      try { localStorage.setItem('leftPanelCollapsed', isCollapsed ? '1' : '0'); } catch (e) { }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        if (localStorage.getItem('leftPanelCollapsed') === '1') document.body.classList.add('isLeftCollapsed');
+      } catch (e) { }
+
+      function slugify(text) {
+        return text.toString().toLowerCase().trim()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w-]+/g, '')
+          .replace(/--+/g, '-');
+      }
+
+      function buildDynamicToC() {
+        const tocList = document.querySelector('.tocList');
+        if (!tocList) return;
+        tocList.innerHTML = '';
+
+        let currentH1Sub = null;
+        let currentH2Sub = null;
+        let currentH3Sub = null;
+        let idCounts = {};
+
+        const contentHeadings = document.querySelectorAll('.cardBody h1, .cardBody h2, .cardBody h3, .cardBody h4, .docSection h1, .docSection h2, .docSection h3, .docSection h4');
+
+        contentHeadings.forEach(h => {
+          let id = h.id || slugify(h.textContent);
+          if (!h.id) {
+            if (idCounts[id]) {
+              idCounts[id]++;
+              id = `${id}-${idCounts[id]}`;
+            } else {
+              idCounts[id] = 1;
+            }
+            h.id = id;
+          }
+
+          const link = document.createElement('a');
+          link.className = 'tocLink';
+          link.href = '#' + h.id;
+          link.textContent = h.textContent;
+
+          if (h.tagName === 'H1') {
+            tocList.appendChild(link);
+            currentH1Sub = document.createElement('div');
+            currentH1Sub.className = 'tocSub';
+            tocList.appendChild(currentH1Sub);
+            currentH2Sub = null;
+            currentH3Sub = null;
+          } else if (h.tagName === 'H2') {
+            const parent = currentH1Sub || tocList;
+            parent.appendChild(link);
+            currentH2Sub = document.createElement('div');
+            currentH2Sub.className = 'tocSub2';
+            parent.appendChild(currentH2Sub);
+            currentH3Sub = null;
+          } else if (h.tagName === 'H3') {
+            const parent = currentH2Sub || currentH1Sub || tocList;
+            parent.appendChild(link);
+            currentH3Sub = document.createElement('div');
+            currentH3Sub.className = 'tocSub3';
+            parent.appendChild(currentH3Sub);
+          } else if (h.tagName === 'H4') {
+            const parent = currentH3Sub || currentH2Sub || currentH1Sub || tocList;
+            parent.appendChild(link);
+          }
+        });
+
+        document.querySelectorAll('.tocSub, .tocSub2, .tocSub3').forEach(sub => {
+          if (sub.children.length === 0) sub.remove();
+        });
+      }
+
+      buildDynamicToC();
+
+      const tocLinks = Array.from(document.querySelectorAll('.tocLink'));
+      const tocSubs = Array.from(document.querySelectorAll('.tocSub, .tocSub2, .tocSub3'));
+      const allTargets = Array.from(document.querySelectorAll('.cardBody h1[id], .cardBody h2[id], .cardBody h3[id], .cardBody h4[id], .docSection h1[id], .docSection h2[id], .docSection h3[id], .docSection h4[id]'));
+      const header = document.querySelector('.header');
+
+      function getOffset() {
+        return parseInt(getComputedStyle(document.documentElement).getPropertyValue(
+          document.querySelector('.header.isHidden') ? '--scrollOffsetHidden' : '--scrollOffset')) || 130;
+      }
+
+      const headingToTocLink = new Map();
+      allTargets.forEach(el => {
+        let link = tocLinks.find(a => (a.hash || '').replace('#', '') === el.id);
+        if (!link) {
+          let ancestor = el.parentElement;
+          while (ancestor && !link) {
+            if (ancestor.id) link = tocLinks.find(a => (a.hash || '').replace('#', '') === ancestor.id);
+            ancestor = ancestor.parentElement;
+          }
+        }
+        if (link) headingToTocLink.set(el.id, link);
+      });
+
+      function getActiveId() {
+        const offset = getOffset() + 40;
+        let best = null;
+        let bestTop = -Infinity;
+        for (const el of allTargets) {
+          const top = el.getBoundingClientRect().top;
+          if (top <= offset && top > bestTop) {
+            bestTop = top;
+            best = el.id;
+          }
+        }
+        return best || (allTargets[0] ? allTargets[0].id : null);
+      }
+
+      function scrollTocToLink(link) {
+        const tocScroll = document.getElementById('mobileToc');
+        if (!tocScroll || !link) return;
+        const linkRect = link.getBoundingClientRect();
+        const panelRect = tocScroll.getBoundingClientRect();
+        const linkTopInPanel = linkRect.top - panelRect.top + tocScroll.scrollTop;
+        const linkBottom = linkTopInPanel + link.offsetHeight;
+        const viewTop = tocScroll.scrollTop;
+        const viewBottom = viewTop + tocScroll.clientHeight;
+        if (linkTopInPanel < viewTop + 12 || linkBottom > viewBottom - 12) {
+          const target = linkTopInPanel - tocScroll.clientHeight / 2 + link.offsetHeight / 2;
+          tocScroll.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+        }
+      }
+
+      let currentLink = null;
+
+      function applyHighlight(id, scrollToc) {
+        if (!id) return;
+        const link = headingToTocLink.get(id) || tocLinks.find(a => (a.hash || '').replace('#', '') === id);
+        if (!link || link === currentLink) return;
+        currentLink = link;
+
+        tocLinks.forEach(a => a.classList.toggle('isActive', a === link));
+
+        tocSubs.forEach(sub => sub.classList.remove('isOpen'));
+        let node = link;
+        while (node && !node.classList.contains('tocList')) {
+          if (node.classList.contains('tocSub') || node.classList.contains('tocSub2') || node.classList.contains('tocSub3') || node.classList.contains('tocSub4')) {
+            node.classList.add('isOpen');
+          }
+          const sibling = node.nextElementSibling;
+          if (sibling && (sibling.classList.contains('tocSub') || sibling.classList.contains('tocSub2') || sibling.classList.contains('tocSub3') || sibling.classList.contains('tocSub4'))) {
+            sibling.classList.add('isOpen');
+          }
+          node = node.parentElement;
+        }
+
+        if (scrollToc) {
+          requestAnimationFrame(() => requestAnimationFrame(() => scrollTocToLink(link)));
+        }
+      }
+
+      let ticking = false;
+      let fromClick = false;
+
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        if (y > 10) header.classList.add('isHidden');
+        else header.classList.remove('isHidden');
+
+        if (fromClick) { fromClick = false; return; }
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          applyHighlight(getActiveId(), true);
+          ticking = false;
+        });
+      }, { passive: true });
+
+      tocLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (window.innerWidth < 768) document.getElementById('mobileToc').classList.add('isHidden');
+
+          const targetId = (link.hash || '').replace('#', '');
+          const targetEl = document.getElementById(targetId);
+
+          if (targetEl) {
+            const offset = getOffset();
+            const top = targetEl.getBoundingClientRect().top + window.scrollY - offset;
+            fromClick = true;
+            window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
+          }
+
+          currentLink = null;
+          applyHighlight(targetId, true);
+        });
+      });
+
+      document.getElementById('leftCollapseBtn')?.addEventListener('click', () => setLeftCollapsed(true));
+      document.getElementById('leftReopenBtn')?.addEventListener('click', () => setLeftCollapsed(false));
+
+      function syncIcons() {
+        document.querySelectorAll('img.inline-icon').forEach(img => {
+          img.parentElement.classList.add('inline-icon-container');
+        });
+      }
+
+      applyHighlight(getActiveId());
+      syncIcons();
+    });
+  </script>
+</body>
+
+</html>

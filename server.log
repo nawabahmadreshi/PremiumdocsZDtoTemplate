@@ -1,0 +1,35 @@
+ * Serving Flask app 'main'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.29.189:5001
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 100-349-639
+127.0.0.1 - - [16/May/2026 02:22:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/May/2026 02:22:53] "GET /static/images/logo.svg HTTP/1.1" 200 -
+127.0.0.1 - - [16/May/2026 02:22:53] "GET /branding HTTP/1.1" 200 -
+127.0.0.1 - - [16/May/2026 02:22:57] "POST /generate HTTP/1.1" 200 -
+127.0.0.1 - - [16/May/2026 02:23:03] "GET /download HTTP/1.1" 200 -
+127.0.0.1 - - [16/May/2026 02:24:10] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/May/2026 02:24:10] "[36mGET /static/images/logo.svg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:10] "[36mGET /branding HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:13] "[36mGET / HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:13] "[36mGET /static/images/logo.svg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:13] "[36mGET /branding HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:13] "[36mGET / HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:13] "[36mGET /static/images/logo.svg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:13] "[36mGET /branding HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:14] "[36mGET / HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:14] "[36mGET /static/images/logo.svg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:14] "[36mGET /branding HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:14] "[36mGET / HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:14] "[36mGET /static/images/logo.svg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:14] "[36mGET /branding HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:18] "[36mGET / HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:18] "[36mGET /static/images/logo.svg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:19] "[36mGET /branding HTTP/1.1[0m" 304 -
+127.0.0.1 - - [16/May/2026 02:24:23] "POST /generate HTTP/1.1" 200 -
+127.0.0.1 - - [16/May/2026 02:24:31] "GET /download HTTP/1.1" 200 -

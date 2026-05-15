@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZD-to-HTML-Styled | Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --aquera: rgb(0, 96, 164);
+      --aquera-dark: rgb(0, 76, 128);
+      --ink: #0f172a;
+      --muted: #475569;
+      --glass: rgba(255, 255, 255, 0.85);
+      --border: rgba(0, 96, 164, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+      background: 
+        radial-gradient(1000px 600px at 10% 10%, rgba(0, 96, 164, 0.1), transparent 50%),
+        radial-gradient(800px 500px at 90% 90%, rgba(0, 96, 164, 0.08), transparent 50%),
+        #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 540px;
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 48px;
+      box-shadow: 0 24px 64px -12px rgba(0, 96, 164, 0.12);
+      text-align: center;
+      transition: transform 0.4s ease;
+    }
+
+    .logo {
+      height: 38px;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin: 0 0 12px;
+      color: var(--aquera);
+    }
+
+    p {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      margin: 0 0 32px;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 18px;
+      background: var(--aquera);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 10px 20px -5px rgba(0, 96, 164, 0.3);
+    }
+
+    .action-btn:hover {
+      background: var(--aquera-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px -5px rgba(0, 96, 164, 0.4);
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
+    }
+
+    .action-btn:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* Processing State */
+    .status-area {
+      display: none;
+      margin-top: 24px;
+    }
+
+    .card.is-processing .status-area {
+      display: block;
+    }
+
+    .card.is-processing #setupArea {
+      display: none;
+    }
+
+    /* Progress Bar */
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(0, 96, 164, 0.08);
+      border-radius: 99px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--aquera), #60a5fa);
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card.is-processing .progress-track {
+      display: block;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(0, 96, 164, 0.1);
+      border-top-color: var(--aquera);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .log {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .step-item {
+      font-size: 14px;
+      padding: 8px 0;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: color 0.3s ease;
+    }
+
+    .step-item.is-active {
+      color: var(--aquera);
+      font-weight: 700;
+    }
+
+    .step-item.is-done {
+      color: #10b981;
+    }
+
+    /* Success State */
+    .success-area {
+      display: none;
+      margin-top: 24px;
+    }
+
+    .card.is-success #setupArea {
+      display: none;
+    }
+
+    .card.is-success .success-area {
+      display: block;
+    }
+
+    .download-btn {
+      background: #10b981;
+      box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.3);
+    }
+
+    .download-btn:hover {
+      background: #059669;
+      box-shadow: 0 14px 28px -5px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Report Area */
+    .report-area {
+      display: none;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .report-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #ea580c;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .report-table-container {
+      max-height: 250px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: white;
+    }
+
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .report-table th {
+      background: #f8fafc;
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+    }
+
+    .report-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.03);
+      color: var(--ink);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .badge-fixed { background: #dcfce7; color: #166534; }
+    .badge-uncertain { background: #ffedd5; color: #9a3412; }
+
+
+  </style>
+</head>
+<body>
+
+  <div class="card" id="appCard">
+    <img src="/static/images/logo.svg" alt="Aquera" class="logo">
+    <h1>Documentation Hub</h1>
+    <p>Refresh and sync your <b>Zendesk Guide</b> articles directly into a premium offline documentation bundle.</p>
+    
+    <div id="setupArea">
+      <div style="margin-bottom: 24px; text-align: left;">
+        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--aquera); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Zendesk Article ID</label>
+        <input type="text" id="articleIdInput" value="33370331621527" placeholder="e.g. 123456789" style="width: 100%; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--border); background: white; font-size: 15px; font-weight: 600; outline: none; transition: border-color 0.2s;">
+      </div>
+
+      <button class="action-btn" id="generateBtn" onclick="generate()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 2v6h-6"></path>
+          <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+          <path d="M3 22v-6h6"></path>
+          <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+        </svg>
+        Sync & Generate Bundle
+      </button>
+    </div>
+
+    <div class="status-area">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div id="stepsContainer" style="text-align: left; max-width: 280px; margin: 0 auto;">
+        <div class="step-item" id="step1">○ Fetching from Zendesk</div>
+        <div class="step-item" id="step2">○ Clean & Apply Style</div>
+        <div class="step-item" id="step3">○ Preparing Download</div>
+      </div>
+    </div>
+
+    <div class="success-area">
+      <p style="margin-bottom: 20px; color: #059669; font-weight: 600;">✨ Generation Complete!</p>
+      <button class="action-btn download-btn" onclick="download()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download Documentation ZIP
+      </button>
+
+      <button class="action-btn" style="margin-top: 12px; background: #ea580c; box-shadow: 0 10px 20px -5px rgba(234, 88, 12, 0.3);" onclick="downloadPDF()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        Download PDF Guide
+      </button>
+
+      <button style="margin-top: 20px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-weight: 600; font-size: 14px;" onclick="reset()">Generate another</button>
+      
+      <div id="reportArea" class="report-area">
+        <div class="report-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          Broken Links Scan Results
+        </div>
+        <p style="font-size: 12px; margin-bottom: 12px;">The following internal links were identified as broken and fixed automatically where possible.</p>
+        <div class="report-table-container">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Link Text</th>
+                <th>Status</th>
+                <th>New Target</th>
+              </tr>
+            </thead>
+            <tbody id="reportTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size: 11px; margin-top: 12px; color: var(--muted);">A full detailed report has been saved to <b>broken_links_report.txt</b></p>
+      </div>
+    </div>
+
+    <!-- Branding Settings -->
+    <div style="margin-top: 32px; border-top: 1px solid var(--border); padding-top: 20px;">
+      <button id="brandingToggle" style="background: none; border: none; color: var(--aquera); font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px; margin: 0 auto;" onclick="toggleBranding()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Branding Settings
+      </button>
+      
+      <div id="brandingArea" style="display: none; margin-top: 20px; text-align: left; background: rgba(0,96,164,0.03); padding: 24px; border-radius: 20px; border: 1px solid var(--border);">
+        <div style="margin-bottom: 18px;">
+          <label style="display: block; font-size: 11px; font-weight: 900; color: var(--muted); margin-bottom: 6px; text-transform: uppercase;">Company Name</label>
+          <input type="text" id="companyNameInput" value="Aquera" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 14px; font-weight: 600;">
+        </div>
+        
+        <div style="margin-bottom: 18px; display: flex; gap: 16px;">
+          <div style="flex: 1;">
+            <label style="display: block; font-size: 11px; font-weight: 900; color: var(--muted); margin-bottom: 6px; text-transform: uppercase;">Brand Color</label>
+            <input type="color" id="primaryColorInput" value="#0060a4" style="width: 100%; height: 42px; padding: 4px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer;">
+          </div>
+          <div style="flex: 2;">
+            <label style="display: block; font-size: 11px; font-weight: 900; color: var(--muted); margin-bottom: 6px; text-transform: uppercase;">Logo</label>
+            <input type="file" id="logoUpload" accept="image/*" style="font-size: 12px; margin-top: 10px;">
+          </div>
+        </div>
+        
+        <button class="action-btn" style="padding: 14px; font-size: 14px; background: var(--muted);" id="saveBrandingBtn" onclick="saveBranding()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const card = document.getElementById('appCard');
+
+    document.addEventListener('DOMContentLoaded', loadBranding);
+
+    async function loadBranding() {
+      try {
+        const response = await fetch('/branding');
+        const settings = await response.json();
+        document.getElementById('companyNameInput').value = settings.company_name;
+        document.getElementById('primaryColorInput').value = settings.primary_color;
+        
+        // Apply color to UI
+        document.documentElement.style.setProperty('--aquera', settings.primary_color);
+      } catch (e) { console.error("Failed to load branding", e); }
+    }
+
+    function toggleBranding() {
+      const area = document.getElementById('brandingArea');
+      area.style.display = area.style.display === 'none' ? 'block' : 'none';
+      document.getElementById('brandingToggle').style.color = area.style.display === 'none' ? '#0060a4' : '#475569';
+    }
+
+    async function saveBranding() {
+      const btn = document.getElementById('saveBrandingBtn');
+      btn.textContent = 'Saving...';
+      
+      const company_name = document.getElementById('companyNameInput').value;
+      const primary_color = document.getElementById('primaryColorInput').value;
+      const logoFile = document.getElementById('logoUpload').files[0];
+
+      try {
+        // 1. Save JSON settings
+        await fetch('/branding', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ company_name, primary_color })
+        });
+
+        // 2. Upload logo if provided
+        if (logoFile) {
+          const formData = new FormData();
+          formData.append('logo', logoFile);
+          await fetch('/upload-logo', {
+            method: 'POST',
+            body: formData
+          });
+        }
+
+        alert('Branding updated! Generated guides will now use these settings.');
+        loadBranding();
+        toggleBranding();
+      } catch (e) {
+        alert('Error saving branding: ' + e);
+      } finally {
+        btn.textContent = 'Save Changes';
+      }
+    }
+
+    async function generate() {
+      const articleIdInput = document.getElementById('articleIdInput');
+      const articleId = articleIdInput ? articleIdInput.value.trim() : '33370331621527';
+      
+      if (!articleId) {
+        alert('Please enter a valid Zendesk Article ID');
+        return;
+      }
+
+      card.className = 'card is-processing';
+      
+      const s1 = document.getElementById('step1');
+      const s2 = document.getElementById('step2');
+      const s3 = document.getElementById('step3');
+      const fill = document.getElementById('progressFill');
+
+      // Reset
+      fill.style.width = '0%';
+      [s1, s2, s3].forEach(s => {
+        s.className = 'step-item';
+        s.textContent = s.textContent.replace('✓', '○').replace('●', '○');
+      });
+
+      // Step 1: Fetch
+      s1.className = 'step-item is-active';
+      s1.textContent = '● Fetching from Zendesk';
+      fill.style.width = '10%';
+
+      try {
+        const response = await fetch('/generate', { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ article_id: articleId })
+        });
+        
+        // Update to 40% after fetch initiates
+        fill.style.width = '40%';
+        
+        // Step 2: Clean & Style
+        s1.className = 'step-item is-done';
+        s1.textContent = '✓ Fetching from Zendesk';
+        
+        s2.className = 'step-item is-active';
+        s2.textContent = '● Clean & Apply Style';
+        fill.style.width = '70%';
+        await new Promise(r => setTimeout(r, 2000));
+        
+        s2.className = 'step-item is-done';
+        s2.textContent = '✓ Clean & Apply Style';
+
+        // Step 3: Bundle
+        s3.className = 'step-item is-active';
+        s3.textContent = '● Preparing Download';
+        fill.style.width = '90%';
+        await new Promise(r => setTimeout(r, 1500));
+        
+        s3.className = 'step-item is-done';
+        s3.textContent = '✓ Preparing Download';
+        fill.style.width = '100%';
+
+        const result = await response.json();
+        if (result.success) {
+          // Populate broken links report
+          const reportArea = document.getElementById('reportArea');
+          const tableBody = document.getElementById('reportTableBody');
+          tableBody.innerHTML = '';
+          
+          if (result.broken_links && result.broken_links.length > 0) {
+            result.broken_links.forEach(link => {
+              const row = document.createElement('tr');
+              const isFixed = link.status === 'FIXED';
+              row.innerHTML = `
+                <td>${link.text}</td>
+                <td><span class="badge ${isFixed ? 'badge-fixed' : 'badge-uncertain'}">${link.status}</span></td>
+                <td><code>${link.new_target}</code></td>
+              `;
+              tableBody.appendChild(row);
+            });
+            reportArea.style.display = 'block';
+          } else {
+            tableBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px; color: #059669; font-weight: 600;">No broken links found!</td></tr>';
+            reportArea.style.display = 'block';
+          }
+
+          setTimeout(() => {
+            card.className = 'card is-success';
+          }, 500);
+        } else {
+          alert('Error during generation: ' + result.error);
+          reset();
+        }
+      } catch (err) {
+        alert('Network error. Is the server running?');
+        reset();
+      }
+    }
+
+    function download() {
+      window.location.href = '/download';
+    }
+
+    function downloadPDF() {
+      window.location.href = '/generate-pdf';
+    }
+
+    function reset() {
+      card.className = 'card';
+      document.getElementById('reportArea').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
