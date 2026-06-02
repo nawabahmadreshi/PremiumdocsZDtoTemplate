@@ -1,0 +1,8 @@
+{
+  "experimentalServices": {
+    "aquera-premium-hub": {
+      "type": "web",
+      "routePrefix": "/"
+    }
+  }
+}

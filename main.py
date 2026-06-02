@@ -32,13 +32,37 @@ def get_resource_path(relative_path):
         base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
 
+def use_kv():
+    return bool(os.environ.get('KV_REST_API_URL'))
+
 def use_blob():
     return bool(os.environ.get('BLOB_READ_WRITE_TOKEN'))
 
 def read_json_data(filename, default_val=None):
     if default_val is None: default_val = [] if any(x in filename for x in ['logs', 'events', 'comments']) else {}
     
-    if use_blob():
+    if use_kv():
+        url = os.environ.get('KV_REST_API_URL')
+        token = os.environ.get('KV_REST_API_TOKEN')
+        if not url or not token: return default_val
+        try:
+            req_url = f"{url.rstrip('/')}/get/{urllib.parse.quote(filename)}"
+            req = urllib.request.Request(req_url, method='GET')
+            req.add_header('Authorization', f'Bearer {token}')
+            with urllib.request.urlopen(req) as response:
+                res = json.loads(response.read().decode())
+                val = res.get('result')
+                if val is None:
+                    local_path = os.path.join(os.getcwd(), "data", filename)
+                    if os.path.exists(local_path):
+                        with open(local_path, 'r') as f: return json.load(f)
+                    return default_val
+                return json.loads(val)
+        except Exception as e:
+            print(f"KV read error for {filename}: {e}")
+            return default_val
+            
+    elif use_blob():
         token = os.environ.get('BLOB_READ_WRITE_TOKEN')
         if not token: return default_val
         try:
@@ -74,7 +98,24 @@ def read_json_data(filename, default_val=None):
 
 def write_json_data(filename, data):
     success = False
-    if use_blob():
+    if use_kv():
+        url = os.environ.get('KV_REST_API_URL')
+        token = os.environ.get('KV_REST_API_TOKEN')
+        if url and token:
+            try:
+                data_str = json.dumps(data)
+                req_url = f"{url.rstrip('/')}/set/{urllib.parse.quote(filename)}"
+                req = urllib.request.Request(req_url, data=json.dumps(data_str).encode('utf-8'), method='POST')
+                req.add_header('Authorization', f'Bearer {token}')
+                req.add_header('Content-Type', 'application/json')
+                with urllib.request.urlopen(req) as response:
+                    res = json.loads(response.read().decode())
+                    if res.get('result') == 'OK':
+                        success = True
+            except Exception as e:
+                print(f"KV write error for {filename}: {e}")
+                
+    elif use_blob():
         token = os.environ.get('BLOB_READ_WRITE_TOKEN')
         if token:
             try:
