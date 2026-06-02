@@ -281,7 +281,7 @@ def perform_maintenance(force_cleanup=False):
 
 @app.route('/')
 def index():
-    return send_from_directory(app.static_folder, 'index.html')
+    return send_from_directory(app.static_folder, 'admin.html')
 
 @app.route('/admin')
 def admin():
