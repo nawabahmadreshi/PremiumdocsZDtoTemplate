@@ -515,7 +515,8 @@
 
         <!-- Time Filter Bar -->
         <div class="time-filter-bar">
-          <button class="time-btn active" id="tf-weekly" onclick="switchTimeFilter('weekly')">Last 7 Days</button>
+          <button class="time-btn active" id="tf-all" onclick="switchTimeFilter('all')">All Time</button>
+          <button class="time-btn" id="tf-weekly" onclick="switchTimeFilter('weekly')">Last 7 Days</button>
           <button class="time-btn" id="tf-monthly" onclick="switchTimeFilter('monthly')">Last 30 Days</button>
           <button class="time-btn" id="tf-custom" onclick="switchTimeFilter('custom')">Custom Range</button>
         </div>
@@ -665,7 +666,7 @@
     let allEvents = [];
     let globalLiveCount = 0;
     let currentFilter = 'all';
-    let activeTimeFilter = 'weekly';
+    let activeTimeFilter = 'all';
     let customFrom = null;
     let customTo = null;
     let radarPollInterval = null;
