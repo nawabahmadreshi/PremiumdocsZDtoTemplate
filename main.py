@@ -47,10 +47,53 @@ def use_blob():
 def read_json_data(filename, default_val=None):
     if default_val is None: default_val = [] if any(x in filename for x in ['logs', 'events', 'comments']) else {}
     
+    is_on_vercel = os.environ.get('VERCEL') == '1'
+    
+    # LOCAL MODE: Always prefer local files (they are the source of truth locally)
+    if not is_on_vercel:
+        data_dir = os.path.join(os.getcwd(), "data")
+        os.makedirs(data_dir, exist_ok=True)
+        local_path = os.path.join(data_dir, filename)
+        if os.path.exists(local_path):
+            try:
+                with open(local_path, 'r') as f: return json.load(f)
+            except: pass
+        return default_val
+    
+    # VERCEL MODE: Read from KV or Blob
     if use_kv():
         url = os.environ.get('KV_REST_API_URL')
         token = os.environ.get('KV_REST_API_TOKEN')
         if not url or not token: return default_val
+        
+        # Special handling for parsed_event_cache.json using chunks
+        if filename == 'parsed_event_cache.json':
+            try:
+                # Try reading manifest
+                manifest_url = f"{url.rstrip('/')}/get/{urllib.parse.quote('parsed_event_cache_manifest.json')}"
+                req = urllib.request.Request(manifest_url, method='GET')
+                req.add_header('Authorization', f'Bearer {token}')
+                with urllib.request.urlopen(req) as response:
+                    res = json.loads(response.read().decode())
+                    manifest_val = res.get('result')
+                    if manifest_val:
+                        manifest = json.loads(manifest_val)
+                        num_chunks = manifest.get('chunks', 0)
+                        all_events = []
+                        for idx in range(num_chunks):
+                            chunk_url = f"{url.rstrip('/')}/get/{urllib.parse.quote(f'parsed_event_cache_chunk_{idx}.json')}"
+                            c_req = urllib.request.Request(chunk_url, method='GET')
+                            c_req.add_header('Authorization', f'Bearer {token}')
+                            with urllib.request.urlopen(c_req) as c_resp:
+                                c_res = json.loads(c_resp.read().decode())
+                                c_val = c_res.get('result')
+                                if c_val:
+                                    all_events.extend(json.loads(c_val))
+                        if all_events:
+                            return all_events
+            except Exception as e:
+                print(f"KV Chunked read failed: {e}. Falling back to single get...")
+
         try:
             req_url = f"{url.rstrip('/')}/get/{urllib.parse.quote(filename)}"
             req = urllib.request.Request(req_url, method='GET')
@@ -59,9 +102,6 @@ def read_json_data(filename, default_val=None):
                 res = json.loads(response.read().decode())
                 val = res.get('result')
                 if val is None:
-                    local_path = os.path.join(os.getcwd(), "data", filename)
-                    if os.path.exists(local_path):
-                        with open(local_path, 'r') as f: return json.load(f)
                     return default_val
                 return json.loads(val)
         except Exception as e:
@@ -79,9 +119,6 @@ def read_json_data(filename, default_val=None):
                 res = json.loads(response.read().decode())
                 blobs = res.get('blobs', [])
                 if not blobs:
-                    local_path = os.path.join(os.getcwd(), "data", filename)
-                    if os.path.exists(local_path):
-                        with open(local_path, 'r') as f: return json.load(f)
                     return default_val
                 
                 blob_url = blobs[0]['url']
@@ -92,34 +129,55 @@ def read_json_data(filename, default_val=None):
         except Exception as e:
             print(f"Blob read error for {filename}: {e}")
             return default_val
-    else:
-        data_dir = os.path.join(os.getcwd(), "data")
-        os.makedirs(data_dir, exist_ok=True)
-        local_path = os.path.join(data_dir, filename)
-        if os.path.exists(local_path):
-            try:
-                with open(local_path, 'r') as f: return json.load(f)
-            except: pass
-        return default_val
+    
+    return default_val
 
 def write_json_data(filename, data):
     success = False
+    is_on_vercel = os.environ.get('VERCEL') == '1'
+    
     if use_kv():
         url = os.environ.get('KV_REST_API_URL')
         token = os.environ.get('KV_REST_API_TOKEN')
         if url and token:
-            try:
-                data_str = json.dumps(data)
-                req_url = f"{url.rstrip('/')}/set/{urllib.parse.quote(filename)}"
-                req = urllib.request.Request(req_url, data=data_str.encode('utf-8'), method='POST')
-                req.add_header('Authorization', f'Bearer {token}')
-                req.add_header('Content-Type', 'application/json')
-                with urllib.request.urlopen(req) as response:
-                    res = json.loads(response.read().decode())
-                    if res.get('result') == 'OK':
+            # Special chunked write for parsed_event_cache.json to avoid payload limit on Vercel/Upstash
+            if filename == 'parsed_event_cache.json' and isinstance(data, list) and len(data) > 1000:
+                try:
+                    CHUNK = 800
+                    chunks = [data[i:i+CHUNK] for i in range(0, len(data), CHUNK)]
+                    for idx, chunk in enumerate(chunks):
+                        chunk_str = json.dumps(chunk)
+                        c_url = f"{url.rstrip('/')}/set/{urllib.parse.quote(f'parsed_event_cache_chunk_{idx}.json')}"
+                        c_req = urllib.request.Request(c_url, data=chunk_str.encode('utf-8'), method='POST')
+                        c_req.add_header('Authorization', f'Bearer {token}')
+                        c_req.add_header('Content-Type', 'application/json')
+                        with urllib.request.urlopen(c_req) as resp:
+                            pass
+                    
+                    manifest = {'total_events': len(data), 'chunks': len(chunks), 'chunk_size': CHUNK}
+                    m_str = json.dumps(manifest)
+                    m_url = f"{url.rstrip('/')}/set/{urllib.parse.quote('parsed_event_cache_manifest.json')}"
+                    m_req = urllib.request.Request(m_url, data=m_str.encode('utf-8'), method='POST')
+                    m_req.add_header('Authorization', f'Bearer {token}')
+                    m_req.add_header('Content-Type', 'application/json')
+                    with urllib.request.urlopen(m_req) as resp:
                         success = True
-            except Exception as e:
-                print(f"KV write error for {filename}: {e}")
+                except Exception as e:
+                    print(f"KV Chunked write failed: {e}")
+            
+            if not success:
+                try:
+                    data_str = json.dumps(data)
+                    req_url = f"{url.rstrip('/')}/set/{urllib.parse.quote(filename)}"
+                    req = urllib.request.Request(req_url, data=data_str.encode('utf-8'), method='POST')
+                    req.add_header('Authorization', f'Bearer {token}')
+                    req.add_header('Content-Type', 'application/json')
+                    with urllib.request.urlopen(req) as response:
+                        res = json.loads(response.read().decode())
+                        if res.get('result') == 'OK':
+                            success = True
+                except Exception as e:
+                    print(f"KV write error for {filename}: {e}")
                 
     elif use_blob():
         token = os.environ.get('BLOB_READ_WRITE_TOKEN')
@@ -135,7 +193,7 @@ def write_json_data(filename, data):
                 print(f"Blob write error for {filename}: {e}")
                 
     # If we are running locally (VERCEL is not 1), ALSO save a physical copy to the hard drive for double backup
-    if os.environ.get('VERCEL') != '1':
+    if not is_on_vercel:
         data_dir = os.path.join(os.getcwd(), "data")
         os.makedirs(data_dir, exist_ok=True)
         local_path = os.path.join(data_dir, filename)

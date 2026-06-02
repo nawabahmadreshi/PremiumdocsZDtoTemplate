@@ -20,6 +20,7 @@ FILES_TO_UPLOAD = [
     "last_live_comments.json",
     "notified_events.json",
     "parsed_event_cache.json",
+    "master_event_backup.json",
     "maintenance_notice.json"
 ]
 
