@@ -11,15 +11,21 @@ LOG_FILE="$PROJECT_DIR/launcher_debug.log"
 echo "--- Starting Aquera Hub ($(date)) ---" > "$LOG_FILE"
 
 # 2. Find Python
-# Try common paths if 'which' fails in GUI context
-PYTHON_EXE=$(which python3)
-if [ -z "$PYTHON_EXE" ]; then
-    if [ -f "/usr/bin/python3" ]; then
-        PYTHON_EXE="/usr/bin/python3"
-    elif [ -f "/usr/local/bin/python3" ]; then
-        PYTHON_EXE="/usr/local/bin/python3"
-    else
-        PYTHON_EXE="python3"
+# Use local venv python if available, otherwise fall back to system python
+if [ -f "$PROJECT_DIR/venv/bin/python" ]; then
+    PYTHON_EXE="$PROJECT_DIR/venv/bin/python"
+elif [ -f "$PROJECT_DIR/venv_new/bin/python" ]; then
+    PYTHON_EXE="$PROJECT_DIR/venv_new/bin/python"
+else
+    PYTHON_EXE=$(which python3)
+    if [ -z "$PYTHON_EXE" ]; then
+        if [ -f "/usr/bin/python3" ]; then
+            PYTHON_EXE="/usr/bin/python3"
+        elif [ -f "/usr/local/bin/python3" ]; then
+            PYTHON_EXE="/usr/local/bin/python3"
+        else
+            PYTHON_EXE="python3"
+        fi
     fi
 fi
 echo "Using Python: $PYTHON_EXE" >> "$LOG_FILE"

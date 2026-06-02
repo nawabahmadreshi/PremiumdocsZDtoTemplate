@@ -20,14 +20,16 @@ import json
 from config import Config
 
 
-PROJECT_ROOT = Path(__file__).parent
-IMAGES_DIR = PROJECT_ROOT / "images"
-TEMPLATE_FILE = PROJECT_ROOT / "app/static/template.html"
+cfg = Config()
+APP_ROOT = Path(__file__).parent
+DATA_ROOT = cfg.project_root
 
+IMAGES_DIR = DATA_ROOT / "images"
+TEMPLATE_FILE = APP_ROOT / "app/static/template.html"
 
-INPUT_FILE_RAW = PROJECT_ROOT / "Identity_Survey_Hub_User_Guide.html"
-INPUT_FILE_FALLBACK = PROJECT_ROOT / "Identity_Survey_Hub_Styled.html"
-OUTPUT_FILE = PROJECT_ROOT / "Identity_Survey_Hub_Styled.html"
+INPUT_FILE_RAW = DATA_ROOT / "Identity_Survey_Hub_User_Guide.html"
+INPUT_FILE_FALLBACK = DATA_ROOT / "Identity_Survey_Hub_Styled.html"
+OUTPUT_FILE = DATA_ROOT / "Identity_Survey_Hub_Styled.html"
 
 
 def get_input_file():
@@ -112,7 +114,7 @@ def group_into_doc_sections(raw_soup):
 
             # Create a new docSection
             new_soup = BeautifulSoup("", "html.parser")
-            current_section = new_soup.new_tag("section", attrs={"class": "docSection", "id": section_id})
+            current_section = new_soup.new_tag("section", attrs={"class": "docSection", "id": f"sec-{section_id}"})
 
             # Create sticky header
             header_div = new_soup.new_tag("div", attrs={"class": "stickySectionHeader"})
@@ -156,35 +158,96 @@ def fix_broken_crossrefs(output_html: str) -> str:
     all_ids = {el["id"] for el in soup.find_all(id=True)}
 
     fixed = 0
+    fixed = 0
     for link in soup.find_all("a", href=True):
         href = link["href"]
+        
+        # 1. Resolve Zendesk relative or absolute URLs to local headings
         if not href.startswith("#"):
+            slug_text = None
+            
+            # Case A: URL contains articles/ID-Slug or article:ID-Slug
+            match = re.search(r"(?:articles|article)/(\d+)-?([^/?#]*)", href, re.IGNORECASE)
+            if match:
+                slug_text = match.group(2)
+            else:
+                # Case B: URL ends with a hash anchor e.g. #h_01KMYHAJ...
+                hash_match = re.search(r"#([^/?#]+)$", href)
+                if hash_match:
+                    target_hash = hash_match.group(1)
+                    if target_hash in all_ids:
+                        old_href = href
+                        link["href"] = f"#{target_hash}"
+                        fixed += 1
+                        broken_links.append({
+                            "text": link.get_text(strip=True),
+                            "old_target": old_href,
+                            "status": "DIRECT HASH MATCH",
+                            "new_target": f"#{target_hash}"
+                        })
+                        continue
+            
+            if slug_text:
+                # Replace hyphens/underscores with spaces and lowercase
+                slug_clean = slug_text.replace("-", " ").replace("_", " ").strip().lower()
+                
+                matched_id = None
+                if slug_clean in heading_text_to_id:
+                    matched_id = heading_text_to_id[slug_clean]
+                else:
+                    # Partial match
+                    for htext, hid in heading_text_to_id.items():
+                        if slug_clean in htext or htext in slug_clean:
+                            matched_id = hid
+                            break
+                            
+                if matched_id:
+                    old_href = href
+                    link["href"] = f"#{matched_id}"
+                    fixed += 1
+                    broken_links.append({
+                        "text": link.get_text(strip=True),
+                        "old_target": old_href,
+                        "status": "RESOLVED ZENDESK LINK",
+                        "new_target": f"#{matched_id}"
+                    })
+                    continue
+            
+            # If it's a relative Zendesk link we couldn't resolve locally, convert to absolute web link
+            if href.startswith("/"):
+                old_href = href
+                link["href"] = f"https://aquera.zendesk.com{href}"
+                fixed += 1
+                broken_links.append({
+                    "text": link.get_text(strip=True),
+                    "old_target": old_href,
+                    "status": "CONVERTED TO ABSOLUTE",
+                    "new_target": link["href"]
+                })
+                continue
+                
             continue
+            
         target_id = href[1:]
         if target_id in all_ids:
             continue  # already valid
-
-        # This is a broken link
+            
+        # This is a broken hash link
         link_text = link.get_text(strip=True)
         matched_id = None
-
-        # Try to match link text to a heading id
         normalized_text = link_text.lower()
-
-        # Hardcoded overrides for known broken links
+        
         if "add and manage users" in normalized_text:
             matched_id = "users"
-        
-        # Exact match
+            
         if not matched_id and normalized_text in heading_text_to_id:
             matched_id = heading_text_to_id[normalized_text]
         elif not matched_id:
-            # Partial match — find heading whose text contains or is contained in normalized_text
             for htext, hid in heading_text_to_id.items():
                 if normalized_text in htext or htext in normalized_text:
                     matched_id = hid
                     break
-
+                    
         if matched_id:
             old_href = href
             link["href"] = f"#{matched_id}"
@@ -196,7 +259,6 @@ def fix_broken_crossrefs(output_html: str) -> str:
                 "new_target": f"#{matched_id}"
             })
         else:
-            # Last resort: slugify the link text and use that
             fallback_id = slugify(normalized_text)
             old_href = href
             link["href"] = f"#{fallback_id}"
@@ -209,7 +271,7 @@ def fix_broken_crossrefs(output_html: str) -> str:
             })
 
     # Generate the report file
-    report_path = PROJECT_ROOT / "broken_links_report.txt"
+    report_path = DATA_ROOT / "broken_links_report.txt"
     with open(report_path, "w", encoding="utf-8") as f:
         f.write("=== BROKEN LINKS REPORT ===\n")
         f.write(f"Generated on: {os.popen('date').read()}\n")
@@ -325,19 +387,19 @@ def download_and_localize_images(output_html: str) -> str:
     Downloads images from Zendesk (which are restricted) and saves them locally.
     Updates the HTML src attributes to point to the local images/ folder.
     """
+    from concurrent.futures import ThreadPoolExecutor
     soup = BeautifulSoup(output_html, "html.parser")
     
     # Create local images directory
-    images_dir = Path(__file__).parent / "images"
+    images_dir = IMAGES_DIR
     images_dir.mkdir(exist_ok=True)
     
     config = Config()
     auth = (f"{config.ZENDESK_EMAIL}/token", config.ZENDESK_API_TOKEN)
     
-    downloaded = 0
+    to_download = []
     skipped = 0
     
-    print("  Downloading images... this may take a moment.")
     for img in soup.find_all("img"):
         src = img.get("src", "")
         if not src:
@@ -373,32 +435,48 @@ def download_and_localize_images(output_html: str) -> str:
                 
             local_path = images_dir / filename
             
+            # Update the HTML src
+            img["src"] = f"images/{filename}"
+            
             if local_path.exists():
                 skipped += 1
             else:
-                try:
-                    response = requests.get(src, auth=auth, timeout=10)
-                    response.raise_for_status()
-                    local_path.write_bytes(response.content)
-                    downloaded += 1
-                except Exception as e:
-                    print(f"  [ERROR] Failed to download {src}: {e}")
-                    continue
-            
-            # Update the HTML src
-            img["src"] = f"images/{filename}"
+                to_download.append((src, local_path))
+                
+    def download_one(item):
+        src, local_path = item
+        try:
+            response = requests.get(src, auth=auth, timeout=10)
+            response.raise_for_status()
+            local_path.write_bytes(response.content)
+            return True
+        except Exception as e:
+            print(f"  [ERROR] Failed to download {src}: {e}")
+            return False
+
+    downloaded = 0
+    if to_download:
+        print(f"  Downloading {len(to_download)} images in parallel...")
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            results = list(executor.map(download_one, to_download))
+            downloaded = sum(1 for r in results if r)
             
     print(f"  Downloaded {downloaded} new images. Skipped {skipped} existing/ignored images.")
     return str(soup)
 
 
-def apply_style(manual_title=None):
+def apply_style(manual_title=None, orientation='landscape'):
     input_file = get_input_file()
     print(f"Reading: {input_file}")
     input_html = input_file.read_text(encoding="utf-8")
 
     print("Reading template...")
     template = TEMPLATE_FILE.read_text(encoding="utf-8")
+    
+    # Dynamically inject landscape vs portrait CSS page rules
+    if orientation == 'portrait':
+        template = template.replace("size: A4 landscape;", "size: A4;")
+        template = template.replace("margin: 20mm 20mm 20mm 20mm;", "margin: 25mm 15mm 20mm 15mm;")
 
     print("Extracting content...")
     extracted_title, content_soup = extract_content(input_html)
@@ -410,7 +488,7 @@ def apply_style(manual_title=None):
         IMAGES_DIR.mkdir()
 
     # Copy custom logo.svg if it exists in project root
-    src_logo = PROJECT_ROOT / "logo.svg"
+    src_logo = DATA_ROOT / "logo.svg"
     if src_logo.exists():
         shutil.copy2(src_logo, IMAGES_DIR / "logo.svg")
 
@@ -420,14 +498,39 @@ def apply_style(manual_title=None):
 
     print("Applying premium template...")
     # Load Branding
-    settings_path = PROJECT_ROOT / "branding_settings.json"
+    settings_path = DATA_ROOT / "branding_settings.json"
     branding = {"primary_color": "#0060a4", "company_name": "Aquera", "logo_filename": "logo.svg"}
     if settings_path.exists():
         with open(settings_path, 'r') as f:
             branding.update(json.load(f))
 
+    from datetime import datetime
+    current_date = datetime.now().strftime("%B %d, %Y")
+
+    # Generate Static ToC for PDF
+    print("Generating static ToC for PDF...")
+    toc_soup = BeautifulSoup('<div class="pdf-toc"><h1>Table of Contents</h1><ul class="pdf-toc-list"></ul></div>', 'html.parser')
+    toc_list = toc_soup.select_one('ul')
+    
+    # Use the structured content to find all h1 and h2
+    content_bs = BeautifulSoup(content_html, 'html.parser')
+    for heading in content_bs.find_all(['h1', 'h2']):
+        hid = heading.get('id')
+        if not hid: continue
+        
+        level_class = "pdf-toc-h1" if heading.name == 'h1' else "pdf-toc-h2"
+        li = toc_soup.new_tag('li', attrs={'class': level_class})
+        a = toc_soup.new_tag('a', href=f"#{hid}")
+        a.string = heading.get_text(strip=True)
+        li.append(a)
+        toc_list.append(li)
+    
+    static_toc_html = str(toc_soup)
+
     output = template.replace("{{ title }}", title)
-    output = output.replace("{{ toc_links }}", "")   # TOC is built by JS
+    output = output.replace("{{ date }}", current_date)
+    output = output.replace("{{ static_toc }}", static_toc_html)
+    output = output.replace("{{ toc_links }}", "")   # Sidebar TOC is built by JS
     output = output.replace("{{ content_html }}", content_html)
     
     # Inject Branding - Company Name
@@ -435,15 +538,14 @@ def apply_style(manual_title=None):
     output = output.replace("© 2026 Aquera, Inc.", f"© 2026 {branding['company_name']}, Inc.")
     
     # Inject Branding - Primary Color
-    # We replace the CSS variable definition in the template
-    output = output.replace("--aquera: rgb(0, 96, 164);", f"--aquera: {branding['primary_color']};")
-    # Also handle the menu button gradient/background if it used a specific color. 
-    # The template uses rgba(0, 96, 164, 1) in some places.
-    output = output.replace("rgba(0, 96, 164, 1)", branding['primary_color'])
+    # We replace the CSS variable definition and the gradient color in the template
+    output = output.replace("--aquera: #0060a4;", f"--aquera: {branding['primary_color']};")
+    output = output.replace("#0060a4", branding['primary_color'])
+
 
     # Inject Branding - Logo
     # Copy the custom logo to the images folder
-    custom_logo = PROJECT_ROOT / branding['logo_filename']
+    custom_logo = DATA_ROOT / branding['logo_filename']
     if custom_logo.exists():
         shutil.copy2(custom_logo, IMAGES_DIR / "logo.svg") # We keep it named logo.svg in the bundle for simplicity
 
@@ -456,15 +558,16 @@ def apply_style(manual_title=None):
     print("Localising images...")
     output = download_and_localize_images(output)
 
-    print("Cleaning up whitespace...")
-    soup = BeautifulSoup(output, "html.parser")
-    for tag in soup.find_all(['p', 'div', 'span']):
-        if not tag.get_text(strip=True) and not tag.find_all(['img', 'iframe', 'table', 'svg']):
-            tag.decompose()
-    for br in soup.find_all('br'):
-        if br.next_sibling and br.next_sibling.name == 'br':
-            br.decompose()
-    output = str(soup)
+    # Preserve original document structure and empty structural elements without decomposing them
+    # print("Cleaning up whitespace...")
+    # soup = BeautifulSoup(output, "html.parser")
+    # for tag in soup.find_all(['p', 'div', 'span']):
+    #     if not tag.get_text(strip=True) and not tag.find_all(['img', 'iframe', 'table', 'svg']):
+    #         tag.decompose()
+    # for br in soup.find_all('br'):
+    #     if br.next_sibling and br.next_sibling.name == 'br':
+    #         br.decompose()
+    # output = str(soup)
 
     OUTPUT_FILE.write_text(output, encoding="utf-8")
     print(f"\n✅ Done! Styled output saved to:\n   {OUTPUT_FILE.absolute()}")

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquera | Product Documentation Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --aquera: #0060a4;
+            --aquera-dark: #004c80;
+            --aquera-light: rgba(0, 96, 164, 0.08);
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --ink: #0f172a;
+            --muted: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* ── Top nav ── */
+        nav {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 0 40px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .nav-logo { height: 26px; display: block; }
+
+        /* ── Main Content ── */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .hero h1 {
+            font-size: 40px;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+            margin-bottom: 12px;
+        }
+        .hero p {
+            color: var(--muted);
+            font-size: 16px;
+            max-width: 480px;
+            margin: 0 auto;
+            font-weight: 500;
+        }
+
+        /* ── Single Action Card ── */
+        .action-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: block;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,96,164,0.12);
+            border-color: rgba(0,96,164,0.3);
+        }
+
+        .card-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--aquera-light);
+            color: var(--aquera);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 12px;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 32px;
+            font-weight: 500;
+        }
+
+        .card-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--aquera);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 800;
+            transition: all 0.2s;
+        }
+        
+        .action-card:hover .card-btn {
+            background: var(--aquera-dark);
+        }
+
+    </style>
+    <style>
+        .shutdown-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s;
+        }
+        .shutdown-btn:hover { background: #dc2626; }
+    </style>
+    <!-- Vercel Web Analytics -->
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <!-- Vercel Speed Insights -->
+    <script>
+      window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+</head>
+<body>
+
+    <nav>
+        <div style="width: 120px;"></div> <!-- spacer -->
+        <img src="/static/images/logo.svg" alt="Aquera" class="nav-logo">
+        <div style="width: 120px; display: flex; justify-content: flex-end;">
+            <button onclick="shutdownServer()" class="shutdown-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Shutdown
+            </button>
+        </div>
+    </nav>
+
+    <main>
+        <div class="hero">
+            <h1>Documentation Hub</h1>
+            <p>Welcome to the premium product documentation portal.</p>
+        </div>
+
+        <a href="/admin_v_1048" class="action-card">
+            <div class="card-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+            </div>
+            <h2 class="card-title">Document Generator</h2>
+            <p class="card-desc">Build, style, and publish high-fidelity PDF documentation directly from your knowledge base.</p>
+            <div class="card-btn">
+                Launch Generator
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </div>
+        </a>
+    </main>
+    <script>
+        function shutdownServer() {
+            if (confirm("Are you sure you want to shut down the Aquera Hub?")) {
+                fetch('/shutdown', { method: 'POST' }).then(() => {
+                    document.body.innerHTML = '<div style="display:flex; height:100vh; align-items:center; justify-content:center; flex-direction:column; background:#f0f4f8; font-family:Inter,sans-serif;"><div style="background:white; padding:40px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.05); text-align:center;"><h2>Server Shutdown Successfully</h2><p style="color:#64748b; margin-top:10px;">You can now close this window.</p></div></div>';
+                }).catch(err => {
+                    alert("Error shutting down server. It may have already stopped.");
+                });
+            }
+        }
+        
+        // Keep-alive heartbeat
+        setInterval(() => {
+            fetch('/api/keepalive', { method: 'POST' }).catch(() => {});
+        }, 2000);
+    </script>
+</body>
+</html>

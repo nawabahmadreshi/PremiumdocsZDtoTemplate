@@ -1,0 +1,29 @@
+# Render.yaml Blueprint for Aquera Premium Hub
+# Automatically configures Docker Web Service on Render.com
+
+services:
+  - type: web
+    name: aquera-premium-hub
+    env: docker
+    plan: free # You can deploy on Render's Free tier out-of-the-box!
+    
+    # Render will automatically detect the Dockerfile in the root directory
+    dockerfilePath: ./Dockerfile
+    
+    # Expose the internal port (Render automatically maps this to public HTTP/HTTPS)
+    envVars:
+      - key: PORT
+        value: 5001
+      - key: ZENDESK_EMAIL
+        sync: true # Prompts you for your Zendesk credentials during deploy
+      - key: ZENDESK_TOKEN
+        sync: true
+      - key: ZENDESK_SUBDOMAIN
+        sync: true
+        
+    # Optional: Attach a persistent storage disk (Requires Render Starter tier or above)
+    # This keeps your compiled ZIP bundles and PDFs safe forever, even after redeploys!
+    # disk:
+    #   name: aquera-hub-data
+    #   mountPath: /app/data
+    #   sizeGB: 1

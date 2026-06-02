@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
 
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>{{ title }} - Aquera Documentation</title>
-  <meta content="width=device-width, initial-scale=1" name="viewport" />
-  <style>
+<meta charset="utf-8"/>
+<title>{{ title }} - Aquera Documentation</title>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<style>
     :root {
-      --aquera: rgb(0, 96, 164);
+      --aquera: #0060a4;
       --aquera-dark: rgb(0, 76, 128);
 
       --ink: #0f172a;
@@ -87,7 +87,7 @@
     .menuBtn {
       margin-left: auto;
       border: 1px solid rgba(0, 96, 164, .18);
-      background: linear-gradient(180deg, rgba(0, 96, 164, 1), rgba(0, 76, 128, 1));
+      background: linear-gradient(180deg, #0060a4, rgba(0, 76, 128, 1));
       color: #fff;
       padding: 9px 12px;
       border-radius: 12px;
@@ -465,6 +465,8 @@
     }
 
     .docSection {
+      padding: 30px 0 30px;
+      border-bottom: none;
       scroll-margin-top: var(--scrollOffset);
     }
 
@@ -476,8 +478,11 @@
       position: sticky;
       top: calc(var(--scrollOffset) - 58px);
       z-index: 5;
+      background: rgba(255, 255, 255, .92);
+      backdrop-filter: blur(8px);
       padding: 10px 0 10px;
-      /* Removed background, backdrop-filter, border, and shadow for a cleaner look */
+      border-bottom: none;
+      box-shadow: 0 10px 22px rgba(2, 6, 23, .06);
     }
 
     .stickySectionHeader h2 {
@@ -531,24 +536,32 @@
     }
 
     .cardBody img:not(.logo):not(.inline-icon) {
-      width: min(var(--contentMax), 100%);
+      max-width: min(var(--contentMax), 100%);
+      max-height: 60vh;
+      width: auto;
+      object-fit: contain;
       border: 1px solid rgba(229, 231, 235, .95);
       border-radius: 12px;
       box-shadow: 0 14px 30px rgba(2, 6, 23, .08);
       display: block;
-      margin: 14px 0 14px 4px;
+      margin: 14px auto;
     }
 
-    .cardBody img.inline-icon {
-      display: inline-block;
-      vertical-align: middle;
-      margin: 0 4px;
-      border: none;
-      box-shadow: none;
-      border-radius: 0;
-      max-height: 1.15em;
+    img.inline-icon {
+      display: inline-block !important;
+      vertical-align: middle !important;
+      height: 1.25em !important;
+      max-height: 1.25em !important;
       width: auto !important;
+      max-width: 1.25em !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      margin: 0 4px !important;
+      background: transparent !important;
     }
+
+
 
     .mediaSmall {
       width: min(380px, 100%);
@@ -576,6 +589,11 @@
     }
 
     @media print {
+      @page {
+        size: A4 landscape;
+        margin: 20mm 20mm 20mm 20mm;
+      }
+      
       .header,
       .menuBtn,
       #leftReopenBtn,
@@ -588,9 +606,21 @@
         display: none !important;
       }
 
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
       body {
         background: white !important;
         padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
       }
 
       .page {
@@ -605,9 +635,39 @@
         box-shadow: none !important;
         border-radius: 0 !important;
         width: 100% !important;
-        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 40px !important;
         overflow: visible !important;
         background: white !important;
+      }
+
+      /* PDF Cover Page */
+      .pdf-cover {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        height: 297mm !important; /* A4 height */
+        page-break-after: always !important;
+        text-align: center !important;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+        border-bottom: 5px solid var(--aquera) !important;
+      }
+      .pdf-cover img {
+        height: 80px !important;
+        margin-bottom: 40px !important;
+      }
+      .pdf-cover h1 {
+        font-size: 48px !important;
+        font-weight: 900 !important;
+        color: var(--aquera) !important;
+        margin-bottom: 10px !important;
+      }
+      .pdf-cover p {
+        font-size: 18px !important;
+        color: #64748b !important;
+        letter-spacing: 0.2em !important;
+        text-transform: uppercase !important;
       }
 
       .cardHeader {
@@ -623,10 +683,64 @@
         max-width: 100% !important;
       }
 
-      .docSection {
-        padding: 20px 0 !important;
-        page-break-inside: avoid;
-        border-bottom: 1px solid var(--line) !important;
+      .tocCol {
+        display: none !important;
+      }
+      .panelCard {
+        background: white !important;
+        border: 1px solid rgba(229, 231, 235, .9) !important;
+        border-radius: 22px !important;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04) !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 0 !important;
+      }
+      .panelHead {
+        display: block !important;
+        padding: 22px 18px !important;
+        border-bottom: 1px solid rgba(229, 231, 235, .9) !important;
+      }
+      .panelTitle {
+        display: block !important;
+        font-size: 16px !important;
+        font-weight: 900 !important;
+        color: var(--aquera) !important;
+        margin: 0 !important;
+      }
+      .tocList {
+        display: block !important;
+        padding: 12px 8px !important;
+        overflow: hidden !important;
+      }
+      .tocLink {
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        padding: 10px 14px !important;
+        display: block !important;
+        color: #475569 !important;
+        text-decoration: none !important;
+        border-radius: 12px !important;
+        margin-bottom: 2px !important;
+      }
+      .tocLink.isActive {
+        background: linear-gradient(90deg, rgba(0, 96, 164, 0.08), rgba(0, 96, 164, 0.02)) !important;
+        color: var(--aquera) !important;
+        font-weight: 700 !important;
+      }
+      .tocSub, .tocSub2, .tocSub3 { 
+        display: flex !important; 
+        flex-direction: column !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+      }
+      .tocSub .tocLink { padding-left: 18px !important; }
+      .tocSub2 .tocLink { padding-left: 32px !important; border-left: 1.5px solid #f1f5f9 !important; }
+      .tocSub3 .tocLink { padding-left: 46px !important; border-left: 1px solid #f1f5f9 !important; }
+
+      .pdf-toc {
+        display: none !important;
       }
 
       .stickySectionHeader {
@@ -634,27 +748,152 @@
         background: transparent !important;
         backdrop-filter: none !important;
         box-shadow: none !important;
-        padding: 0 !important;
+        padding: 0 0 10px 0 !important;
         border: none !important;
+        page-break-after: avoid;
       }
 
-      h1, h2, h3 {
+      pre, blockquote, .note-callout, .important-callout {
+        page-break-inside: avoid;
+      }
+
+      h1, h2, h3, h4 {
         page-break-after: avoid;
         color: var(--aquera) !important;
       }
+
+      p, li {
+        orphans: 3;
+        widows: 3;
+      }
+
+        @media print {
+            .no-print { display: none !important; }
+            .cardBody { box-shadow: none !important; border: 1px solid #eee; }
+            body { background: white !important; }
+            
+            /* High-fidelity PDF structure */
+            .article-body { font-size: 11pt; line-height: 1.6; color: #1e293b; }
+            .docSection { page-break-before: auto !important; padding-top: 20px; }
+            .docSection:first-child { page-break-before: auto !important; }
+        }
+
+      a {
+        text-decoration: none !important;
+        color: var(--aquera) !important;
+      }
+
+      .print-only {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        text-align: center !important;
+      }
       
+      .print-only img {
+        height: 45px !important;
+        width: auto !important;
+        max-width: 100% !important;
+        display: inline-block !important;
+        margin: 0 auto 10px auto !important;
+      }
+      
+      /* Highly specific selector to override desktop screen width settings on images */
+      .cardBody img:not(.logo):not(.inline-icon) {
+        max-width: 100% !important;
+        max-height: 120mm !important;
+        width: auto !important;
+        height: auto !important;
+        object-fit: contain !important;
+        display: block !important;
+        margin: 20px auto !important;
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+
+
+      .cardBody p, .cardBody li, .cardBody ul, .cardBody ol {
+        max-width: 100% !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+      }
+
       img {
         max-width: 100% !important;
-        page-break-inside: avoid;
+        max-height: 120mm !important;
+        width: auto !important;
+        height: auto !important;
+        object-fit: contain !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
       }
-      
-      table {
-        page-break-inside: auto;
+
+      img.inline-icon {
+        display: inline-block !important;
+        vertical-align: middle !important;
+        height: 1.25em !important;
+        max-height: 1.25em !important;
+        width: auto !important;
+        max-width: 1.25em !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        margin: 0 4px !important;
+        background: transparent !important;
+        page-break-inside: avoid !important;
+      }
+      figure,
+      figure.wysiwyg-table,
+      table,
+      tbody {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
       }
       tr {
-        page-break-inside: avoid;
-        page-break-after: auto;
+        page-break-inside: avoid !important;
+        break-inside: avoid-page !important;
+        page-break-after: auto !important;
+        break-after: auto !important;
       }
+      /* PDF TOC styling */
+      .pdf-toc {
+        display: block !important;
+        page-break-after: always;
+        padding: 40px 0 !important;
+      }
+      .pdf-toc h1 {
+        font-size: 24px;
+        margin-bottom: 30px;
+        color: var(--aquera);
+        border-bottom: 2px solid var(--aquera);
+        padding-bottom: 10px;
+      }
+      .pdf-toc-list {
+        list-style: none;
+        padding: 0;
+      }
+      .pdf-toc-h1 {
+        margin-top: 15px;
+        font-weight: 800;
+        font-size: 16px;
+      }
+      .pdf-toc-h2 {
+        margin-left: 20px;
+        margin-top: 8px;
+        font-size: 14px;
+      }
+      .pdf-toc a {
+        text-decoration: none;
+        color: #1e293b;
+      }
+    }
+
+    .print-only, .pdf-toc {
+      display: none;
     }
 
     /* TOC scroll container */
@@ -669,8 +908,7 @@
       background-color: #eef5fb;
     }
   </style>
-
-  <style id="aqueraEnhancements">
+<style id="aqueraEnhancements">
     /* Responsive images */
     img {
       max-width: 100%;
@@ -751,8 +989,9 @@
     /* Brand first row of bodyless tables */
     .docSection table:not(:has(thead)) tr:first-child td,
     table.simpleTable:not(:has(thead)) tr:first-child td {
-      font-weight: 950;
-      text-align: center;
+      background: rgba(0, 96, 164, .06);
+      color: var(--aquera);
+      font-weight: 900;
     }
 
     /* Zebra + strong first column for 2+ column tables */
@@ -765,13 +1004,8 @@
     table.simpleTable tbody tr:not(.tableBrandRow) td:first-child {
       font-weight: 900;
       color: var(--ink);
+      background: rgba(0, 96, 164, .04);
       width: 220px;
-    }
-
-    /* Ensure header cell in first column still looks consistent */
-    .docSection table thead th:first-child,
-    .docSection table:not(:has(thead)) tr:first-child td:first-child {
-      font-weight: 950;
     }
 
     @media(max-width:680px) {
@@ -792,66 +1026,122 @@
     .docSection ul li {
       line-height: 1.6;
     }
-  </style>
-</head>
 
+    @media print {
+      .docSection table,
+      table.simpleTable {
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        border: 1px solid #cbd5e1 !important;
+        border-collapse: collapse !important;
+        border-spacing: 0 !important;
+        background: white !important;
+        margin: 15px 0 !important;
+        word-wrap: break-word !important;
+      }
+      
+      .docSection table tbody tr:not(.tableBrandRow) td:first-child,
+      table.simpleTable tbody tr:not(.tableBrandRow) td:first-child {
+        width: auto !important;
+        font-weight: 800 !important;
+        background: transparent !important;
+      }
+      
+      .docSection table td,
+      .docSection table th,
+      table.simpleTable td,
+      table.simpleTable th {
+        font-size: 10pt !important;
+        padding: 8px 12px !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+      
+      .docSection table thead th,
+      table.simpleTable thead th,
+      .docSection table tr:first-child td,
+      table.simpleTable tr:first-child td {
+        background: #f8fafc !important;
+        color: #0f172a !important;
+        font-weight: 700 !important;
+        border-bottom: 2px solid #cbd5e1 !important;
+      }
+    }
+  </style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+</head>
 <body>
   <header class="header">
-    <div class="headerInner">
-      <img alt="Logo" class="logo" src="images/logo.svg" />
+    <div class="header-container">
+      <img alt="Logo" class="logo" src="images/logo.svg"/>
       <button class="menuBtn" onclick="toggleToc()" type="button">Menu</button>
     </div>
   </header>
 
-  <!-- Floating reopen buttons -->
-  <button aria-label="Show table of contents" class="floatingReopen" id="leftReopenBtn" style="left:12px; top:170px; display: none;" type="button">
-    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
-      <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
-    </svg>
-  </button>
-  <button aria-label="Show videos panel" class="floatingReopen" id="rightReopenBtn" style="right:12px; top:170px; display: none;" type="button">
-    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
-      <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
-    </svg>
-  </button>
 
-  <div class="page">
-    <!-- LEFT: TOC -->
+
+<!-- Floating reopen buttons -->
+<button aria-label="Show table of contents" class="floatingReopen" id="leftReopenBtn" style="left:12px; top:170px; display: none;" type="button">
+<svg fill="none" height="16" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<button aria-label="Show videos panel" class="floatingReopen" id="rightReopenBtn" style="right:12px; top:170px; display: none;" type="button">
+<svg fill="none" height="16" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<div class="page">
+
+<!-- LEFT: TOC -->
     <aside class="tocCol panelSticky">
       <nav aria-label="Table of contents" class="panelCard" id="mobileToc">
         <div class="panelHead">
           <div class="panelTitleRow">
             <button aria-label="Hide table of contents" class="collapseBtn" id="leftCollapseBtn" type="button">
-              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+              <svg fill="none" height="16" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
                 <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
               </svg>
             </button>
-            <h2 class="panelTitle" id="table-of-contents"><span class="panelDot"></span>Table of contents</h2>
+            <h2 class="panelTitle" id="table-of-contents">Table of contents</h2>
           </div>
-          <span></span>
         </div>
         <div class="tocList">
-          <div style="padding: 20px; color: var(--muted); font-size: 14px;">Loading Table of Contents...</div>
+          <!-- The dynamic ToC for Web and PDF will live here -->
+          <div id="webTocContainer">
+            <div style="padding: 20px; color: var(--muted); font-size: 14px;">Loading Table of Contents...</div>
+          </div>
         </div>
       </nav>
     </aside>
-
-    <!-- CENTER: CONTENT -->
-    <main class="card">
-      <div class="cardHeader">
-        <h1 class="cardTitle">{{ title }}</h1>
-        <p class="cardSubtitle">Aquera Documentation</p>
-      </div>
-      <div class="cardBody">
-        {{ content_html }}
-      </div>
-      <footer class="footer">
+<!-- CENTER: CONTENT -->
+<main class="card">
+<div class="cardHeader">
+<h1 class="cardTitle">{{ title }}</h1>
+<p class="cardSubtitle">Aquera Documentation</p>
+</div>
+<div class="cardBody">
+          {{ content_html }}
+        </div>
+<footer class="footer">
         © 2026 Aquera, Inc. All rights reserved.
       </footer>
-    </main>
-  </div>
-
-  <script>
+</main>
+</div>
+<script>
     function toggleToc() {
       document.getElementById('mobileToc').classList.toggle('isHidden');
     }
@@ -874,18 +1164,19 @@
       }
 
       function buildDynamicToC() {
-        const tocList = document.querySelector('.tocList');
-        if (!tocList) return;
+        const tocList = document.querySelector('#webTocContainer');
+        const printTocList = document.getElementById('toc-list-print');
         tocList.innerHTML = '';
+        if (printTocList) printTocList.innerHTML = '';
 
         let currentH1Sub = null;
         let currentH2Sub = null;
         let currentH3Sub = null;
         let idCounts = {};
 
-        const contentHeadings = document.querySelectorAll('.cardBody h1, .cardBody h2, .cardBody h3, .cardBody h4, .docSection h1, .docSection h2, .docSection h3, .docSection h4');
+        const contentHeadings = document.querySelectorAll('.cardBody h1, .cardBody h2, .cardBody h3, .cardBody h4, .docSection h1, .docSection h2, .docSection h3, .docSection h4, .article-body h1, .article-body h2, .article-body h3, .article-body h4');
 
-        contentHeadings.forEach(h => {
+        contentHeadings.forEach((h, index) => {
           let id = h.id || slugify(h.textContent);
           if (!h.id) {
             if (idCounts[id]) {
@@ -901,6 +1192,10 @@
           link.className = 'tocLink';
           link.href = '#' + h.id;
           link.textContent = h.textContent;
+
+          const li = document.createElement('li');
+          li.appendChild(link.cloneNode(true));
+          if (printTocList) printTocList.appendChild(li);
 
           if (h.tagName === 'H1') {
             tocList.appendChild(link);
@@ -1066,5 +1361,4 @@
     });
   </script>
 </body>
-
 </html>
