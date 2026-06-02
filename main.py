@@ -32,6 +32,12 @@ def get_resource_path(relative_path):
         base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
 
+def get_data_path(relative_path):
+    data_dir = os.path.join(os.getcwd(), "data")
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+    return os.path.join(data_dir, relative_path)
+
 def use_kv():
     return bool(os.environ.get('KV_REST_API_URL'))
 
