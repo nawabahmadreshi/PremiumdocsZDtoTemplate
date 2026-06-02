@@ -370,11 +370,6 @@
     .company-card:hover { border-color: var(--border); background: white; transform: translateX(4px); }
     
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
   </style>
   <!-- Vercel Web Analytics -->
   <script>
@@ -391,24 +386,19 @@
   <div class="card">
     <div class="card-content">
       <div class="tabs">
-        <div class="tab active" onclick="switchTab('builder')">Builder</div>
-        <div class="tab" onclick="switchTab('insights')">Insights</div>
+        <div class="tab" onclick="switchTab('builder')" style="display: none;">Builder</div>
+        <div class="tab active" onclick="switchTab('insights')">Insights</div>
         <div class="tab" onclick="switchTab('branding')">Branding</div>
         <div class="tab" onclick="switchTab('settings')">Health & Backups</div>
       </div>
 
       <!-- BUILDER TAB -->
-      <div id="tabBuilder" class="tab-content active">
+      <div id="tabBuilder" class="tab-content" style="display: none;">
         <div style="text-align: center; max-width: 500px; margin: 40px auto;">
           <img src="/static/images/logo.svg" alt="Aquera" style="height:38px; margin-bottom:32px;">
           <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 12px; color: var(--aquera);">Documentation Hub</h1>
           <p style="color: var(--muted); font-size: 16px; margin-bottom: 40px;">Sync and generate professional premium guide bundles.</p>
           
-          <div id="apiStatus" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; margin: -26px auto 32px auto; width: fit-content; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex;">
-            <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; animation: pulse 2s infinite;"></span>
-            Zendesk API Connected
-          </div>
-
           <div id="setupArea" style="background: white; padding: 32px; border-radius: 24px; border: 1px solid var(--border); text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
             <label style="display: block; font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; margin-bottom: 8px;">Zendesk Article ID</label>
             <input type="text" id="articleIdInput" value="33370331621527" style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); font-size: 16px; font-weight: 600; margin-bottom: 24px;">
@@ -420,10 +410,6 @@
           </div>
           
           <div id="statusArea" style="display: none; margin-top: 32px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; width: 100%;">
-              <span style="font-size: 13px; font-weight: 700; color: var(--aquera);">Processing Bundle...</span>
-              <span id="progressPercentage" style="font-size: 13px; font-weight: 800; color: var(--aquera);">0%</span>
-            </div>
             <div style="height: 8px; background: rgba(0, 96, 164, 0.08); border-radius: 4px; overflow: hidden; margin-bottom: 24px;">
               <div id="progressFill" style="height: 100%; background: linear-gradient(90deg, var(--aquera), #60a5fa); width: 0%; transition: width 0.8s ease;"></div>
             </div>
@@ -479,7 +465,7 @@
       </div>
 
       <!-- INSIGHTS TAB -->
-      <div id="tabInsights" class="tab-content">
+      <div id="tabInsights" class="tab-content active">
         <!-- Maintenance Banners -->
         <div id="maintBanner" class="banner banner-red" style="display:none">
           <div style="flex: 1">
@@ -518,7 +504,13 @@
             </h2>
             <p style="color: var(--muted); font-size: 13px; margin: 4px 0 0 0;">Complete audience history across all months</p>
           </div>
-          <button id="syncBtn" class="action-btn" style="background: white; color: var(--aquera); border: 2px solid var(--border); box-shadow: none; font-size: 12px; padding: 8px 16px;" onclick="fetchTracking(true)">Sync Live Data</button>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button id="slackBtn" class="action-btn" style="background: white; color: #4A154B; border: 2px solid #4A154B; box-shadow: none; font-size: 12px; padding: 8px 16px;" onclick="sendSlackDigest()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#4A154B" style="margin-right:6px;flex-shrink:0;"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
+              Send to Slack
+            </button>
+            <button id="syncBtn" class="action-btn" style="background: white; color: var(--aquera); border: 2px solid var(--border); box-shadow: none; font-size: 12px; padding: 8px 16px;" onclick="fetchTracking(true)">Sync Live Data</button>
+          </div>
         </div>
 
         <!-- Time Filter Bar -->
@@ -1078,10 +1070,8 @@
       const s2 = document.getElementById('step2');
       const s3 = document.getElementById('step3');
       const fill = document.getElementById('progressFill');
-      const pctText = document.getElementById('progressPercentage');
 
       // Reset steps
-      pctText.textContent = '0%';
       [s1, s2, s3].forEach(s => {
         s.style.color = 'var(--muted)';
         s.style.fontWeight = '500';
@@ -1093,7 +1083,6 @@
       s1.style.fontWeight = '700';
       s1.textContent = '● Fetching from Zendesk';
       fill.style.width = '10%';
-      pctText.textContent = '10%';
 
       try {
         const response = await fetch('/generate', { 
@@ -1103,7 +1092,6 @@
         });
         
         fill.style.width = '40%';
-        pctText.textContent = '40%';
         
         // Step 2: Clean & Style
         s1.style.color = '#10b981';
@@ -1113,7 +1101,6 @@
         s2.style.fontWeight = '700';
         s2.textContent = '● Clean & Apply Style';
         fill.style.width = '70%';
-        pctText.textContent = '70%';
         await new Promise(r => setTimeout(r, 2000));
         
         s2.style.color = '#10b981';
@@ -1124,13 +1111,10 @@
         s3.style.fontWeight = '700';
         s3.textContent = '● Preparing Download';
         fill.style.width = '90%';
-        pctText.textContent = '90%';
         await new Promise(r => setTimeout(r, 1500));
         
         s3.style.color = '#10b981';
         s3.textContent = '✓ Preparing Download';
-        fill.style.width = '100%';
-        pctText.textContent = '100%';
         const result = await response.json();
         if (result.success) {
           setTimeout(() => {
@@ -1370,6 +1354,27 @@
       alert('Public preview link copied to clipboard!');
     }
 
+    async function sendSlackDigest() {
+      const btn = document.getElementById('slackBtn');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      try {
+        const res = await fetch('/api/slack/send-digest', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          alert('Insights digest successfully sent to Slack!');
+        } else {
+          alert('Error sending digest to Slack: ' + data.error);
+        }
+      } catch (err) {
+        alert('Network error sending digest to Slack.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send to Slack';
+      }
+    }
+
+
     function previewPDF() {
       const modal = document.getElementById('pdfModal');
       const frame = document.getElementById('pdfFrame');
@@ -1391,13 +1396,12 @@
     
     // Initial Load
     fetchTracking(); 
-    const initialTab = window.location.hash.replace('#', '') || 'builder';
-    if (initialTab !== 'builder') switchTab(initialTab);
-
-    // Keep-alive heartbeat
-    setInterval(() => {
-      fetch('/api/keepalive', { method: 'POST' }).catch(() => {});
-    }, 2000);
+    const initialTab = window.location.hash.replace('#', '') || 'insights';
+    if (initialTab === 'builder') {
+        switchTab('insights');
+    } else {
+        switchTab(initialTab);
+    }
   </script>
 
   <!-- User Journey Modal -->

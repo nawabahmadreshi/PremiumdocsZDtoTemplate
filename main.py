@@ -553,6 +553,140 @@ def get_tracking():
         traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/api/slack/send-digest', methods=['POST'])
+def send_slack_digest():
+    """Send a rich Slack summary digest matching the dashboard view."""
+    try:
+        settings_path = PROJECT_ROOT / "branding_settings.json"
+        if not settings_path.exists():
+            return jsonify({"success": False, "error": "No branding settings found"}), 400
+        with open(settings_path, 'r') as f:
+            settings = json.load(f)
+
+        webhook = settings.get('slack_webhook')
+        if not webhook:
+            return jsonify({"success": False, "error": "No Slack webhook configured"}), 400
+
+        # Load full event data
+        all_events = read_json_data('parsed_event_cache.json', [])
+        stats = calculate_stats(all_events)
+
+        ext_info = stats.get('external_vs_internal', {})
+        total_views   = stats.get('total_views', 0)
+        cs_views      = ext_info.get('CS Views', 0)
+        tc_views      = ext_info.get('TC Views', 0)
+        ext_count     = ext_info.get('External', 0)
+        unique_ext    = ext_info.get('Unique External', 0)
+
+        top_articles = stats.get('top_articles', [])
+        top_articles_text = "\n".join(
+            f"• {a['title'][:55]}{'…' if len(a['title'])>55 else ''} — *{a['count']}* views"
+            for a in top_articles[:5]
+        ) or "_No articles yet_"
+
+        top_domains = stats.get('top_domains', [])
+        ext_domains_text = "\n".join(
+            f"• `{d['domain']}` — {d['count']} views"
+            for d in top_domains[:5]
+            if d['domain'] not in ('aquera.com', 'unknown')
+        ) or "_None yet_"
+
+        company = settings.get('company_name', 'Aquera')
+        color = settings.get('primary_color', '#0060a4')
+
+        payload = {
+            "text": f"📊 *{company} Insights — Daily Summary*",
+            "attachments": [
+                {
+                    "color": color,
+                    "blocks": [
+                        {
+                            "type": "header",
+                            "text": {"type": "plain_text", "text": f"📊 {company} Insights — Historical Summary", "emoji": True}
+                        },
+                        {
+                            "type": "section",
+                            "fields": [
+                                {"type": "mrkdwn", "text": f"*📈 Total Views*\n`{total_views:,}`"},
+                                {"type": "mrkdwn", "text": f"*🌍 External (Customers)*\n`{ext_count}` views · `{unique_ext}` unique"},
+                                {"type": "mrkdwn", "text": f"*🎯 CS Team Views*\n`{cs_views}`"},
+                                {"type": "mrkdwn", "text": f"*⚙️ TC Team Views*\n`{tc_views}`"}
+                            ]
+                        },
+                        {"type": "divider"},
+                        {
+                            "type": "section",
+                            "text": {"type": "mrkdwn", "text": f"*📰 Top Articles:*\n{top_articles_text}"}
+                        },
+                        {
+                            "type": "section",
+                            "text": {"type": "mrkdwn", "text": f"*🏢 Top External Domains:*\n{ext_domains_text}"}
+                        },
+                        {
+                            "type": "context",
+                            "elements": [
+                                {"type": "mrkdwn", "text": f"🔗 <https://aquera-insights.vercel.app/admin#insights|View Full Dashboard> · Data as of today"}
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        import requests as req
+        resp = req.post(webhook, json=payload, timeout=10)
+        if resp.status_code == 200:
+            return jsonify({"success": True, "message": "Digest sent to Slack"})
+        else:
+            return jsonify({"success": False, "error": f"Slack returned {resp.status_code}: {resp.text}"}), 500
+
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/sync-archive', methods=['POST'])
+def sync_archive():
+    """
+    Receives local archive data from the local server and merges it into Vercel KV.
+    Local sends archived_logs.json → Vercel merges + saves to Vercel KV.
+    This runs inside Vercel, bypassing external write restrictions.
+    """
+    try:
+        incoming = request.get_json(silent=True) or {}
+        incoming_comments = incoming.get('comments', [])
+        if not incoming_comments:
+            return jsonify({"success": False, "error": "No comments provided"}), 400
+
+        # Load existing archive
+        existing = read_json_data('archived_logs.json', [])
+
+        # Merge: existing + incoming, deduped by comment ID
+        merged = {c.get('id'): c for c in existing}
+        added = 0
+        for c in incoming_comments:
+            if c.get('id') not in merged:
+                merged[c.get('id')] = c
+                added += 1
+            else:
+                merged[c.get('id')] = c  # update with latest
+
+        merged_list = sorted(merged.values(), key=lambda x: x.get('created_at', ''), reverse=True)
+        write_json_data('archived_logs.json', merged_list)
+
+        # Also invalidate the parsed cache so next load re-parses with full data
+        write_json_data('parsed_event_cache.json', [])
+
+        return jsonify({
+            "success": True,
+            "incoming": len(incoming_comments),
+            "added": added,
+            "total_archived": len(merged_list)
+        })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @app.route('/api/maintenance/dismiss', methods=['POST'])
 def dismiss_maintenance():
     write_json_data('maintenance_notice.json', {})
