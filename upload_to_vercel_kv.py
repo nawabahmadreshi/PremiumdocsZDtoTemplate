@@ -43,8 +43,7 @@ def upload_file_to_kv(filename):
     try:
         data_str = json.dumps(data)
         url = f"{KV_REST_API_URL.rstrip('/')}/set/{urllib.parse.quote(filename)}"
-        # Upstash Redis SET takes value as body (in JSON format)
-        req = urllib.request.Request(url, data=json.dumps(data_str).encode("utf-8"), method="POST")
+        req = urllib.request.Request(url, data=data_str.encode("utf-8"), method="POST")
         req.add_header("Authorization", f"Bearer {KV_REST_API_TOKEN}")
         req.add_header("Content-Type", "application/json")
         

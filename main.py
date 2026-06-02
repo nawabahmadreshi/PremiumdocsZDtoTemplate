@@ -105,7 +105,7 @@ def write_json_data(filename, data):
             try:
                 data_str = json.dumps(data)
                 req_url = f"{url.rstrip('/')}/set/{urllib.parse.quote(filename)}"
-                req = urllib.request.Request(req_url, data=json.dumps(data_str).encode('utf-8'), method='POST')
+                req = urllib.request.Request(req_url, data=data_str.encode('utf-8'), method='POST')
                 req.add_header('Authorization', f'Bearer {token}')
                 req.add_header('Content-Type', 'application/json')
                 with urllib.request.urlopen(req) as response:
