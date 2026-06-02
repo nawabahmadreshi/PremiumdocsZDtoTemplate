@@ -163,20 +163,28 @@ def perform_maintenance(force_cleanup=False):
             client = cfg.get_zendesk_client()
             live_comments = client.get_article_comments(TRACKING_ARTICLE_ID)
             
-            # 1. Archive
+            # 1. Archive: ALWAYS merge ALL live comments into archive and save
+            # This ensures archive is confirmed fresh before any deletion
             archived = read_json_data('archived_logs.json', [])
             
             seen_ids = {c.get('id') for c in archived}
             new_to_archive = [c for c in live_comments if c.get('id') not in seen_ids]
             
-            if new_to_archive:
-                archived.extend(new_to_archive)
-                save_success = write_json_data('archived_logs.json', archived)
-                if not save_success:
-                    print("CRITICAL: Failed to save archive to database! Aborting cleanup to prevent data loss.")
-                    return
+            # Merge live into archive (live data wins on conflict)
+            merged_archive = {c.get('id'): c for c in archived}
+            for c in live_comments:
+                merged_archive[c.get('id')] = c
+            merged_archive_list = sorted(merged_archive.values(), key=lambda x: x.get('created_at', ''), reverse=True)
             
-            # 2. Cleanup: Delete oldest comments after backup is confirmed safe
+            save_success = write_json_data('archived_logs.json', merged_archive_list)
+            if not save_success:
+                print("CRITICAL: Failed to save archive to database! Aborting cleanup to prevent data loss.")
+                return
+            
+            print(f"DEBUG: Archive saved. {len(merged_archive_list)} total, {len(new_to_archive)} new.")
+            
+            # 2. Cleanup: Delete oldest comments ONLY after archive save confirmed
+            cleaned_count = 0
             if len(live_comments) >= 990 or force_cleanup:
                 print(f"DEBUG: Limit reached ({len(live_comments)}) or force flag set. Safety cleanup starting...")
                 # On Vercel use 35 (fits in 10s timeout), locally use 500 (no timeout)
@@ -185,22 +193,30 @@ def perform_maintenance(force_cleanup=False):
                 CLEANUP_PROGRESS["total"] = len(to_delete)
                 CLEANUP_PROGRESS["active"] = True
                 
-                for i, comment in enumerate(to_delete):
+                # Safety check: only delete comments confirmed in the saved archive
+                saved_ids = {c.get('id') for c in merged_archive_list}
+                safe_to_delete = [c for c in to_delete if c.get('id') in saved_ids]
+                skipped = len(to_delete) - len(safe_to_delete)
+                if skipped > 0:
+                    print(f"WARNING: {skipped} comments NOT confirmed in archive — skipping deletion for safety.")
+                
+                for i, comment in enumerate(safe_to_delete):
                     client.delete_article_comment(TRACKING_ARTICLE_ID, comment.get('id'))
                     CLEANUP_PROGRESS["current"] = i + 1
-                    CLEANUP_PROGRESS["status"] = f"Cleaning {i+1}/{len(to_delete)}..."
+                    CLEANUP_PROGRESS["status"] = f"Cleaning {i+1}/{len(safe_to_delete)}..."
                     time.sleep(0.2) # Rate limit protection
                 
-                print(f"DEBUG: Cleanup of {len(to_delete)} comments finished.")
+                cleaned_count = len(safe_to_delete)
+                print(f"DEBUG: Cleanup of {cleaned_count} comments finished safely.")
 
             # 3. Save detailed maintenance notice for UI
             import datetime
             write_json_data('maintenance_notice.json', {
                 "timestamp": datetime.datetime.now().isoformat(),
                 "total_live": len(live_comments),
-                "total_archived": len(archived),
+                "total_archived": len(merged_archive_list),
                 "last_action_archived": len(new_to_archive),
-                "last_action_cleaned": chunk_size if len(live_comments) >= 990 or force_cleanup else 0
+                "last_action_cleaned": cleaned_count
             })
 
         except Exception as e:
