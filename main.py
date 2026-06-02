@@ -156,7 +156,11 @@ IMAGES_DIR = PROJECT_ROOT / "images"
 ZIP_PATH = PROJECT_ROOT / "documentation_bundle.zip"
 
 def perform_maintenance(force_cleanup=False):
-    """Trigger background backup and cleanup."""
+    """
+    Archive new Zendesk comments to KV and update parsed cache.
+    NOTE: Zendesk deletion is handled exclusively by backup_sync.py
+    running locally — never on Vercel (10s timeout risk).
+    """
     def run():
         try:
             cfg = Config()
@@ -183,41 +187,23 @@ def perform_maintenance(force_cleanup=False):
             
             print(f"DEBUG: Archive saved. {len(merged_archive_list)} total, {len(new_to_archive)} new.")
             
-            # 2. Cleanup: Delete oldest comments ONLY after archive save confirmed
-            cleaned_count = 0
-            if len(live_comments) >= 990 or force_cleanup:
-                print(f"DEBUG: Limit reached ({len(live_comments)}) or force flag set. Safety cleanup starting...")
-                # On Vercel use 35 (fits in 10s timeout), locally use 500 (no timeout)
-                chunk_size = 35 if os.environ.get('VERCEL') == '1' else 500
-                to_delete = sorted(live_comments, key=lambda x: x.get('created_at'))[:chunk_size]
-                CLEANUP_PROGRESS["total"] = len(to_delete)
-                CLEANUP_PROGRESS["active"] = True
-                
-                # Safety check: only delete comments confirmed in the saved archive
-                saved_ids = {c.get('id') for c in merged_archive_list}
-                safe_to_delete = [c for c in to_delete if c.get('id') in saved_ids]
-                skipped = len(to_delete) - len(safe_to_delete)
-                if skipped > 0:
-                    print(f"WARNING: {skipped} comments NOT confirmed in archive — skipping deletion for safety.")
-                
-                for i, comment in enumerate(safe_to_delete):
-                    client.delete_article_comment(TRACKING_ARTICLE_ID, comment.get('id'))
-                    CLEANUP_PROGRESS["current"] = i + 1
-                    CLEANUP_PROGRESS["status"] = f"Cleaning {i+1}/{len(safe_to_delete)}..."
-                    time.sleep(0.2) # Rate limit protection
-                
-                cleaned_count = len(safe_to_delete)
-                print(f"DEBUG: Cleanup of {cleaned_count} comments finished safely.")
+            # 2. Save latest live snapshot
+            write_json_data('last_live_comments.json', live_comments)
 
-            # 3. Save detailed maintenance notice for UI
+            # 3. Update maintenance notice (no cleanup on Vercel)
             import datetime
             write_json_data('maintenance_notice.json', {
                 "timestamp": datetime.datetime.now().isoformat(),
                 "total_live": len(live_comments),
                 "total_archived": len(merged_archive_list),
                 "last_action_archived": len(new_to_archive),
-                "last_action_cleaned": cleaned_count
+                "last_action_cleaned": 0,
+                "note": "Run backup_sync.py --cleanup locally to trim Zendesk"
             })
+
+            # 4. Warn if Zendesk is filling up
+            if len(live_comments) >= 900:
+                print(f"WARNING: {len(live_comments)}/990 Zendesk comments. Run: python3 backup_sync.py --cleanup")
 
         except Exception as e:
             print(f"Maintenance Error: {e}")
@@ -763,6 +749,58 @@ def download_backup(filename):
         return "Backup not found.", 404
         
     return send_file(file_path, as_attachment=True, download_name=filename)
+
+@app.route('/api/backups/download-current', methods=['GET'])
+def download_current_backup():
+    if os.environ.get('VERCEL') == '1':
+        return jsonify({"success": False, "error": "This action is only available when running locally."}), 403
+        
+    file_type = request.args.get('type', 'archive')
+    filename = 'archived_logs.json' if file_type == 'archive' else 'parsed_event_cache.json'
+    file_path = PROJECT_ROOT / "data" / filename
+    
+    if not file_path.exists():
+        return "Backup file not found.", 404
+        
+    return send_file(file_path, as_attachment=True, download_name=filename)
+
+@app.route('/api/backups/local-sync', methods=['POST'])
+def trigger_local_sync():
+    if os.environ.get('VERCEL') == '1':
+        return jsonify({"success": False, "error": "This action is only available when running locally."}), 403
+        
+    data = request.get_json(silent=True) or {}
+    do_cleanup = data.get('cleanup', False)
+    force_cleanup = data.get('force_cleanup', False)
+    
+    global CLEANUP_PROGRESS
+    if CLEANUP_PROGRESS.get("active"):
+        return jsonify({"success": False, "error": "A backup or cleanup is already in progress."}), 400
+        
+    CLEANUP_PROGRESS["active"] = True
+    CLEANUP_PROGRESS["status"] = "Syncing..."
+    CLEANUP_PROGRESS["current"] = 0
+    CLEANUP_PROGRESS["total"] = 0
+    
+    def progress_callback(current, total):
+        global CLEANUP_PROGRESS
+        CLEANUP_PROGRESS["current"] = current
+        CLEANUP_PROGRESS["total"] = total
+        CLEANUP_PROGRESS["status"] = f"Cleaning {current}/{total}..."
+        
+    def run_thread():
+        try:
+            from backup_sync import run_backup_sync
+            run_backup_sync(do_cleanup=do_cleanup, force_cleanup=force_cleanup, progress_cb=progress_callback)
+        except Exception as e:
+            print(f"Local Sync Error: {e}")
+        finally:
+            global CLEANUP_PROGRESS
+            CLEANUP_PROGRESS["active"] = False
+            CLEANUP_PROGRESS["status"] = "Idle"
+            
+    threading.Thread(target=run_thread).start()
+    return jsonify({"success": True, "message": "Local backup sync started."})
 
 @app.route('/branding', methods=['GET', 'POST'])
 def handle_branding():

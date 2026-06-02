@@ -607,21 +607,55 @@
             </div>
           </div>
 
-          <!-- Box 3 -->
-          <div class="chart-box">
-            <div class="chart-title">Archive Storage Status</div>
-            <div style="margin: 20px 0;">
-              <div id="archSize" style="font-size:32px; font-weight:900; color:var(--aquera);">0 MB</div>
+          <!-- Box 3: Local Backup Control -->
+          <div class="chart-box" id="localBackupBox">
+            <div class="chart-title">Local Backup Control</div>
+            <div style="margin: 15px 0;">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                <span style="font-size: 12px; color: var(--muted); font-weight: 600;">Archive Database Size:</span>
+                <span id="archSize" style="font-size: 18px; font-weight: 900; color: var(--aquera);">0 MB</span>
+              </div>
+              
+              <div id="localBackupBadge" style="font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 12px; text-transform: uppercase; background: #e2e8f0; color: #64748b;">Checking environment...</div>
+              
+              <div id="localControls" style="display: none;">
+                <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.4;">Trigger local master sync and safely cleanup Zendesk comments.</p>
+                <button id="localSyncBtn" class="action-btn" style="width:100%; background: var(--aquera); margin-bottom: 8px;" onclick="triggerLocalSync(true)">Sync &amp; Clean Zendesk</button>
+                <button id="localSyncOnlyBtn" class="action-btn" style="width:100%; background: white; color: var(--aquera); border: 1px solid var(--aquera); margin-bottom: 12px; box-shadow: none;" onclick="triggerLocalSync(false)">Sync Only (No Deletion)</button>
+                
+                <div style="border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px;">
+                  <div style="font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--ink);">Download Master Backup Files</div>
+                  <div style="display: flex; gap: 8px;">
+                    <button class="action-btn" style="flex: 1; font-size: 11px; padding: 6px 12px; background: white; color: var(--aquera); border: 1px solid var(--border); box-shadow: none;" onclick="downloadCurrentBackup('archive')">Raw Archive</button>
+                    <button class="action-btn" style="flex: 1; font-size: 11px; padding: 6px 12px; background: white; color: var(--aquera); border: 1px solid var(--border); box-shadow: none;" onclick="downloadCurrentBackup('parsed')">Parsed Events</button>
+                  </div>
+                </div>
+              </div>
+              
+              <div id="cloudControls" style="display: none;">
+                <p style="font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 12px;">Vercel has a 10s execution limit. To prevent timeouts and data loss, Zendesk cleanup must be run locally.</p>
+                <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 6px; padding: 10px; font-size: 11px; color: #b45309; font-weight: 600; font-family: monospace; text-align: center;">
+                  python3 backup_sync.py --cleanup
+                </div>
+              </div>
             </div>
-            <button id="forceCleanBtn" class="action-btn" style="width:100%; background: #ef4444;" onclick="forceCleanNow()">Force Clean Zendesk</button>
-            <div id="forceCleanProgressContainer" style="display: none; margin-top: 16px;">
-              <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: #b91c1c; margin-bottom: 6px;">
-                <span id="forceCleanStatusText">Starting cleanup...</span>
-                <span id="forceCleanPercentage">0%</span>
+            
+            <div id="localProgressContainer" style="display: none; margin-top: 16px;">
+              <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: var(--aquera); margin-bottom: 6px;">
+                <span id="localStatusText">Starting local sync...</span>
+                <span id="localPercentage">0%</span>
               </div>
-              <div style="height: 6px; background: rgba(239,68,68,0.2); border-radius: 3px; overflow: hidden;">
-                <div id="forceCleanProgressBar" style="height: 100%; background: #ef4444; width: 0%; transition: width 0.2s linear;"></div>
+              <div style="height: 6px; background: rgba(0, 96, 164, 0.2); border-radius: 3px; overflow: hidden;">
+                <div id="localProgressBar" style="height: 100%; background: var(--aquera); width: 0%; transition: width 0.2s linear;"></div>
               </div>
+            </div>
+            
+            <!-- Hidden forceCleanBtn & elements to keep backward compatibility or simple JS references from crashing -->
+            <button id="forceCleanBtn" style="display:none;" onclick="forceCleanNow()"></button>
+            <div id="forceCleanProgressContainer" style="display:none;">
+              <span id="forceCleanStatusText"></span>
+              <span id="forceCleanPercentage"></span>
+              <div id="forceCleanProgressBar"></div>
             </div>
           </div>
           
@@ -689,6 +723,7 @@
           fetchTracking();
       }
       if (tab === 'settings') {
+          if (typeof initLocalBackupControl === 'function') initLocalBackupControl();
           // Always fetch live data first so the Auto-Clean Radar shows real numbers
           fetchTracking().then(() => fetchSysInfo());
           fetchBackups();
@@ -1257,91 +1292,126 @@
       }
     }
 
-    async function cleanNow() {
-      if (!confirm("Start full archive & cleanup cycle? This will safely delete the oldest 500 comments.")) return;
+    function initLocalBackupControl() {
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const badge = document.getElementById('localBackupBadge');
+      const localCtrl = document.getElementById('localControls');
+      const cloudCtrl = document.getElementById('cloudControls');
       
-      const btn = document.getElementById('cleanBtn');
-      btn.disabled = true;
-      btn.style.opacity = '0.5';
+      if (!badge || !localCtrl || !cloudCtrl) return;
       
-      document.getElementById('cleanProgressContainer').style.display = 'block';
-      document.getElementById('cleanStatusText').textContent = "Starting cleanup...";
-      document.getElementById('cleanPercentage').textContent = '0%';
-      document.getElementById('cleanProgressBar').style.width = '0%';
+      if (isLocal) {
+        badge.textContent = '🟢 Local Server Active';
+        badge.style.background = 'rgba(16, 185, 129, 0.1)';
+        badge.style.color = '#10b981';
+        localCtrl.style.display = 'block';
+        cloudCtrl.style.display = 'none';
+      } else {
+        badge.textContent = '⚠️ Cloud Read-Only Mode';
+        badge.style.background = 'rgba(245, 158, 11, 0.1)';
+        badge.style.color = '#d97706';
+        localCtrl.style.display = 'none';
+        cloudCtrl.style.display = 'block';
+      }
+    }
+
+    async function triggerLocalSync(cleanup = false) {
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (!isLocal) {
+        alert("Zendesk cleanup cannot be run directly in Vercel to avoid timeouts. Please run backup_sync.py locally, or access this dashboard on your local machine.");
+        return;
+      }
       
-      await fetch('/api/tracking/backup', { method: 'POST' });
+      if (cleanup && !confirm("Are you sure you want to run sync & cleanup? This will backup all data first, then delete oldest comments from Zendesk.")) {
+        return;
+      }
       
-      const poll = setInterval(async () => {
+      const syncBtn = document.getElementById('localSyncBtn');
+      const syncOnlyBtn = document.getElementById('localSyncOnlyBtn');
+      if (syncBtn) { syncBtn.disabled = true; syncBtn.style.opacity = '0.5'; }
+      if (syncOnlyBtn) { syncOnlyBtn.disabled = true; syncOnlyBtn.style.opacity = '0.5'; }
+      
+      const progressContainer = document.getElementById('localProgressContainer');
+      const statusText = document.getElementById('localStatusText');
+      const percentageText = document.getElementById('localPercentage');
+      const progressBar = document.getElementById('localProgressBar');
+      
+      if (progressContainer) progressContainer.style.display = 'block';
+      if (statusText) statusText.textContent = "Starting local sync...";
+      if (percentageText) percentageText.textContent = '0%';
+      if (progressBar) progressBar.style.width = '0%';
+      
+      try {
+        const res = await fetch('/api/backups/local-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cleanup: cleanup, force_cleanup: false })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          alert("Error: " + data.error);
+          if (progressContainer) progressContainer.style.display = 'none';
+          if (syncBtn) { syncBtn.disabled = false; syncBtn.style.opacity = '1'; }
+          if (syncOnlyBtn) { syncOnlyBtn.disabled = false; syncOnlyBtn.style.opacity = '1'; }
+          return;
+        }
+        
+        const poll = setInterval(async () => {
           try {
-              const res = await fetch('/api/maintenance/progress');
-              const progress = await res.json();
-              
-              if (progress.active && progress.total > 0) {
-                  const pct = Math.round((progress.current / progress.total) * 100);
-                  document.getElementById('cleanStatusText').textContent = progress.status;
-                  document.getElementById('cleanPercentage').textContent = pct + '%';
-                  document.getElementById('cleanProgressBar').style.width = pct + '%';
-              } else if (!progress.active && progress.total > 0 && progress.current >= progress.total) {
-                  // Finished
-                  clearInterval(poll);
-                  document.getElementById('cleanStatusText').textContent = "Cleanup complete!";
-                  document.getElementById('cleanPercentage').textContent = '100%';
-                  document.getElementById('cleanProgressBar').style.width = '100%';
-                  setTimeout(() => {
-                      document.getElementById('cleanProgressContainer').style.display = 'none';
-                      btn.disabled = false;
-                      btn.style.opacity = '1';
-                      fetchTracking(true); // Hard refresh
-                  }, 2000);
-              }
-          } catch (e) { console.error("Poll error", e); }
-      }, 1000);
+            const progressRes = await fetch('/api/maintenance/progress');
+            const progress = await progressRes.json();
+            
+            if (progress.active) {
+              const pct = progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 50;
+              if (statusText) statusText.textContent = progress.status || "Syncing...";
+              if (percentageText) percentageText.textContent = pct + '%';
+              if (progressBar) progressBar.style.width = pct + '%';
+            } else {
+              clearInterval(poll);
+              if (statusText) statusText.textContent = "Sync & Backup complete!";
+              if (percentageText) percentageText.textContent = '100%';
+              if (progressBar) progressBar.style.width = '100%';
+              setTimeout(() => {
+                if (progressContainer) progressContainer.style.display = 'none';
+                if (syncBtn) { syncBtn.disabled = false; syncBtn.style.opacity = '1'; }
+                if (syncOnlyBtn) { syncOnlyBtn.disabled = false; syncOnlyBtn.style.opacity = '1'; }
+                fetchTracking(true);
+                fetchSysInfo();
+                fetchBackups();
+              }, 2000);
+            }
+          } catch (e) {
+            console.error("Poll error", e);
+          }
+        }, 1000);
+      } catch (e) {
+        alert("Network error starting sync.");
+        if (progressContainer) progressContainer.style.display = 'none';
+        if (syncBtn) { syncBtn.disabled = false; syncBtn.style.opacity = '1'; }
+        if (syncOnlyBtn) { syncOnlyBtn.disabled = false; syncOnlyBtn.style.opacity = '1'; }
+      }
+    }
+
+    function downloadCurrentBackup(type) {
+      window.location.href = `/api/backups/download-current?type=${type}`;
+    }
+
+    async function cleanNow() {
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (!isLocal) {
+        alert("Zendesk cleanup cannot be run directly in Vercel to avoid timeouts. Please run backup_sync.py locally, or access this dashboard on your local machine.");
+        return;
+      }
+      triggerLocalSync(true);
     }
 
     async function forceCleanNow() {
-      if (!confirm("Are you sure you want to FORCE a cleanup? This will backup your latest data, then delete up to 500 of the oldest comments from Zendesk immediately.")) return;
-      
-      const btn = document.getElementById('forceCleanBtn');
-      btn.disabled = true;
-      btn.style.opacity = '0.5';
-      
-      document.getElementById('forceCleanProgressContainer').style.display = 'block';
-      document.getElementById('forceCleanStatusText').textContent = "Starting cleanup...";
-      document.getElementById('forceCleanPercentage').textContent = '0%';
-      document.getElementById('forceCleanProgressBar').style.width = '0%';
-      
-      await fetch('/api/tracking/backup', { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ force_cleanup: true })
-      });
-      
-      const poll = setInterval(async () => {
-          try {
-              const res = await fetch('/api/maintenance/progress');
-              const progress = await res.json();
-              
-              if (progress.active && progress.total > 0) {
-                  const pct = Math.round((progress.current / progress.total) * 100);
-                  document.getElementById('forceCleanStatusText').textContent = progress.status;
-                  document.getElementById('forceCleanPercentage').textContent = pct + '%';
-                  document.getElementById('forceCleanProgressBar').style.width = pct + '%';
-              } else if (!progress.active && progress.total > 0 && progress.current >= progress.total) {
-                  // Finished
-                  clearInterval(poll);
-                  document.getElementById('forceCleanStatusText').textContent = "Cleanup complete!";
-                  document.getElementById('forceCleanPercentage').textContent = '100%';
-                  document.getElementById('forceCleanProgressBar').style.width = '100%';
-                  setTimeout(() => {
-                      document.getElementById('forceCleanProgressContainer').style.display = 'none';
-                      btn.disabled = false;
-                      btn.style.opacity = '1';
-                      fetchTracking(true); // Hard refresh metrics globally
-                      fetchSysInfo(); // Refresh archive size
-                  }, 2000);
-              }
-          } catch (e) { console.error("Poll error", e); }
-      }, 1000);
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (!isLocal) {
+        alert("Zendesk cleanup cannot be run directly in Vercel to avoid timeouts. Please run backup_sync.py locally, or access this dashboard on your local machine.");
+        return;
+      }
+      triggerLocalSync(true);
     }
 
 
