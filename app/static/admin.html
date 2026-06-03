@@ -615,7 +615,7 @@
           <div class="feed-header"><span style="font-weight:800;">Recent Audience Activity</span><span id="rowCount" style="font-size:12px; color:var(--muted); font-weight: 700;">-</span></div>
           <div style="max-height: 400px; overflow-y: auto;">
             <table class="feed-table">
-              <thead><tr><th>Viewer</th><th>Article</th><th>Domain</th><th>Time</th></tr></thead>
+              <thead><tr><th>Viewer</th><th>Article</th><th>Domain</th><th>Time</th><th style="text-align: right; padding-right: 20px;">Action</th></tr></thead>
               <tbody id="feedBody"></tbody>
             </table>
           </div>
@@ -1196,12 +1196,17 @@
       tbody.innerHTML = filtered.slice(0, 100).map(e => {
         const isInternal = (e.email_domain || '').toLowerCase() === 'aquera.com';
         const color = e.is_cs ? '#f59e0b' : (e.is_tc ? '#0ea5e9' : 'inherit');
+        const isAnonymous = !e.user_email || e.user_email.toLowerCase() === 'anonymous';
+        const btnHtml = isAnonymous ? 
+          `<span style="color: var(--muted); font-size: 11px;">-</span>` : 
+          `<button onclick="event.stopPropagation(); showUserJourney('${e.user_email}')" style="padding: 4px 10px; border-radius: 6px; border: 1px solid var(--aquera); background: transparent; color: var(--aquera); font-size: 10px; font-weight: 800; cursor: pointer; transition: all 0.2s; white-space: nowrap;" onmouseover="this.style.background='var(--aquera)'; this.style.color='white'" onmouseout="this.style.background='transparent'; this.style.color='var(--aquera)'">Analyze</button>`;
         return `
           <tr onclick="showUserJourney('${e.user_email}')" style="cursor: pointer;">
             <td><b style="color: ${color}">${e.user_email || 'Anonymous'}</b></td>
             <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${e.article_title || '-'}</td>
             <td><span style="font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${e.email_domain || 'unknown'}</span></td>
             <td style="font-size: 11px; color: var(--muted)">${new Date(e.log_timestamp).toLocaleString()}</td>
+            <td style="text-align: right; padding-right: 20px;">${btnHtml}</td>
           </tr>
         `;
       }).join('');
