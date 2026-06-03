@@ -388,8 +388,31 @@
       <div class="tabs">
         <div class="tab" onclick="switchTab('builder')" style="display: none;">Builder</div>
         <div class="tab active" onclick="switchTab('insights')">Insights</div>
+        <div class="tab" onclick="switchTab('advancedInsights')">Advanced Analytics</div>
         <div class="tab" onclick="switchTab('branding')">Branding</div>
         <div class="tab" onclick="switchTab('settings')">Health & Backups</div>
+      </div>
+
+      <!-- Global Time Filter Container -->
+      <div id="globalFilterContainer" style="margin-bottom: 24px;">
+        <div class="time-filter-bar" style="margin-bottom: 12px; display: inline-flex; align-items: center;">
+          <button class="time-btn active" id="tf-all" onclick="switchTimeFilter('all')">All Time</button>
+          <button class="time-btn" id="tf-weekly" onclick="switchTimeFilter('weekly')">Last 7 Days</button>
+          <button class="time-btn" id="tf-monthly" onclick="switchTimeFilter('monthly')">Last 30 Days</button>
+          <button class="time-btn" id="tf-custom" onclick="switchTimeFilter('custom')">Custom Range</button>
+          <div style="display: inline-flex; align-items: center; padding-left: 12px; border-left: 1.5px solid #cbd5e1; margin-left: 10px; margin-right: 6px;">
+            <select id="monthSelect" onchange="switchMonthFilter()" style="background: transparent; border: none; font-family: inherit; font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer; outline: none; padding: 2px 0; transition: color 0.2s;">
+              <option value="none" style="color: var(--ink);">Select Month...</option>
+            </select>
+          </div>
+        </div>
+        <div class="custom-range-row" id="customRangeRow" style="margin-bottom: 12px;">
+          <label>From</label>
+          <input type="date" id="dateFrom">
+          <label>To</label>
+          <input type="date" id="dateTo">
+          <button onclick="applyCustomRange()">Apply</button>
+        </div>
       </div>
 
       <!-- BUILDER TAB -->
@@ -533,25 +556,6 @@
           </div>
         </div>
 
-        <!-- Time Filter Bar with integrated dropdown option -->
-        <div class="time-filter-bar" style="margin-bottom: 24px; display: inline-flex; align-items: center;">
-          <button class="time-btn active" id="tf-all" onclick="switchTimeFilter('all')">All Time</button>
-          <button class="time-btn" id="tf-weekly" onclick="switchTimeFilter('weekly')">Last 7 Days</button>
-          <button class="time-btn" id="tf-monthly" onclick="switchTimeFilter('monthly')">Last 30 Days</button>
-          <button class="time-btn" id="tf-custom" onclick="switchTimeFilter('custom')">Custom Range</button>
-          <div style="display: inline-flex; align-items: center; padding-left: 12px; border-left: 1.5px solid #cbd5e1; margin-left: 10px; margin-right: 6px;">
-            <select id="monthSelect" onchange="switchMonthFilter()" style="background: transparent; border: none; font-family: inherit; font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer; outline: none; padding: 2px 0; transition: color 0.2s;">
-              <option value="none" style="color: var(--ink);">Select Month...</option>
-            </select>
-          </div>
-        </div>
-        <div class="custom-range-row" id="customRangeRow">
-          <label>From</label>
-          <input type="date" id="dateFrom">
-          <label>To</label>
-          <input type="date" id="dateTo">
-          <button onclick="applyCustomRange()">Apply</button>
-        </div>
 
         <div class="metrics-row">
           <div class="metric-card"><div class="metric-label">Total Views</div><div id="statTotal" class="metric-value">0</div></div>
@@ -617,6 +621,83 @@
             <table class="feed-table">
               <thead><tr><th>Viewer</th><th>Article</th><th>Domain</th><th>Time</th><th style="text-align: right; padding-right: 20px;">Action</th></tr></thead>
               <tbody id="feedBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADVANCED ANALYTICS TAB -->
+      <div id="tabAdvancedInsights" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+          <div>
+            <h2 style="font-size: 24px; font-weight: 900; margin: 0; display: flex; align-items: center;">
+              Advanced Analytics
+              <span style="margin-left: 12px; font-size: 10px; font-weight: 800; color: var(--aquera); background: rgba(0, 96, 164, 0.1); padding: 4px 10px; border-radius: 20px; text-transform: uppercase;">
+                Interactive CS Insights
+              </span>
+            </h2>
+            <p style="color: var(--muted); font-size: 13px; margin: 4px 0 0 0;">Customer success velocity, hourly traffic density, and audience loyalty metrics</p>
+          </div>
+        </div>
+
+        <!-- Metrics Row -->
+        <div class="metrics-row">
+          <div class="metric-card accent-cs">
+            <div class="metric-label">Repeat Visitor Ratio</div>
+            <div id="statLoyaltyRatio" class="metric-value">0%</div>
+            <div style="font-size: 11px; color: var(--muted); margin-top: 4px;">Users with visits on multiple days</div>
+          </div>
+          <div class="metric-card accent-tc">
+            <div class="metric-label">Peak Traffic Hour</div>
+            <div id="statPeakHour" class="metric-value">-</div>
+            <div style="font-size: 11px; color: var(--muted); margin-top: 4px;">Most active hour &amp; day</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Top Surging Account</div>
+            <div id="statSurgingAccount" class="metric-value" style="font-size: 20px; line-height: 1.4; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</div>
+            <div id="statSurgingDelta" style="font-size: 11px; color: #10b981; font-weight: 700; margin-top: 2px;">+0% growth vs last week</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Unique Customer Contacts</div>
+            <div id="statUniqueContacts" class="metric-value">0</div>
+            <div style="font-size: 11px; color: var(--muted); margin-top: 4px;">Active external users</div>
+          </div>
+        </div>
+
+        <!-- Heatmap & CS Radar Grid -->
+        <div class="insights-grid">
+          <div class="chart-box">
+            <div class="chart-title">Help Center Peak Hours Heatmap</div>
+            <div id="visHeatmap" style="height:220px;"></div>
+          </div>
+          <div class="chart-box">
+            <div class="chart-title">CS Radar: Account Engagement Velocity</div>
+            <div style="max-height: 220px; overflow-y: auto;" id="csRadarList">
+              <div style="color: var(--muted); font-size: 12px; text-align: center; padding: 40px;">No account activity analyzed</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Power Users Table -->
+        <div class="feed-container" style="margin-bottom: 24px;">
+          <div class="feed-header">
+            <span style="font-weight:800;">Top Customer Power Users</span>
+            <span style="font-size:12px; color:var(--muted); font-weight: 700;">Engagement &amp; Loyalty</span>
+          </div>
+          <div style="max-height: 350px; overflow-y: auto;">
+            <table class="feed-table">
+              <thead>
+                <tr>
+                  <th>User Email</th>
+                  <th>Customer Domain</th>
+                  <th>Total Page Views</th>
+                  <th>Unique Days Active</th>
+                  <th style="text-align: right; padding-right: 20px;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="powerUsersBody">
+                <tr><td colspan="5" style="text-align: center; color: var(--muted);">No power users found</td></tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -763,7 +844,13 @@
       // Persist tab in URL
       window.location.hash = tab;
       
-      if (tab === 'insights') {
+      // Show/Hide Global Filter Container
+      const filterContainer = document.getElementById('globalFilterContainer');
+      if (filterContainer) {
+        filterContainer.style.display = (tab === 'insights' || tab === 'advancedInsights') ? 'block' : 'none';
+      }
+      
+      if (tab === 'insights' || tab === 'advancedInsights') {
           fetchTracking();
       }
       if (tab === 'branding') {
@@ -891,6 +978,9 @@
 
             // Sync with current time filter (Weekly/Monthly/Custom)
             if (document.getElementById('tabInsights').classList.contains('active')) {
+                lastFullData = data;
+                refreshInsightsView();
+            } else if (document.getElementById('tabAdvancedInsights').classList.contains('active')) {
                 lastFullData = data;
                 refreshInsightsView();
             }
@@ -1083,21 +1173,28 @@
     }
 
     function refreshInsightsView() {
-      const filtered = getFilteredEvents();
-      const stats = computeStatsFromEvents(filtered);
-      // Update tiles
-      animateValue('statTotal', filtered.length);
-      animateValue('statCS', stats.cs);
-      animateValue('statTC', stats.tc);
-      animateValue('statExt', stats.ext);
-      // Update segment counts
-      document.getElementById('count-all').textContent = filtered.length;
-      document.getElementById('count-cs').textContent = stats.cs;
-      document.getElementById('count-tc').textContent = stats.tc;
-      document.getElementById('count-ext').textContent = stats.ext;
-      renderFeed();
-      renderTopCompanies(filtered);
-      renderFilteredCharts();
+      const insightsActive = document.getElementById('tabInsights').classList.contains('active');
+      const advancedActive = document.getElementById('tabAdvancedInsights').classList.contains('active');
+      
+      if (insightsActive) {
+        const filtered = getFilteredEvents();
+        const stats = computeStatsFromEvents(filtered);
+        // Update tiles
+        animateValue('statTotal', filtered.length);
+        animateValue('statCS', stats.cs);
+        animateValue('statTC', stats.tc);
+        animateValue('statExt', stats.ext);
+        // Update segment counts
+        document.getElementById('count-all').textContent = filtered.length;
+        document.getElementById('count-cs').textContent = stats.cs;
+        document.getElementById('count-tc').textContent = stats.tc;
+        document.getElementById('count-ext').textContent = stats.ext;
+        renderFeed();
+        renderTopCompanies(filtered);
+        renderFilteredCharts();
+      } else if (advancedActive) {
+        renderAdvancedView();
+      }
     }
 
     function computeStatsFromEvents(events) {
@@ -1804,6 +1901,315 @@
     function download() { window.location.href = '/download'; }
     function downloadPDF() { window.location.href = '/generate-pdf'; }
     
+    // Advanced Analytics functions
+    function calculateAccountVelocity(events) {
+      const now = new Date();
+      const currentWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const prevWeekStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+      
+      const domains = {};
+      
+      events.forEach(e => {
+        const domain = (e.email_domain || '').toLowerCase().trim();
+        if (!domain || domain === 'aquera.com' || domain === 'unknown') return;
+        
+        const eventDate = new Date(e.log_timestamp);
+        if (isNaN(eventDate.getTime())) return;
+        
+        if (!domains[domain]) {
+          domains[domain] = { current: 0, prev: 0 };
+        }
+        
+        if (eventDate >= currentWeekStart && eventDate <= now) {
+          domains[domain].current++;
+        } else if (eventDate >= prevWeekStart && eventDate < currentWeekStart) {
+          domains[domain].prev++;
+        }
+      });
+      
+      const results = Object.entries(domains).map(([domain, counts]) => {
+        const { current, prev } = counts;
+        let pctChange = 0;
+        if (prev > 0) {
+          pctChange = ((current - prev) / prev) * 100;
+        } else if (current > 0) {
+          pctChange = current * 100;
+        }
+        return {
+          domain,
+          current,
+          prev,
+          pctChange: Math.round(pctChange)
+        };
+      });
+      
+      results.sort((a, b) => b.pctChange - a.pctChange || b.current - a.current);
+      return results;
+    }
+
+    function calculateHeatmapData(events) {
+      const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      const heatmapData = [];
+      
+      days.forEach(day => {
+        for (let hour = 0; hour < 24; hour++) {
+          heatmapData.push({ day, hour, count: 0 });
+        }
+      });
+      
+      events.forEach(e => {
+        if (!e.log_timestamp) return;
+        const d = new Date(e.log_timestamp);
+        if (!isNaN(d.getTime())) {
+          const hour = d.getHours();
+          const dayIdx = d.getDay();
+          const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+          const dayName = dayNames[dayIdx];
+          const cell = heatmapData.find(c => c.day === dayName && c.hour === hour);
+          if (cell) {
+            cell.count++;
+          }
+        }
+      });
+      
+      return heatmapData;
+    }
+
+    function calculateLoyaltyStats(events) {
+      const usersMap = {};
+      
+      events.forEach(e => {
+        const email = e.user_email;
+        if (!email || email.toLowerCase() === 'anonymous') return;
+        const domain = (e.email_domain || '').toLowerCase().trim();
+        if (!domain || domain === 'aquera.com' || domain === 'unknown') return;
+        
+        if (!usersMap[email]) {
+          usersMap[email] = {
+            email,
+            domain,
+            views: 0,
+            days: new Set()
+          };
+        }
+        
+        usersMap[email].views++;
+        if (e.log_timestamp) {
+          usersMap[email].days.add(e.log_timestamp.substring(0, 10));
+        }
+      });
+      
+      const usersList = Object.values(usersMap);
+      const totalUsers = usersList.length;
+      const repeatUsers = usersList.filter(u => u.days.size > 1).length;
+      const loyaltyRatio = totalUsers > 0 ? Math.round((repeatUsers / totalUsers) * 100) : 0;
+      
+      usersList.sort((a, b) => b.views - a.views);
+      const topPowerUsers = usersList.slice(0, 10);
+      
+      return {
+        loyaltyRatio,
+        totalUniqueContacts: totalUsers,
+        topPowerUsers
+      };
+    }
+
+    function formatHour(h) {
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const hour12 = h % 12 || 12;
+      return `${hour12} ${ampm}`;
+    }
+
+    function renderCsRadarList(radarData) {
+      const listEl = document.getElementById('csRadarList');
+      if (!listEl) return;
+      
+      if (radarData.length === 0) {
+        listEl.innerHTML = '<div style="color: var(--muted); font-size: 12px; text-align: center; padding: 40px;">No external accounts active in this period</div>';
+        return;
+      }
+      
+      listEl.innerHTML = radarData.slice(0, 5).map(r => {
+        const isPositive = r.pctChange >= 0;
+        const color = isPositive ? '#10b981' : '#ef4444';
+        const sign = isPositive ? '+' : '';
+        const pctText = r.pctChange === 0 && r.current > 0 && r.prev === 0 ? 'New' : `${sign}${r.pctChange}%`;
+        
+        return `
+          <div class="company-card" style="margin-bottom: 8px;">
+            <div>
+              <div style="font-size: 13px; font-weight: 800; color: var(--ink);">${r.domain}</div>
+              <div style="font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase;">
+                Last Week: ${r.prev} views
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 16px; font-weight: 900; color: var(--aquera);">${r.current} <span style="font-size: 10px; font-weight: 700; color: var(--muted);">views</span></div>
+              <div style="font-size: 11px; font-weight: 800; color: ${color};">${pctText} growth</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderPowerUsers(powerUsers) {
+      const tbody = document.getElementById('powerUsersBody');
+      if (!tbody) return;
+      
+      if (powerUsers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--muted); padding: 20px;">No power users found</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = powerUsers.map(u => {
+        return `
+          <tr onclick="showUserJourney('${u.email}')" style="cursor: pointer;">
+            <td><b style="color: var(--aquera);">${u.email}</b></td>
+            <td><span style="font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${u.domain}</span></td>
+            <td><b>${u.views}</b></td>
+            <td><span style="font-weight: 600;">${u.days.size} day${u.days.size > 1 ? 's' : ''}</span></td>
+            <td style="text-align: right; padding-right: 20px;">
+              <button onclick="event.stopPropagation(); showUserJourney('${u.email}')" style="padding: 4px 10px; border-radius: 6px; border: 1px solid var(--aquera); background: transparent; color: var(--aquera); font-size: 10px; font-weight: 800; cursor: pointer; transition: all 0.2s; white-space: nowrap;" onmouseover="this.style.background='var(--aquera)'; this.style.color='white'" onmouseout="this.style.background='transparent'; this.style.color='var(--aquera)'">Analyze</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderHeatmapChart(heatmapData) {
+      const containerId = '#visHeatmap';
+      const containerEl = document.querySelector(containerId);
+      if (!containerEl) return;
+      
+      const hasData = heatmapData.some(c => c.count > 0);
+      if (!hasData) {
+        containerEl.innerHTML = '<div style="height:100%; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px;">No activity data to render heatmap</div>';
+        return;
+      }
+      
+      const config = {
+        actions: false,
+        config: {
+          background: "transparent",
+          view: { stroke: "transparent" },
+          font: "Inter, sans-serif",
+          axis: {
+            domain: false,
+            grid: false,
+            labelColor: "#64748b",
+            titleColor: "#475569",
+            labelFontSize: 9,
+            titleFontSize: 10,
+          }
+        }
+      };
+      
+      vegaEmbed(containerId, {
+        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        data: { values: heatmapData },
+        width: "container",
+        height: 180,
+        mark: { type: "rect", stroke: "#ffffff", strokeWidth: 1 },
+        encoding: {
+          x: {
+            field: "hour",
+            type: "ordinal",
+            title: "Hour of Day",
+            axis: {
+              labelAngle: 0,
+              values: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22],
+              labelExpr: "datum.value === 0 ? '12 AM' : datum.value === 12 ? '12 PM' : datum.value > 12 ? (datum.value - 12) + ' PM' : datum.value + ' AM'"
+            }
+          },
+          y: {
+            field: "day",
+            type: "nominal",
+            title: null,
+            sort: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+          },
+          color: {
+            field: "count",
+            type: "quantitative",
+            title: "Page Views",
+            scale: {
+              type: "linear",
+              range: ["#f8fafc", "#bae6fd", "#0284c7", "#0c4a6e"]
+            },
+            legend: {
+              orient: "right",
+              title: null,
+              labelFontSize: 9,
+              symbolType: "stroke"
+            }
+          },
+          tooltip: [
+            { field: "day", type: "nominal", title: "Day" },
+            { field: "hour", type: "ordinal", title: "Hour" },
+            { field: "count", type: "quantitative", title: "Views" }
+          ]
+        }
+      }, config).catch(err => console.error("Heatmap Rendering Error:", err));
+    }
+
+    function renderAdvancedView() {
+      const filtered = getFilteredEvents();
+      
+      const velocity = calculateAccountVelocity(filtered);
+      const heatmap = calculateHeatmapData(filtered);
+      const loyalty = calculateLoyaltyStats(filtered);
+      
+      animateValue('statLoyaltyRatio', loyalty.loyaltyRatio);
+      setTimeout(() => {
+        const ratioEl = document.getElementById('statLoyaltyRatio');
+        if (ratioEl) ratioEl.textContent = ratioEl.textContent.replace('%', '') + '%';
+      }, 550);
+      
+      let peakCell = null;
+      let maxCount = -1;
+      heatmap.forEach(c => {
+        if (c.count > maxCount) {
+          maxCount = c.count;
+          peakCell = c;
+        }
+      });
+      
+      const peakHourEl = document.getElementById('statPeakHour');
+      if (peakHourEl) {
+        if (maxCount > 0 && peakCell) {
+          peakHourEl.textContent = `${peakCell.day.substring(0, 3)} ${formatHour(peakCell.hour)}`;
+        } else {
+          peakHourEl.textContent = 'None';
+        }
+      }
+      
+      const topSurgingEl = document.getElementById('statSurgingAccount');
+      const surgingDeltaEl = document.getElementById('statSurgingDelta');
+      if (topSurgingEl && surgingDeltaEl) {
+        if (velocity.length > 0) {
+          const topAcc = velocity[0];
+          topSurgingEl.textContent = topAcc.domain;
+          topSurgingEl.title = topAcc.domain;
+          const isPositive = topAcc.pctChange >= 0;
+          const sign = isPositive ? '+' : '';
+          const color = isPositive ? '#10b981' : '#ef4444';
+          const pctText = topAcc.pctChange === 0 && topAcc.current > 0 && topAcc.prev === 0 ? 'New' : `${sign}${topAcc.pctChange}%`;
+          surgingDeltaEl.textContent = `${pctText} growth vs last week`;
+          surgingDeltaEl.style.color = color;
+        } else {
+          topSurgingEl.textContent = 'None';
+          surgingDeltaEl.textContent = '+0% growth vs last week';
+          surgingDeltaEl.style.color = 'var(--muted)';
+        }
+      }
+      
+      animateValue('statUniqueContacts', loyalty.totalUniqueContacts);
+      
+      renderCsRadarList(velocity);
+      renderPowerUsers(loyalty.topPowerUsers);
+      
+      renderHeatmapChart(heatmap);
+    }
+
     // Initial Load
     fetchTracking(); 
     const initialTab = window.location.hash.replace('#', '') || 'insights';
