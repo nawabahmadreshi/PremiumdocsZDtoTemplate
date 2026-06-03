@@ -944,6 +944,74 @@ def system_info():
 def cleanup_progress():
     return jsonify(CLEANUP_PROGRESS)
 
+@app.route('/api/ai/insights', methods=['POST'])
+def api_ai_insights():
+    import requests
+    try:
+        stats = request.get_json() or {}
+        top_domains = stats.get('top_domains', [])
+        top_articles = stats.get('top_articles', [])
+        velocity = stats.get('velocity', [])
+        unique_contacts = stats.get('unique_contacts', 0)
+        
+        prompt = f"""You are a Customer Success AI Analyst for Aquera (an enterprise identity integration provider).
+Analyze this documentation hub audience activity data:
+- Unique customer contacts active: {unique_contacts}
+- Top active domains: {", ".join([f"{d['domain']} ({d['count']} views)" for d in top_domains[:5]]) if top_domains else "None"}
+- CS Radar Velocity (surging accounts): {", ".join([f"{v['domain']} ({v['pctChange']}% growth, {v['current']} views)" for v in velocity[:5]]) if velocity else "None"}
+- Top articles read: {", ".join([f"'{a['title']}' ({a['count']} views)" for a in top_articles[:5]]) if top_articles else "None"}
+
+Provide a corporate-grade, concise Customer Success report with:
+1. **Critical Observations**: Pinpoint high-growth accounts or accounts showing friction (reading setup guides repeatedly).
+2. **Content Insights**: Identify which identity configurations (e.g. Active Directory, Okta, Azure AD) are currently in high demand.
+3. **Recommended Actions**: 2-3 specific outreach recommendations for the CS team.
+
+Format the response using clean, bold markdown headers and lists. Keep it professional, actionable, and under 300 words."""
+
+        try:
+            r = requests.post("http://localhost:11434/api/generate", json={
+                "model": "qwen2.5-coder:7b",
+                "prompt": prompt,
+                "stream": False
+            }, timeout=30)
+            
+            if r.status_code == 200:
+                response_text = r.json().get("response", "")
+                if response_text:
+                    return jsonify({"success": True, "insights": response_text})
+        except Exception as ollama_err:
+            print(f"Ollama error: {ollama_err}")
+
+        # Fallback to high-quality heuristic analysis if Ollama is unreachable
+        insights = "### 🤖 Local AI Offline (Heuristic Engagement Analysis)\n\n"
+        insights += "The local Ollama server is currently offline or busy. We compiled a structured heuristic analysis based on your active dataset:\n\n"
+        
+        insights += "#### 1. Critical Observations\n"
+        if velocity:
+            top_surge = velocity[0]
+            insights += f"- **Account Alert**: `{top_surge['domain']}` is highly active with a **{top_surge['pctChange']}% growth velocity** ({top_surge['current']} views). CS should proactively assist this account.\n"
+        else:
+            insights += "- **Account Alert**: No surging accounts found in the selected timeframe.\n"
+            
+        insights += "\n#### 2. Content Insights\n"
+        if top_articles:
+            insights += "- **Documentation Demand**: High demand detected for the following configurations:\n"
+            for art in top_articles[:3]:
+                insights += f"  - `{art['title']}` ({art['count']} page views)\n"
+        else:
+            insights += "- **Documentation Demand**: No article views recorded in this period.\n"
+            
+        insights += "\n#### 3. Recommended Actions\n"
+        if velocity:
+            insights += f"1. **Proactive Outreach**: Initiate a check-in with client contacts at `{velocity[0]['domain']}` to assist their setup.\n"
+        insights += "2. **Anonymous Activity**: Review IP/Geo composition to determine if anonymous sessions belong to prospective accounts.\n"
+        insights += "3. **Content Audit**: Ensure guides with highest views have functional links and clear setup steps.\n"
+        
+        return jsonify({"success": True, "insights": insights})
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
 if __name__ == '__main__':
     # Run locally on port 5001 to avoid conflicts
     app.run(host='0.0.0.0', port=5001, debug=True)

@@ -701,6 +701,36 @@
             </table>
           </div>
         </div>
+
+        <!-- LOCAL AI ANALYST CARD -->
+        <div class="chart-box" style="margin-top: 24px; min-height: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="chart-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--aquera)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                <path d="M12 2a10 10 0 0 1 7.54 16.59c-.48.55-.8 1.25-.8 1.95v1a1 1 0 0 1-1 1H6.26a1 1 0 0 1-1-1v-1c0-.7-.32-1.4-.8-1.95A10 10 0 0 1 12 2z"></path>
+                <line x1="9" y1="18" x2="15" y2="18"></line>
+                <line x1="10" y1="22" x2="14" y2="22"></line>
+              </svg>
+              Local AI engagement intelligence (Ollama - qwen2.5-coder)
+            </div>
+            <button class="action-btn" id="generateAiBtn" style="padding: 6px 14px; font-size: 11px; box-shadow: none;" onclick="generateAiInsights()">
+              Generate AI Insights
+            </button>
+          </div>
+          
+          <div id="aiInsightsContainer" style="background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 24px; min-height: 120px; font-size: 13px; line-height: 1.6; color: var(--ink); position: relative; transition: all 0.3s; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);">
+            <div id="aiPlaceholder" style="color: var(--muted); text-align: center; padding: 30px; font-weight: 500;">
+              Click **Generate AI Insights** to run local model intelligence on current filtered customer events.
+            </div>
+            <div id="aiReport" style="display: none; white-space: pre-wrap; font-family: inherit;"></div>
+            
+            <!-- Loading state -->
+            <div id="aiLoader" style="display: none; text-align: center; padding: 30px;">
+              <span class="pulse-dot" style="background: var(--aquera);"></span>
+              <span style="font-weight: 800; color: var(--aquera); margin-left: 8px;">Local AI Agent analyzing customer engagement patterns...</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- HEALTH & BACKUPS TAB -->
@@ -2208,6 +2238,76 @@
       renderPowerUsers(loyalty.topPowerUsers);
       
       renderHeatmapChart(heatmap);
+    }
+
+    async function generateAiInsights() {
+      const btn = document.getElementById('generateAiBtn');
+      const placeholder = document.getElementById('aiPlaceholder');
+      const report = document.getElementById('aiReport');
+      const loader = document.getElementById('aiLoader');
+      
+      if (!btn || !placeholder || !report || !loader) return;
+      
+      btn.disabled = true;
+      btn.textContent = '⏳ Analyzing...';
+      placeholder.style.display = 'none';
+      report.style.display = 'none';
+      loader.style.display = 'block';
+      
+      try {
+        const filtered = getFilteredEvents();
+        const stats = computeStatsFromEvents(filtered);
+        const velocity = calculateAccountVelocity(filtered);
+        const loyalty = calculateLoyaltyStats(filtered);
+        
+        const companies = {};
+        filtered.forEach(e => {
+          const domain = (e.email_domain || '').toLowerCase().trim();
+          if (domain && domain !== 'aquera.com' && domain !== 'unknown') {
+            companies[domain] = (companies[domain] || 0) + 1;
+          }
+        });
+        const topDomains = Object.entries(companies)
+          .sort((a,b) => b[1] - a[1])
+          .map(([domain, count]) => ({ domain, count }));
+
+        const payload = {
+          top_domains: topDomains,
+          top_articles: stats.topArticles,
+          velocity: velocity,
+          unique_contacts: loyalty.totalUniqueContacts
+        };
+        
+        const res = await fetch('/api/ai/insights', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        
+        loader.style.display = 'none';
+        
+        if (data.success && data.insights) {
+          let text = data.insights;
+          text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          text = text.replace(/`(.*?)`/g, '<code style="background: rgba(0,96,164,0.06); padding: 2px 6px; border-radius: 4px; font-weight: 600;">$1</code>');
+          text = text.replace(/### (.*?)\n/g, '<div style="font-size: 15px; font-weight: 900; color: var(--aquera); margin-top: 16px; margin-bottom: 8px;">$1</div>');
+          text = text.replace(/#### (.*?)\n/g, '<div style="font-size: 13px; font-weight: 800; color: var(--ink); margin-top: 12px; margin-bottom: 6px;">$1</div>');
+          
+          report.innerHTML = text;
+          report.style.display = 'block';
+        } else {
+          report.innerHTML = `<div style="color: #ef4444; font-weight: 700;">Error running local AI: ${data.error || 'Unknown error'}</div>`;
+          report.style.display = 'block';
+        }
+      } catch (err) {
+        loader.style.display = 'none';
+        report.innerHTML = `<div style="color: #ef4444; font-weight: 700;">Network error connecting to local AI server.</div>`;
+        report.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Generate AI Insights';
+      }
     }
 
     // Initial Load
