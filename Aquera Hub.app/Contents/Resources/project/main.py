@@ -45,7 +45,7 @@ def generate():
         
         # Step 2: Apply Premium Styling
         print(f"--- Pipeline: Applying Premium Style for {title} ---")
-        broken_links = apply_style(manual_title=title)
+        apply_style(manual_title=title)
         
         # Step 3: Bundle into ZIP
         print("--- Pipeline: Zipping ---")
@@ -63,11 +63,6 @@ def generate():
         if IMAGES_DIR.exists():
             shutil.copytree(IMAGES_DIR, target_images)
             
-        # Copy Broken Links Report
-        report_file = PROJECT_ROOT / "broken_links_report.txt"
-        if report_file.exists():
-            shutil.copy2(report_file, bundle_dir / "broken_links_report.txt")
-
         # Create ZIP
         # make_archive appends .zip automatically
         zip_base = str(PROJECT_ROOT / "documentation_bundle")
@@ -76,11 +71,7 @@ def generate():
         # Cleanup tmp
         shutil.rmtree(bundle_dir)
         
-        return jsonify({
-            "success": True, 
-            "title": title, 
-            "broken_links": broken_links
-        })
+        return jsonify({"success": True, "title": title})
     except Exception as e:
         print(f"ERROR: {e}")
         return jsonify({"success": False, "error": str(e)}), 500

@@ -1,4 +1,7 @@
 {
   "company_name": "Aquera",
-  "primary_color": "#0160a4"
+  "primary_color": "#0160a4",
+  "slack_webhook": "https://hooks.slack.com/services/YOUR_WEBHOOK_HERE",
+  "slack_custom_text": "Daily Analytics",
+  "slack_image_url": ""
 }

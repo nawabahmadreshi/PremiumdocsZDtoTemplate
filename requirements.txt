@@ -6,3 +6,5 @@ urllib3<2.0.0
 lxml
 certifi
 playwright
+pikepdf
+gunicorn

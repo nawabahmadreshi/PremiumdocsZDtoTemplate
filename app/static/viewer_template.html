@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquera Documentation | Premium Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js"></script>
+    <style>
+        :root {
+            --aquera: #0060a4;
+            --aquera-dark: #004c80;
+            --sidebar-width: 320px;
+            --border: rgba(0, 96, 164, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: #f1f5f9; }
+
+        .app-container { display: flex; height: 100vh; width: 100vw; }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.02);
+        }
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(to bottom, #fff, #f8fafc);
+        }
+        .sidebar-header img, .sidebar-header svg { height: 28px; width: auto; margin-bottom: 16px; display: block; }
+        .sidebar-header h2 { font-size: 13px; font-weight: 800; color: var(--aquera); text-transform: uppercase; letter-spacing: 0.1em; }
+
+        .toc-container { flex: 1; overflow-y: auto; padding: 12px; }
+        .toc-item {
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toc-item:hover { background: #f1f5f9; color: var(--aquera); }
+        .toc-item.active { background: rgba(0, 96, 164, 0.08); color: var(--aquera); font-weight: 700; }
+
+        /* Main Content */
+        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .top-bar {
+            background: white;
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        #viewer-container {
+            flex: 1;
+            width: 100%;
+            overflow-y: auto;
+            background: #525659;
+            padding: 32px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: white; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 1000;
+        }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f1f5f9; border-top-color: var(--aquera); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+    <!-- Vercel Web Analytics -->
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <!-- Vercel Speed Insights -->
+    <script>
+      window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+</head>
+<body>
+
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; font-weight: 700; color: #64748b;">Loading...</p>
+    </div>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <svg enable-background="new 0 0 467 128" viewBox="0 0 467 128" xmlns="http://www.w3.org/2000/svg" style="height: 28px; margin-bottom: 16px; display: block;"><path d="m466.3 84.9v12.7c-1.5.8-3.3 1.3-5.2 1.3-8 0-14.4-4.4-17.6-10.9-5.6 6.7-13.9 10.9-23.3 10.9-18.4 0-33.1-15-33.1-33.8s14.7-33.8 33.1-33.8c8.3 0 15.5 3.1 21.1 8.1v-6.8h15.5v45c0 5.7 2.9 7.3 6 7.3zm-24.7-19.9c0-10.9-8.8-19.5-19.6-19.5-10.9 0-19.6 8.6-19.6 19.5s8.7 19.5 19.6 19.5c10.8 0 19.6-8.6 19.6-19.5zm-61-33.3v14.5c-1.6-.3-3.4-.7-5.6-.7-11.3 0-19.8 7.6-19.8 19v33h-15.5v-65h15.5v8.9c4.6-6.3 11.6-10.2 20.1-10.2 1.9 0 3.7.2 5.3.5zm-57.5 35.8h-53.5c.8 10.8 8.5 18.5 19.4 18.5 8.3 0 14.9-4.4 17.6-11.2h15.5c-3.8 14.1-16.3 24.1-33.1 24.1-20.2 0-35.1-14.3-35.1-33.8s15-33.8 34.9-33.8c19.8 0 34.1 14 34.4 33.5zm-52.2-11.1h35.4c-2.8-7.5-8.8-12.2-17.3-12.2-8.8 0-15.2 4.9-18.1 12.2zm-87 17.1v-41h15.3v39c0 8 5.1 13 12.1 13s12.1-5 12.1-13v-39h15.3v41c0 15.6-10.3 25.4-27.4 25.4s-27.4-9.8-27.4-25.4zm-5.1 40.5v12.7c-2.1.8-5.1 1.3-8 1.3-11.9 0-22.2-9.4-22.2-21.5v-15.8c-5.6 5-12.7 8.1-21.1 8.1-18.4 0-33.1-15-33.1-33.8s14.7-33.8 33.1-33.8c8.3 0 15.5 3.1 21.1 8.1v-6.8h15.5v72.2c0 5.7 3.8 9.3 8.7 9.3zm-29.7-49c0-10.9-8.8-19.5-19.6-19.5-10.9 0-19.6 8.6-19.6 19.5s8.7 19.5 19.6 19.5c10.8 0 19.6-8.6 19.6-19.5zm-84.1 11.9h-40l-7 20.6h-17.3l35.4-97.5h17.8l35.4 97.5h-17.2zm-4.5-14-15.4-45.5-15.3 45.5z" fill="#0060a4"/></svg>
+                <h2>Table of Contents</h2>
+            </div>
+            <div id="toc" class="toc-container">
+                <!-- TOC items injected here -->
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div style="font-weight: 800; color: #1e293b; font-size: 14px;"></div>
+                <div style="display: flex; gap: 16px; align-items: center;">
+                    <div id="pageInfo" style="font-size: 11px; font-weight: 800; color: #94a3b8;">PAGE 0 / 0</div>
+                    <button onclick="downloadRawPDF()" style="background: var(--aquera); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='var(--aquera-dark)'" onmouseout="this.style.background='var(--aquera)'">
+                        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Download PDF
+                    </button>
+                </div>
+            </div>
+            <div id="viewer-container">
+                <!-- PDF canvases rendered here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const PDF_DATA = "{{PDF_BASE64}}";
+        // workerSrc intentionally not set — pdf.worker.min.js loaded via <script> tag
+        // Setting a CDN workerSrc causes Chrome to block the cross-origin WebWorker
+
+        let pdfDoc = null;
+        const scale = 1.5;
+
+        // Annotation hit-rects stored in memory per page — no DOM overlays
+        const pageAnnotations = {};
+
+        function downloadRawPDF() {
+            try {
+                if (!PDF_DATA || PDF_DATA.startsWith('{')) {
+                    alert("No PDF data found to download.");
+                    return;
+                }
+                const binaryString = atob(PDF_DATA);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                const blob = new Blob([bytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Documentation_Guide.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (err) {
+                console.error("Error downloading PDF:", err);
+                alert("Could not trigger PDF download: " + err.message);
+            }
+        }
+
+        async function initApp() {
+            if (!PDF_DATA || PDF_DATA.startsWith('{')) {
+                alert("No PDF data found in this app bundle.");
+                return;
+            }
+
+            const binaryData = atob(PDF_DATA);
+            const uint8Array = new Uint8Array(binaryData.length);
+            for (let i = 0; i < binaryData.length; i++) {
+                uint8Array[i] = binaryData.charCodeAt(i);
+            }
+
+            pdfDoc = await pdfjsLib.getDocument({ data: uint8Array }).promise;
+            document.getElementById('pageInfo').textContent = 'PAGE 1 / ' + pdfDoc.numPages;
+
+            const container = document.getElementById('viewer-container');
+            container.innerHTML = '';
+
+            // Plain canvases — no wrappers, no absolute overlays
+            for (let i = 1; i <= pdfDoc.numPages; i++) {
+                const canvas = document.createElement('canvas');
+                canvas.id = 'page-' + i;
+                canvas.style.display = 'block';
+                canvas.style.boxShadow = '0 8px 28px rgba(0,0,0,0.35)';
+                canvas.style.borderRadius = '4px';
+                container.appendChild(canvas);
+                renderPage(i, canvas);
+            }
+
+            // Single click+hover listener on container — no per-canvas overlays
+            container.addEventListener('click', handleClick);
+            container.addEventListener('mousemove', handleMouseMove);
+            container.addEventListener('scroll', updatePageIndicator);
+
+            const outline = await pdfDoc.getOutline();
+            await renderOutline(outline);
+
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        async function renderPage(num, canvas) {
+            try {
+                const page = await pdfDoc.getPage(num);
+                const viewport = page.getViewport({ scale: scale });
+                const ctx = canvas.getContext('2d');
+
+                canvas.width  = viewport.width;
+                canvas.height = viewport.height;
+                canvas.style.width  = (viewport.width  / scale) + 'px';
+                canvas.style.height = (viewport.height / scale) + 'px';
+
+                await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+                // Store annotation hit-rects in memory (zero DOM impact)
+                try {
+                    const annos = await page.getAnnotations({ intent: 'display' });
+                    pageAnnotations[num] = [];
+                    for (const anno of annos) {
+                        if (anno.subtype !== 'Link' && anno.annotationType !== 1) continue;
+                        const vr = viewport.convertToViewportRectangle(anno.rect);
+                        pageAnnotations[num].push({
+                            x: Math.min(vr[0], vr[2]) / scale,
+                            y: Math.min(vr[1], vr[3]) / scale,
+                            w: Math.abs(vr[2] - vr[0]) / scale,
+                            h: Math.abs(vr[3] - vr[1]) / scale,
+                            url:  anno.url  || null,
+                            dest: anno.dest || null
+                        });
+                    }
+                } catch (_) { /* annotations are optional */ }
+
+            } catch (err) {
+                console.error('renderPage error page ' + num, err);
+            }
+        }
+
+        // --- Click delegation ---
+
+        function getHitAnnotation(canvas, clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            const rx = clientX - rect.left;
+            const ry = clientY - rect.top;
+            const num = parseInt(canvas.id.replace('page-', ''), 10);
+            const annos = pageAnnotations[num] || [];
+            return annos.find(function(a) {
+                return rx >= a.x && rx <= a.x + a.w && ry >= a.y && ry <= a.y + a.h;
+            }) || null;
+        }
+
+        function handleClick(e) {
+            const canvas = e.target.closest('canvas');
+            if (!canvas) return;
+            const anno = getHitAnnotation(canvas, e.clientX, e.clientY);
+            if (!anno) return;
+            if (anno.url) {
+                window.open(anno.url, '_blank');
+            } else if (anno.dest) {
+                resolveAndScrollToDest(anno.dest);
+            }
+        }
+
+        function handleMouseMove(e) {
+            const canvas = e.target.closest('canvas');
+            const container = document.getElementById('viewer-container');
+            if (!canvas) {
+                container.style.cursor = 'default';
+                return;
+            }
+            const anno = getHitAnnotation(canvas, e.clientX, e.clientY);
+            canvas.style.cursor = anno ? 'pointer' : 'default';
+        }
+
+        async function resolveAndScrollToDest(dest) {
+            try {
+                let pageNumber = null;
+                if (typeof dest === 'string') {
+                    const da = await pdfDoc.getDestination(dest);
+                    if (da && da[0]) pageNumber = await pdfDoc.getPageIndex(da[0]) + 1;
+                } else if (Array.isArray(dest) && dest[0]) {
+                    pageNumber = await pdfDoc.getPageIndex(dest[0]) + 1;
+                }
+                if (pageNumber) {
+                    const target = document.getElementById('page-' + pageNumber);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        document.getElementById('pageInfo').textContent = 'PAGE ' + pageNumber + ' / ' + pdfDoc.numPages;
+                    }
+                }
+            } catch (e) {
+                console.error('resolveAndScrollToDest error:', e);
+            }
+        }
+
+        // --- Page indicator ---
+
+        let lastHighlightedPage = null;
+
+        function updatePageIndicator() {
+            const container = document.getElementById('viewer-container');
+            const canvases = container.getElementsByTagName('canvas');
+            const containerTop = container.getBoundingClientRect().top;
+            let currentPage = 1, minDist = Infinity;
+            for (let i = 0; i < canvases.length; i++) {
+                const d = Math.abs(canvases[i].getBoundingClientRect().top - containerTop);
+                if (d < minDist) { minDist = d; currentPage = i + 1; }
+            }
+            document.getElementById('pageInfo').textContent = 'PAGE ' + currentPage + ' / ' + pdfDoc.numPages;
+
+            if (lastHighlightedPage !== currentPage) {
+                lastHighlightedPage = currentPage;
+                const tocItems = Array.from(document.querySelectorAll('.toc-item[data-page]'));
+                let activeItem = null, maxPage = -1;
+                tocItems.forEach(function(el) {
+                    const p = parseInt(el.dataset.page, 10);
+                    if (p <= currentPage && p > maxPage) { maxPage = p; activeItem = el; }
+                });
+                if (!activeItem && tocItems.length) activeItem = tocItems[0];
+                if (activeItem) {
+                    document.querySelectorAll('.toc-item').forEach(function(el) { el.classList.remove('active'); });
+                    activeItem.classList.add('active');
+                    activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        // --- TOC rendering ---
+
+        async function renderOutline(items, tocContainer, depth) {
+            tocContainer = tocContainer || document.getElementById('toc');
+            depth = depth || 0;
+
+            if (!items || items.length === 0) {
+                if (depth === 0) tocContainer.innerHTML = '<div style="padding:20px;font-size:12px;color:#94a3b8;text-align:center;">No chapters found.</div>';
+                return;
+            }
+
+            for (const item of items) {
+                const div = document.createElement('div');
+                div.className = 'toc-item';
+                div.style.paddingLeft = (16 + depth * 12) + 'px';
+                div.textContent = item.title;
+
+                let pageNumber = null;
+                try {
+                    if (item.dest) {
+                        if (typeof item.dest === 'string') {
+                            const da = await pdfDoc.getDestination(item.dest);
+                            if (da && da[0]) pageNumber = await pdfDoc.getPageIndex(da[0]) + 1;
+                        } else if (Array.isArray(item.dest) && item.dest[0]) {
+                            pageNumber = await pdfDoc.getPageIndex(item.dest[0]) + 1;
+                        }
+                    }
+                } catch (_) {}
+
+                if (pageNumber) div.dataset.page = pageNumber;
+
+                div.onclick = (function(pn) {
+                    return function() {
+                        document.querySelectorAll('.toc-item').forEach(function(el) { el.classList.remove('active'); });
+                        div.classList.add('active');
+                        if (pn) {
+                            const c = document.getElementById('page-' + pn);
+                            if (c) {
+                                c.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                document.getElementById('pageInfo').textContent = 'PAGE ' + pn + ' / ' + pdfDoc.numPages;
+                            }
+                        }
+                    };
+                })(pageNumber);
+
+                tocContainer.appendChild(div);
+                if (item.items && item.items.length > 0) {
+                    await renderOutline(item.items, tocContainer, depth + 1);
+                }
+            }
+        }
+
+        initApp().catch(function(err) {
+            console.error('Initialization failed:', err);
+            document.getElementById('loading').innerHTML = '<p style="color:red;padding:20px;">Failed to load documentation. Please regenerate.</p>';
+        });
+
+        // Keep-alive heartbeat
+        setInterval(() => {
+            fetch('/api/keepalive', { method: 'POST' }).catch(() => {});
+        }, 2000);
+    </script>
+</body>
+</html>

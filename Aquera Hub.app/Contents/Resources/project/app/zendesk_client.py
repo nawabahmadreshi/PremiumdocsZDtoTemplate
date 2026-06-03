@@ -64,3 +64,25 @@ class ZendeskClient:
         article = self.get_article(article_id)
         section = self.get_section(int(article["section_id"]))
         return int(section["category_id"]) == int(target_category_id)
+
+    def get_article_comments(self, article_id: int) -> List[dict]:
+        items: List[dict] = []
+        url_path = f"/api/v2/help_center/articles/{article_id}/comments"
+        params = {"per_page": 100, "sort_order": "desc"}
+        while True:
+            data = self._get(url_path, params=params)
+            items.extend(data.get("comments", []))
+            next_page = data.get("next_page")
+            if not next_page:
+                break
+            if next_page.startswith(self.base):
+                url_path = next_page[len(self.base):]
+            else:
+                break
+            params = None
+        return items
+
+    def delete_article_comment(self, article_id: int, comment_id: int):
+        resp = self.session.delete(f"{self.base}/api/v2/help_center/articles/{article_id}/comments/{comment_id}")
+        resp.raise_for_status()
+        return True

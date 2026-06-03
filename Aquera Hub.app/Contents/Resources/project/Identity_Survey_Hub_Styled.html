@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>Identity Survey Hub User Guide - Aquera Documentation</title>
+<title>App Onboarding Hub User Guide - Aquera Documentation</title>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <style>
     :root {
@@ -576,6 +576,12 @@
     }
 
     @media print {
+      /* Reset and Base */
+      @page {
+        size: A4;
+        margin: 20mm 15mm;
+      }
+
       .header,
       .menuBtn,
       #leftReopenBtn,
@@ -591,6 +597,8 @@
       body {
         background: white !important;
         padding: 0 !important;
+        color: #000 !important;
+        font-size: 11pt !important;
       }
 
       .page {
@@ -611,10 +619,7 @@
       }
 
       .cardHeader {
-        background: transparent !important;
-        border-bottom: 2px solid var(--aquera) !important;
-        padding: 0 0 20px 0 !important;
-        margin-bottom: 30px !important;
+        display: none !important;
       }
 
       .cardBody {
@@ -623,19 +628,68 @@
         max-width: 100% !important;
       }
 
+      /* PDF Cover Page */
+      .pdf-cover {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 260mm;
+        text-align: center;
+        page-break-after: always;
+        border: 1px solid #f1f5f9;
+        background: radial-gradient(circle at top right, rgba(0, 96, 164, 0.05), transparent);
+      }
+
+      .pdf-cover .logo {
+        height: 80px !important;
+        width: auto !important;
+        margin-bottom: 40px;
+      }
+
+      .pdf-cover h1 {
+        font-size: 42pt !important;
+        font-weight: 900;
+        color: var(--aquera) !important;
+        margin-bottom: 20px;
+        line-height: 1.1;
+      }
+
+      .pdf-cover .subtitle {
+        font-size: 18pt;
+        color: #475569;
+        margin-bottom: 80px;
+        font-weight: 600;
+      }
+
+      .pdf-cover .meta {
+        font-size: 11pt;
+        color: #94a3b8;
+        margin-top: auto;
+        padding-bottom: 60px;
+        border-top: 1px solid #e2e8f0;
+        width: 200px;
+        padding-top: 20px;
+      }
+
+      /* Sectioning and Breaks */
       .docSection {
-        padding: 20px 0 !important;
-        page-break-inside: avoid;
-        border-bottom: 1px solid var(--line) !important;
+        padding: 30px 0 !important;
+        page-break-inside: auto;
+        border-bottom: 1px solid #f1f5f9 !important;
+      }
+
+      h2 {
+        page-break-before: auto;
+        margin-top: 40px !important;
+        padding-top: 20px !important;
+        border-top: 2px solid var(--aquera) !important;
       }
 
       .stickySectionHeader {
         position: static !important;
         background: transparent !important;
-        backdrop-filter: none !important;
-        box-shadow: none !important;
         padding: 0 !important;
-        border: none !important;
       }
 
       h1, h2, h3 {
@@ -646,16 +700,26 @@
       img {
         max-width: 100% !important;
         page-break-inside: avoid;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
       }
       
       table {
         page-break-inside: auto;
+        font-size: 10pt !important;
       }
       tr {
         page-break-inside: avoid;
         page-break-after: auto;
       }
+
+      a {
+        text-decoration: none !important;
+        color: var(--aquera) !important;
+      }
     }
+
+    .pdf-only { display: none; }
 
     /* TOC scroll container */
     #mobileToc {
@@ -800,6 +864,16 @@
 <button class="menuBtn" onclick="toggleToc()" type="button">Menu</button>
 </div>
 </header>
+<!-- PDF Cover Page (Visible only in Print) -->
+<div class="pdf-only pdf-cover">
+<img alt="Logo" class="logo" src="images/logo.svg"/>
+<h1>App Onboarding Hub User Guide</h1>
+<div class="subtitle">Official Documentation &amp; User Guide</div>
+<div class="meta">
+        Generated on {{ date }}<br/>
+        Confidential &amp; Proprietary
+    </div>
+</div>
 <!-- Floating reopen buttons -->
 <button aria-label="Show table of contents" class="floatingReopen" id="leftReopenBtn" style="left:12px; top:170px; display: none;" type="button">
 <svg fill="none" height="16" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
@@ -834,11 +908,11 @@
 <!-- CENTER: CONTENT -->
 <main class="card">
 <div class="cardHeader">
-<h1 class="cardTitle">Identity Survey Hub User Guide</h1>
+<h1 class="cardTitle">App Onboarding Hub User Guide</h1>
 <p class="cardSubtitle">Aquera Documentation</p>
 </div>
 <div class="cardBody">
-<div><section class="docSection" id="h_01JZSQ1FANKH8X3W7JACJW3HPR"><div class="stickySectionHeader"><h1 id="h_01JZSQ1FANKH8X3W7JACJW3HPR">Overview</h1></div><p><strong>Identity Survey Hub</strong> is a structured onboarding and discovery platform that replaces meeting-heavy application intake processes with automated, trackable workflows purpose-built for IGA and IDP integrations. It enables application owners, IAM teams, and stakeholders to collaboratively provide validated onboarding data—covering ownership, access models, authentication methods, provisioning requirements, and compliance attributes—through configurable questionnaires with delegation, SLAs, and escalation controls. By centralizing and standardizing application discovery, Identity Survey Hub accelerates IGA and SSO onboarding, improves data completeness, reduces dependency on manual coordination, and creates a reusable, governance-ready application inventory.</p></section><section class="docSection" id="h_01JZSQ71FCMNR3W7N4YZA362E3"><div class="stickySectionHeader"><h1 id="h_01JZSQ71FCMNR3W7N4YZA362E3">Key Features</h1></div><p>The following are the key features of the Identity Survey Hub:</p><ul>
+<div><section class="docSection" id="h_01JZSQ1FANKH8X3W7JACJW3HPR"><div class="stickySectionHeader"><h1 id="h_01JZSQ1FANKH8X3W7JACJW3HPR">Overview</h1></div><p><strong>App Onboarding Hub</strong> is a structured onboarding and discovery platform that replaces meeting-heavy application intake processes with automated, trackable workflows purpose-built for IGA and IDP integrations. It enables application owners, IAM teams, and stakeholders to collaboratively provide validated onboarding data—covering ownership, access models, authentication methods, provisioning requirements, and compliance attributes—through configurable questionnaires with delegation, SLAs, and escalation controls. By centralizing and standardizing application discovery, App Onboarding Hub accelerates IGA and SSO onboarding, improves data completeness, reduces dependency on manual coordination, and creates a reusable, governance-ready application inventory.</p></section><section class="docSection" id="h_01JZSQ71FCMNR3W7N4YZA362E3"><div class="stickySectionHeader"><h1 id="h_01JZSQ71FCMNR3W7N4YZA362E3">Key Features</h1></div><p>The following are the key features of the App Onboarding Hub:</p><ul>
 <li class="wysiwyg-list-bold">
 <strong>Simplified Asset Discovery</strong><ul>
 <li>Questionnaire-driven approach for efficient asset identification and data collection.</li>
@@ -925,7 +999,7 @@
 <li>Cloud platforms and resources</li>
 <li>Databases, servers, and virtual infrastructure</li>
 <li>Shared accounts and non-human identities</li>
-</ul><p>Each asset entry in the catalog contains standardized metadata to enable classification, governance, and lifecycle management.</p></section><section class="docSection" id="h_01K6A3TG8SZ794D6H20ZNV9WHD"><div class="stickySectionHeader"><h1 id="h_01K6A3TG8SZ794D6H20ZNV9WHD">Roles and Responsibilities</h1></div><p>The following table details the roles and corresponding responsibilities that are involved in the Identity Survey Hub:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
+</ul><p>Each asset entry in the catalog contains standardized metadata to enable classification, governance, and lifecycle management.</p></section><section class="docSection" id="h_01K6A3TG8SZ794D6H20ZNV9WHD"><div class="stickySectionHeader"><h1 id="h_01K6A3TG8SZ794D6H20ZNV9WHD">Roles and Responsibilities</h1></div><p>The following table details the roles and corresponding responsibilities that are involved in the App Onboarding Hub:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
 <tr>
 <td><strong>Role</strong></td>
 <td><strong>Responsibilities</strong></td>
@@ -934,7 +1008,7 @@
 <td>Admin</td>
 <td><ul>
 <li>Maintain structured and auditable IT asset information to support IAM/IGA.</li>
-<li>Coordinate with all departments to gather information on IT assets for building the organization's Identity Survey Hub.</li>
+<li>Coordinate with all departments to gather information on IT assets for building the organization's App Onboarding Hub.</li>
 <li>Create and manage detailed questionnaires to collect specific information about each asset.</li>
 <li>Create standardized email templates to communicate with recipients.</li>
 <li>Create and run surveys to identify and document assets.</li>
@@ -991,7 +1065,7 @@
 <li>Ensure accuracy and completeness of asset data provided.</li>
 </ul></td>
 </tr>
-</tbody></table></figure></section><section class="docSection" id="h_01K3GDQ9YBW26CTBSP7SF5HPRQ"><div class="stickySectionHeader"><h1 id="h_01K3GDQ9YBW26CTBSP7SF5HPRQ">Getting Started</h1></div><p>Welcome to <strong>Identity Survey Hub</strong>! This section guides you through the initial steps to access your tenant and complete the required setup after your organization has been onboarded.</p><p>Once your organization’s environment has been set up, you will receive a sign-up email at your registered email address. This email contains a secure activation link that allows you to access your dedicated tenant. Refer to the <a href="#h_01KHT9W397J9MJ9X073GCRK3ED">Creating Your Account (First-Time Users)</a> section to access your tenant and create your account.</p></section><section class="docSection" id="h_01KHT9W397J9MJ9X073GCRK3ED"><div class="stickySectionHeader"><h2 id="h_01KHT9W397J9MJ9X073GCRK3ED">Creating Your Account (First-Time Users)</h2></div><p>Perform the following steps to create your account as a first-time user using the email you received:</p><ol>
+</tbody></table></figure></section><section class="docSection" id="h_01K3GDQ9YBW26CTBSP7SF5HPRQ"><div class="stickySectionHeader"><h1 id="h_01K3GDQ9YBW26CTBSP7SF5HPRQ">Getting Started</h1></div><p>Welcome to <strong>App Onboarding Hub</strong>! This section guides you through the initial steps to access your tenant and complete the required setup after your organization has been onboarded.</p><p>Once your organization’s environment has been set up, you will receive a sign-up email at your registered email address. This email contains a secure activation link that allows you to access your dedicated tenant. Refer to the <a href="#h_01KHT9W397J9MJ9X073GCRK3ED">Creating Your Account (First-Time Users)</a> section to access your tenant and create your account.</p></section><section class="docSection" id="h_01KHT9W397J9MJ9X073GCRK3ED"><div class="stickySectionHeader"><h2 id="h_01KHT9W397J9MJ9X073GCRK3ED">Creating Your Account (First-Time Users)</h2></div><p>Perform the following steps to create your account as a first-time user using the email you received:</p><ol>
 <li>Click the <strong>Go to Your Tenant</strong> link. The <strong>Log In</strong> screen appears.</li>
 <li>Click <strong>Sign Up</strong>. The <strong>Create Your Account</strong> screen appears.</li>
 <li>Enter the following data on the <strong>Create Your Account</strong> screen:<ul>
@@ -1011,7 +1085,7 @@
 <li>Click the <strong>Sign Up</strong> button. A verification code will be sent to your email address.</li>
 <li>Verify your email address by entering the OTP in the <strong>Enter Code</strong> field on the <strong>Check Your Email </strong>screen. If you do not receive the email, click <strong>Click to Resend </strong>to send it again.</li>
 <li>Click <strong>Verify Email</strong>. The <strong>Registration Successful</strong> message appears. </li>
-</ol><p>You can now log in using your username and password, through single sign-on (SSO), or by authenticating with a one-time password (OTP) sent to your email.</p></section><section class="docSection" id="h_01KHTA6NBC71QYM2QEBF8YX3N5"><div class="stickySectionHeader"><h2 id="h_01KHTA6NBC71QYM2QEBF8YX3N5">First Login</h2></div><p>On your first login, the <strong>Welcome to the Identity Survey Hub</strong> screen appears to help you become familiar with the platform. It introduces the Identity Survey Hub and explains how it helps you discover, organize, and validate applications across your organization. The screen also provides a high-level overview of your questionnaires and assets.<br/><img alt="Welcome ISH.png" src="images/38073394419863.png"/></p><h3 id="h_01KGADTF5QM3RPR0JN51NBD0AJ">Take the Quick Tour</h3><p>Perform the following steps to take the quick tour to help you become familiar with the platform:</p><ul>
+</ol><p>You can now log in using your username and password, through single sign-on (SSO), or by authenticating with a one-time password (OTP) sent to your email.</p></section><section class="docSection" id="h_01KHTA6NBC71QYM2QEBF8YX3N5"><div class="stickySectionHeader"><h2 id="h_01KHTA6NBC71QYM2QEBF8YX3N5">First Login</h2></div><p>On your first login, the <strong>Welcome to the App Onboarding Hub</strong> screen appears to help you become familiar with the platform. It introduces the App Onboarding Hub and explains how it helps you discover, organize, and validate applications across your organization. The screen also provides a high-level overview of your questionnaires and assets.<br/><img alt="Welcome to AOH.png" src="images/40233204025239.png"/></p><h3 id="h_01KGADTF5QM3RPR0JN51NBD0AJ">Take the Quick Tour</h3><p>Perform the following steps to take the quick tour to help you become familiar with the platform:</p><ul>
 <li>Click <strong>Take Quick Tour</strong> to start a guided walkthrough of the Inventory workflow.</li>
 <li>Each step includes short videos that explain key features and actions.</li>
 <li>Use <strong>Next</strong> to move to the following screen.</li>
@@ -1176,7 +1250,36 @@
 <li>Select the disabled system asset type you want to enable.</li>
 <li>Click the <strong>vertical ellipsis icon</strong> (⋮). The <strong>Enable</strong> option appears.</li>
 <li>Click <strong>Enable</strong> to make the asset type available for further use.</li>
-</ol></section><section class="docSection" id="h_01K3G0R2AF5SAMTKR9SYT4JMKP"><div class="stickySectionHeader"><h2 id="h_01K3G0R2AF5SAMTKR9SYT4JMKP">Users</h2></div><p>The Users section allows administrators to manage access to the Identity Survey Hub in a role-based manner. It explains how to add users who assist in completing the asset inventory process and assign roles based on their responsibilities.</p><p>The Identity Survey Hub offers different roles for users depending on their intended use. Each user will have one of the following roles:</p><ul>
+</ol><h3 id="h_01KQF5PCYPF4AN4YDH1WRN9G67">IDP/IGA Sync Schedule</h3><p>The IDP/IGA Sync Schedule tab allows administrators to automate the process of importing assets from the configured IGA/IDP platform at defined intervals. This eliminates the need for manual imports and ensures that asset data remains up to date.</p><p>Perform the following steps to schedule automatic asset imports from IDP/IGA platforms:</p><p><strong>Note</strong>: Ensure that IGA/IDP platforms are configured in the <a href="#h_01K71QVFHCWB1DJ1DWHMSJQQ7W">IGA Platform Configuration</a> tab before scheduling.</p><ol>
+<li>Select the configured IGA/IDP application(s) from the <strong>IDP/IGA Platform</strong> dropdown list.<ul>
+<li>You can select multiple platforms simultaneously.</li>
+<li>You can also select <strong>All</strong> to include all configured IGA/IDP platforms for synchronization.</li>
+</ul>
+</li>
+<li>In the <strong>File Upload Frequency</strong> field, select how often the system should import assets. The available options are:<ul>
+<li>
+<strong>Weekly</strong>: Automatically imports assets once every week.</li>
+<li>
+<strong>Biweekly</strong>: Automatically imports assets once every two weeks.</li>
+<li>
+<strong>Monthly</strong>: Automatically imports assets once every month.</li>
+<li>
+<strong>Quarterly</strong>: Automatically imports assets once every three months.</li>
+<li>
+<strong>Yearly</strong>: Automatically imports assets once every year.</li>
+</ul>
+</li>
+<li>Click <strong>Update Schedule </strong>to apply the configuration and activate the scheduled sync.</li>
+</ol><p>The Additional Information panel displays details about the last sync activity:</p><ul>
+<li>
+<strong>Last Run Status</strong>: Indicates whether the last sync was successful or failed.</li>
+<li>
+<strong>Last Run At</strong>: Shows the date and time of the last execution.</li>
+<li>
+<strong>Configured By</strong>: Displays the user who set up the schedule.</li>
+<li>
+<strong>Next Sync Date</strong>: Shows when the next sync will occur.</li>
+</ul></section><section class="docSection" id="h_01K3G0R2AF5SAMTKR9SYT4JMKP"><div class="stickySectionHeader"><h2 id="h_01K3G0R2AF5SAMTKR9SYT4JMKP">Users</h2></div><p>The Users section allows administrators to manage access to the App Onboarding Hub in a role-based manner. It explains how to add users who assist in completing the asset inventory process and assign roles based on their responsibilities.</p><p>The App Onboarding Hub offers different roles for users depending on their intended use. Each user will have one of the following roles:</p><ul>
 <li>Admin</li>
 <li>Asset Owner</li>
 <li>Collaborator</li>
@@ -1396,11 +1499,11 @@
 <li>Click <strong>Set Primary</strong>. The <strong>Set Primary Email</strong> pop-up window appears. Click <strong>Continue</strong> to set the selected email address as the primary address for sending notifications.</li>
 <li>Click <strong>Delete.</strong> A confirmation pop-up window appears. Click <strong>Delete</strong> to remove the selected sender email address.</li>
 </ol></section><section class="docSection" id="h_01KF0CNDMV3E3ZEQ1STJHM3ZKH"><div class="stickySectionHeader"><h2 id="h_01KF0CNDMV3E3ZEQ1STJHM3ZKH">File Collection</h2></div><p>The File Collection section allows administrators to configure audit file upload settings, global FTP configurations, IGA global settings, and file retention settings for applications in a centralized location for streamlined access and efficient management.</p><p>Perform the following steps to configure file collection settings:</p><ol>
-<li>Click the <strong>Settings</strong> icon at the top right corner of the page in the Identity Survey Hub portal.</li>
+<li>Click the <strong>Settings</strong> icon at the top right corner of the page in the App Onboarding Hub portal.</li>
 <li>Navigate to the <strong>File Collection</strong> section in the left panel under the <strong>Settings</strong> screen.</li>
 </ol><p>The <strong>File Collection</strong> section includes the following tabs:</p><h3 id="h_01KF0CNDMVXFJGQK3YW8KRX2Z9">Configuration</h3><p>The Configuration tab allows administrators to configure audit file uploads for applications. These audit files can include images or videos of user data that serve as audit proof.</p><p><strong>Note</strong>: When the audit file configuration is updated in this tab, the same changes are reflected in the <a href="#h_01KMMRRWQ4EJNM6ZEV3W0CF6CM">Advanced Configuration</a> tab for the application.</p><p>The following table lists the columns displayed in the<strong> Configuration</strong> tab:</p><figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
 <tr>
-<td><strong>Column</strong></td>
+<td><strong>Audit Upload Details</strong></td>
 <td><strong>Description</strong></td>
 </tr>
 <tr>
@@ -1439,7 +1542,7 @@
 </ol>
 </li>
 <li>Click <strong>Save</strong> to save the configuration.</li>
-</ol><h3 id="h_01KE8NYQMQWTFHJKPQ4066QCVJ">FTP Configuration</h3><p>The FTP Configuration tab allows administrators to store uploaded files in Aquera storage or on an SFTP server. This enables the system to access resource data and schema information for applications.</p><h4 class="undefined" id="h_01KE8Q57G491079MT9FW678FM3">Add and Manage FTP Configuration</h4><p>Perform the following steps to add a new FTP configuration or manage existing FTP configurations for storing uploaded files on an SFTP server:<br/><img alt="FTP Configuration.png" src="images/38073369938967.png"/></p><ol>
+</ol><h3 id="h_01KE8NYQMQWTFHJKPQ4066QCVJ">FTP Configuration</h3><p>The FTP Configuration tab allows administrators to store uploaded files in Aquera storage or on an SFTP server. This enables the system to access resource data and schema information for applications.</p><h4 class="undefined" id="h_01KE8Q57G491079MT9FW678FM3">Add and Manage FTP Configuration</h4><p>Perform the following steps to add a new FTP configuration or manage existing FTP configurations for storing uploaded files on an SFTP server:</p><p><strong>Note</strong>: The fields marked with a red asterisk <span>(</span><span>*</span><span>)</span> are mandatory.<br/><img alt="FTP Configuration.png" src="images/38073369938967.png"/></p><ol>
 <li>Navigate to the<strong> FTP Configuration</strong> tab.</li>
 <li>Click <strong>Add New FTP</strong>. The <strong>Add New FTP Connection</strong> pop-up window appears.</li>
 <li>Enter the following data in the <strong>Add New FTP Connection</strong> pop-up window:<ul>
@@ -1455,7 +1558,41 @@
 <strong>Password/Client Secret</strong>: Provide the password or the client secret required to access the SFTP server.</li>
 </ul>
 </li>
-<li>Click <strong>Add FTP</strong> to add the configuration. Once the configuration is added successfully, it will be listed under the <strong>List of FTP servers</strong> section.</li>
+<li>
+<p>Click <strong>Add FTP</strong> to add the configuration. Once the configuration is added successfully, it will be listed under the <strong>FTP Servers</strong> section with the following details:</p>
+<figure class="wysiwyg-table"><table class="wysiwyg-table-resized">
+<colgroup>
+<col/>
+<col/>
+</colgroup>
+<tbody>
+<tr>
+<td><p class="wysiwyg-text-align-center"><strong>FTP Server Details</strong></p></td>
+<td><p class="wysiwyg-text-align-center"><strong>Description</strong></p></td>
+</tr>
+<tr>
+<td>Configuration Name</td>
+<td>Displays the unique name assigned to the FTP configuration.</td>
+</tr>
+<tr>
+<td>FTP Host</td>
+<td>Shows the hostname and port number of the SFTP server used for file storage.</td>
+</tr>
+<tr>
+<td>FTP Path</td>
+<td>Shows the directory path on the SFTP server where files are stored.</td>
+</tr>
+<tr>
+<td>Username (Client ID)</td>
+<td>Displays the username or client ID used to authenticate with the SFTP server.</td>
+</tr>
+<tr>
+<td>Password (Client Secret)</td>
+<td>Represents the password or client secret used for authentication, which is masked for security.</td>
+</tr>
+</tbody>
+</table></figure>
+</li>
 <li>Perform the following steps to modify an FTP configuration:<ol>
 <li>Click the <strong>Edit</strong> icon (<img alt="Screenshot 2025-01-24 at 12.53.24 PM.png" class="guide-markup inline-icon" src="images/37696253087895.png"/>) for the configuration.</li>
 <li>Make the required changes in the <strong>Edit FTP Connection</strong> pop-up window.</li>
@@ -1464,35 +1601,34 @@
 </li>
 <li>Perform the following steps to delete an FTP configuration:<ol>
 <li>Click the <strong>Delete</strong> icon (<img alt="deleteIcon.png" class="wysiwyg-image-resized guide-markup inline-icon" src="images/37696266873879.png"/>) for the configuration you want to remove.</li>
-<li>In the <strong>Delete FTP Connection</strong> dialog box, click <strong>Delete</strong>. The selected FTP configuration will be deleted and removed from the <strong>List of FTP servers</strong> section.<br/><strong>Note</strong><span>: An FTP configuration cannot be deleted if it is currently being used by an application.</span>
+<li>In the <strong>Delete FTP Connection</strong> dialog box, click <strong>Delete</strong>. The selected FTP configuration will be deleted and removed from the <strong>FTP Servers</strong> section.<br/><strong>Note</strong><span>: An FTP configuration cannot be deleted if it is currently being used by an application.</span>
 </li>
 </ol>
 </li>
-</ol><h3 id="h_01KF0FJ9WVBSA6ZC2RGKZ4HNCC"><span>IGA Configuration</span></h3><p>The IGA Configuration tab allows administrators to correlate data uploaded in the application with the list of users obtained from a file downloaded from an Identity Governance and Administration (IGA) system, such as SailPoint or Okta.</p><p>It enables uploading an IGA file and configuring a schedule for file uploads. It also provides an option to enable correlation checks, which automatically compare data during each file upload.</p><p>When the correlation check is enabled, a report showing the number of mismatched records is generated during each data file upload.</p><h4 id="h_01JPW2XQK1MD3XK4T0WA3AC880">Enable Correlation Checks and Set Upload Schedule</h4><p>Perform the following steps to enable the correlation check and set the IGA file upload schedule:<br/><img alt="IGA Config.png" src="images/38073394425623.png"/></p><ol>
-<li>Navigate to the <strong>IGA Configuration </strong>tab.</li>
-<li>Click<strong> Edit Configuration</strong>. The <strong>IGA Global Configuration</strong> pop-up window appears.</li>
-<li>In the <strong>IGA Global Configuration</strong> pop-up window, enable the<strong> Global Correlation Check </strong>toggle. <br/><strong>Note</strong>: If this setting is disabled, the correlation check will not be performed during the data file uploads.<br/><img alt="Global Correlation Check toggle.png" src="images/37696266877207.png"/>
+</ol><h3 id="h_01KF0FJ9WVBSA6ZC2RGKZ4HNCC"><span>Identity Correlation</span></h3><p>The <span>Identity Correlation</span> tab allows administrators to correlate data uploaded in the application with the list of users obtained from a file downloaded from an Identity Governance and Administration (IGA) system, such as SailPoint or Okta.</p><p>It enables uploading an IGA file and configuring a schedule for file uploads. It also provides an option to enable correlation checks, which automatically compare data during each file upload.</p><p>When the correlation check is enabled, a report showing the number of mismatched records is generated during each data file upload.</p><h4 id="h_01JPW2XQK1MD3XK4T0WA3AC880">Enable Correlation Checks and Set Upload Schedule</h4><p>Perform the following steps to enable the correlation check and set the IGA file upload schedule:<br/><img alt="Identity Correlation.png" src="images/40232595211287.png"/></p><ol>
+<li>Navigate to the<strong> </strong><span><strong>Identity Correlation</strong></span><strong> </strong>tab.</li>
+<li>Click<strong> Edit IGA Correlation Check</strong>. The <strong>IGA Correlation Settings</strong> pop-up window appears.<br/><img alt="IGA Correlation Settings.png" src="images/40232595212823.png"/>
 </li>
-<li>Set the following configuration under the <strong>Schedule</strong> section:<ul>
+<li>In the <strong>IGA Correlation Settings</strong> pop-up window, enable the<strong> Enable Global Correlation Check </strong>toggle. <br/><strong>Note</strong>: If this setting is disabled, the correlation check will not be performed during the data file uploads.</li>
+<li>Set the following configuration under the <strong>Correlation File Upload Schedule</strong> section:<ul>
 <li>
-<strong>File Upload Frequency</strong>: Specifies how often the IGA file must be uploaded. The dropdown options are: <strong>Weekly</strong>, <strong>Monthly</strong>, <strong>Quarterly</strong>, and <strong>Yearly</strong>.</li>
+<strong>Correlation File Upload Frequency</strong>: Specifies how often the IGA file must be uploaded. The dropdown options are: <strong>Weekly</strong>, <strong>Monthly</strong>, <strong>Quarterly</strong>, and <strong>Yearly</strong>.</li>
 <li>
-<strong>Next File Upload Date</strong>: The due date for the next IGA file upload. For example, if the <strong>File Upload Frequency</strong> is set to <em>Weekly</em> and the <strong>Next File Upload Date</strong> is <em>16-January-2026</em> (a Friday), the file upload will be due every Friday.</li>
+<strong>Next Correlation File Upload</strong>: The due date for the next IGA file upload. For example, if the <strong>Correlation File Upload Frequency</strong> is set to <strong>Weekly</strong> and the <strong>Next Correlation File Upload</strong> is <em>15-March-2026</em> (a Friday), the file upload will be due every Friday.</li>
 <li>
-<strong>Timezone</strong>: The timezone that should be followed for the file upload schedule.</li>
+<strong>Time Zone</strong>: The timezone that should be followed for the file upload schedule.</li>
 </ul>
 </li>
-<li>Click <strong>Save Configuration</strong> to apply your settings.</li>
+<li>Click <strong>Save</strong> to apply your settings.</li>
 </ol><p>An email reminder for the IGA file upload is sent to the corresponding asset owners and admin users on the due date.</p><h4 id="h_01JPW30206PV5Y1KVNX7BZG6QS">Upload IGA File</h4><p>You must upload the IGA file in one of the following formats: CSV, XLS, or XLSX. The file must include a column that serves as the correlation attribute, which is used to match user data during data file uploads.</p><p>Perform the following steps to upload the IGA file downloaded from the IGA system:<br/><img alt="Add File.png" src="images/38073394426391.png"/></p><ol>
-<li>Navigate to the <strong>IGA Configuration </strong>tab.</li>
-<li>Click <strong>Add File</strong>. This opens your system’s file browser.<br/><img alt="Open Button.png" src="images/37696266880407.png"/>
+<li>Click <strong>Upload Correlation File </strong>in the <span><strong>Identity Correlation</strong></span><strong> </strong>tab. This opens your system’s file browser.<br/><img alt="Open Button.png" src="images/37696266880407.png"/>
 </li>
 <li>Browse your system folders and select the IGA file downloaded from the IGA system.</li>
 <li>
-<p>Select the file and click <strong>Open</strong>. The IGA file is uploaded, and a record is displayed in the <strong>IGA Configuration</strong> tab with the following details in a tabular format:</p>
+<p>Select the file and click <strong>Open</strong>. The IGA file is uploaded, and a record is displayed in the <span><strong>Identity Correlation</strong></span> tab with the following details in a tabular format:</p>
 <figure class="wysiwyg-table wysiwyg-table-align-left"><table><tbody>
 <tr>
-<td><strong>Column</strong></td>
+<td><strong>IGA File Details</strong></td>
 <td><strong>Description</strong></td>
 </tr>
 <tr>
@@ -1518,8 +1654,8 @@
 </tbody></table></figure>
 </li>
 <li>Use the <strong>Search File</strong> text box to find a specific uploaded file.</li>
-</ol><h3 id="h_01KF0FJYM9ZCY5RVP94RRC585X"><span>File Retention Settings</span></h3><p>The File Retention Settings tab allows administrators to configure how long uploaded files and their history are retained. Once the defined retention period expires, both the uploaded file and its upload history records are automatically deleted.</p><p>Perform the following steps to configure file retention settings:<br/><img alt="File Retention Settings.png" src="images/38073394427159.png"/></p><ol>
-<li>Navigate to the <strong>File Retention Settings</strong> tab.</li>
+</ol><h3 id="h_01KF0FJYM9ZCY5RVP94RRC585X"><span>File Retention</span></h3><p>The File Retention tab allows administrators to configure how long uploaded files and their history are retained. Once the defined retention period expires, both the uploaded file and its upload history records are automatically deleted.</p><p>Perform the following steps to configure file retention settings:<br/><img alt="File retention.png" src="images/40232624785175.png"/></p><ol>
+<li>Navigate to the <strong>File Retention</strong> tab.</li>
 <li>By default, the <strong>File History Retention</strong> toggle is enabled. The <strong>Retention Duration</strong> field is visible only when this toggle is enabled.</li>
 <li>Select the desired duration for retaining file upload history in the <strong>Retention Duration</strong> field. Available retention duration options are:<ul>
 <li class="wysiwyg-list-bold"><strong>Last 6 Months</strong></li>
@@ -1531,7 +1667,7 @@
 </ol><p>Upload history records and files older than the selected duration (calculated from the current date) will be deleted weekly.</p><ul>
 <li>Deletion is scheduled to run every Sunday.</li>
 <li>For example, if <em>Last 6 Months</em> is selected, all upload history records and associated files older than six months from the current date will be deleted weekly.</li>
-</ul><p><strong>Note</strong>: If a file was not uploaded on the scheduled date, the file history will show a record with the status <strong>Missed</strong>. These records will not be deleted and will remain in history.</p></section><section class="docSection" id="h_01K4PCM22YA7P91977Z0TX7W1A"><div class="stickySectionHeader"><h1 id="h_01K4PCM22YA7P91977Z0TX7W1A">Primary Interfaces</h1></div><p>The Identity Survey Hub contains the following main tabs:</p><ul>
+</ul><p><strong>Note</strong>: If a file was not uploaded on the scheduled date, the file history will show a record with the status <strong>Missed</strong>. These records will not be deleted and will remain in history.</p></section><section class="docSection" id="h_01K4PCM22YA7P91977Z0TX7W1A"><div class="stickySectionHeader"><h1 id="h_01K4PCM22YA7P91977Z0TX7W1A">Primary Interfaces</h1></div><p>The App Onboarding Hub contains the following main tabs:</p><ul>
 <li>
 <strong>Home</strong>: This tab serves as your starting point upon logging in, offering quick access to essential configurations, including adding and managing email domains and templates, defining asset categories, managing users, and customizing questionnaires and surveys.</li>
 <li>
@@ -1546,6 +1682,8 @@
 <strong>Questionnaire</strong>: This tab enables administrators to create and manage questionnaires for the survey, staging, discovery, inventory, and onboarding phases, and gathers all questionnaire templates in one centralized location for easy access and management</li>
 <li>
 <strong>Tasks</strong>: This tab presents a centralized interface for creating, tracking, and managing all asset-related tasks with ease and efficiency.</li>
+<li>
+<strong>Logs</strong>: This tab helps administrators to track and review activities happening within the system. It provides a clear record of system events, user actions, and application transactions, making it easier to monitor operations and troubleshoot issues when required.</li>
 </ul></section><section class="docSection" id="h_01K4MACYXEXP5HP9XXE7W9Y5Z9"><div class="stickySectionHeader"><h1 id="h_01K4MACYXEXP5HP9XXE7W9Y5Z9">Home</h1></div><p>
     The <strong>Home</strong> tab serves as your starting point upon logging
     in, offering quick access to essential configurations, including adding and
@@ -1559,7 +1697,7 @@
 </p><div class="note-callout">
 <div class="note-icon" id="custom-note-icon"><p>Note:</p></div>
 <div class="note-content"><p class="normal-text">This <strong>Setup Progress</strong> section is visible only once. After you complete all 7 steps, it will no longer be displayed under the <strong>Home</strong> tab. Once the setup is complete, logging in to the portal will take you directly to the <strong>Survey</strong> tab under <strong>Collection</strong>.</p></div>
-</div><figure class="wysiwyg-image wysiwyg-image-resized"><img alt="SetUp Progress.png" src="images/38212961094935.png"/></figure></section><section class="docSection" id="h_01K4MAQWKPTW2ZH6MZ1HM72DQJ"><div class="stickySectionHeader"><h2 id="h_01K4MAQWKPTW2ZH6MZ1HM72DQJ">Essential Setup</h2></div><p>These are the foundational tasks or prerequisites needed to get your Identity Survey Hub platform up and running:</p><h3 id="h_01K4MAXP9R055DQ09A16J03526">Set Up Email Domain</h3><p>Configure your email domain to ensure that automated emails appear authentic and professional, coming from your own organization.</p><p>Click <strong>Get Started</strong> and refer to the <a href="#h_01KGAEFW4M3F8BTRK06TDWTTAZ">Sender Configuration</a> section to configure the email domain.</p><h3 id="h_01K4MBFNY7Q9827YKJYTHW4V3K">Configure Asset Categories</h3><p>Create a logical structure for organizing assets to enhance navigation and management.</p><p>Click <strong>Get Started</strong> and refer to the <a href="#h_01K9W322D256TFHCFZ4QV7YQ35">Asset Types</a> section to configure asset types.</p><h3 id="h_01K4MBPETRRZHEJXVA376K8613">Configure Questionnaires</h3><p>Design a consistent, automated form to capture high-quality asset information every time you add an asset.</p><p>Click <strong>Configure</strong> and refer to the <a href="#01K0E1VYXFCPVGYCKX1BWVTHBF">Create and Manage Questionnaires</a> section to create and manage questionnaires for the survey, staging, discovery, inventory, and onboarding phases.</p><h3 id="h_01K4MC077K0820ZKVMDQSHV67G">Invite Users</h3><p>Facilitate team collaboration by inviting users and defining their access rights within asset workflows.</p><p>Click <strong>Add Users</strong> and refer to the <a href="#users">Add and Manage Users </a>section to add the relevant users and assign each of them a role to assist with completing the asset inventory process.</p></section><section class="docSection" id="h_01K4MCB02T2YK0H9PWZQFMA9TQ"><div class="stickySectionHeader"><h2 id="h_01K4MCB02T2YK0H9PWZQFMA9TQ">Ready to Launch</h2></div><p>Create and deploy your first survey to start collecting valuable insights about your asset.</p><h3 id="h_01K4MCF91XBD8FJZANPM2BMMXX">Create Your First Survey</h3><p>Follow the complete workflow to see how your setup works together to collect meaningful data about assets.</p><p>Click <strong>Create Survey</strong> and refer to the <a href="#h_01K06JKMTRQBK98D5755XSN4YT">Admin Workflow: Creating and Managing Asset Surveys</a> section to create and manage surveys aimed to gather preliminary information about IT assets.</p></section><section class="docSection" id="h_01K4MCSRGE60VZN1EJAYJG0VHP"><div class="stickySectionHeader"><h2 id="h_01K4MCSRGE60VZN1EJAYJG0VHP">Optional Enhancement</h2></div><p>Complete the following settings if you would like to further customize your platform beyond the basics:</p><h3 id="h_01K4MCVSQKMJ0PJKKFZX0SG1AS">Add More Organization Details</h3><p>Provide comprehensive information about your organization to enrich workflows and reporting.</p><p>Click <strong>Complete Profile</strong> and refer to the <a href="#h_01K71PV55Z21QZ98NCPD73WKKP">Basic Details</a> section under <a href="#h_01K49FK5KP6SEE59X7V5FV066M">Organization</a> to add more organization details.</p><h3 id="h_01K4MD3PQ9834EWMZ8NVTNJEXG">Configure Email Templates</h3><p>Streamline communication with branded, automated templates for emails (for example, invites and notifications).</p><p>Click <strong>Configure</strong> and refer to the <a href="#h_01KPQ9Z4XTH73ZKQXGN0Y36QRH">Create and Manage Email Templates</a><a href="#table-of-contents"> </a>section to customize email templates for communication across all processes.</p></section><section class="docSection" id="h_01K9W1XTMZNZZMCJF7BFX1KMVF"><div class="stickySectionHeader"><h2 id="h_01K9W1XTMZNZZMCJF7BFX1KMVF">Dashboard</h2></div><p>This section explains each part of your dashboard, its purpose, and how to interpret the data for effective asset management.</p><h3 id="h_01K9W237A480S7GESH93AR3VMY">Summary Metrics</h3><p>This section provides a clear visual overview of all assets currently in the pipeline. It shows the total number of assets being managed and how they are distributed across different phases: <strong>Staging</strong>, <strong>Discovery</strong>, and <strong>Inventory</strong>. This helps you quickly assess overall activity, track progress, and identify areas that may need more attention or resources.<br/><img alt="Dashboard.png" src="images/38073394431255.png"/></p><h3 id="h_01K9W2FAD578J2HZZ2B4BWFDC6">Phase Breakdown Charts</h3><p>This phase breakdown chart visually displays the number of assets in each phase: Staging, Discovery, and Inventory. Each chart uses different colors to represent asset statuses, giving a quick snapshot of progress within each phase.<br/><img alt="Stage Breakdown.png" src="images/38073394432151.png"/></p><h3 id="h_01K9W2X676WSSX33ZXMN72D5PS">Asset Ownership Overview</h3><p>This section displays the distribution of assets among asset owners and indicates the current stage of each asset.<br/><img alt="Asset Ownership Overview.png" src="images/38073369957143.png"/></p><h3 id="h_01K9W322D256TFHCFZ4QV7YQ35">Asset Types Distribution</h3><p>The asset types distribution bar chart shows the number of assets by type, such as Application, Cloud, Cloud Storage, Data Storage, SaaS Application, and others. It helps you understand which types of assets are most common and how they are distributed across different phases.<br/><img alt="Assets by Type.png" src="images/38073369958423.png"/></p><h3 id="h_01K9W37MVHDVH8EEBNENJZ4TMR">Questionnaire Progress</h3><p>The questionnaire management bar chart tracks progress by questionnaire status. It shows how much of each questionnaire has been completed, not started, and pending, and helps you identify which ones need follow-up or additional effort.<br/><img alt="Questionnaire Progress.png" src="images/38073369958935.png"/></p><h3 id="h_01K9W3C4HJF5MAGCPX11G9GT47">Questionnaires by Asset Type</h3><p>The questionnaires by asset type pie chart shows the percentage of active questionnaires distributed by asset type. This helps you see which types of assets require the most attention for questionnaire completion, aiding in resource planning for compliance and data collection.<br/><img alt="Questionnaires by Asset Type.png" src="images/38073369959959.png"/></p><h3 id="h_01K9W4H765J291FNE88JMZXSFG">Question Completion Quality</h3><p>This section displays the completeness of the questionnaires, indicating the percentage of mandatory fields and optional fields that have been filled out.<br/> </p><p><img alt="Questionnaire Completion Summary.png" src="images/38073394435735.png"/>On the right, a list shows the completion percentage for each questionnaire section.</p><p>This breakdown helps identify which sections need more attention, allowing teams to focus on improving overall completion rates.</p></section><section class="docSection" id="h_01K4PGX7W3FZ1G7VZYGZK1F32M"><div class="stickySectionHeader"><h1 id="h_01K4PGX7W3FZ1G7VZYGZK1F32M">Collection</h1></div><p>The <strong>Collection</strong> tab serves as your operational hub, where you initiate and manage surveys, staging, and discovery workflows.</p></section><section class="docSection" id="h_01K3G1KBF09FFAP9R7H3HHEN95"><div class="stickySectionHeader"><h2 id="h_01K3G1KBF09FFAP9R7H3HHEN95">Lifecycle of the Asset</h2></div><p>The Asset Lifecycle consists of several key stages that represent the journey of an IT asset from identification to full cataloging:</p><p><img alt="LifeCycle of the Asset.png" src="images/36090423611927.png"/></p><ol>
+</div><figure class="wysiwyg-image wysiwyg-image-resized"><img alt="SetUp Progress.png" src="images/38212961094935.png"/></figure></section><section class="docSection" id="h_01K4MAQWKPTW2ZH6MZ1HM72DQJ"><div class="stickySectionHeader"><h2 id="h_01K4MAQWKPTW2ZH6MZ1HM72DQJ">Essential Setup</h2></div><p>These are the foundational tasks or prerequisites needed to get your App Onboarding Hub platform up and running:</p><h3 id="h_01K4MAXP9R055DQ09A16J03526">Set Up Email Domain</h3><p>Configure your email domain to ensure that automated emails appear authentic and professional, coming from your own organization.</p><p>Click <strong>Get Started</strong> and refer to the <a href="#h_01KGAEFW4M3F8BTRK06TDWTTAZ">Sender Configuration</a> section to configure the email domain.</p><h3 id="h_01K4MBFNY7Q9827YKJYTHW4V3K">Configure Asset Categories</h3><p>Create a logical structure for organizing assets to enhance navigation and management.</p><p>Click <strong>Get Started</strong> and refer to the <a href="#h_01K71QQ39RHA44662GX9VVK6V3">Entity Configuration</a> section to configure asset types.</p><h3 id="h_01K4MBPETRRZHEJXVA376K8613">Configure Questionnaires</h3><p>Design a consistent, automated form to capture high-quality asset information every time you add an asset.</p><p>Click <strong>Configure</strong> and refer to the <a href="#01K0E1VYXFCPVGYCKX1BWVTHBF">Create and Manage Questionnaires</a> section to create and manage questionnaires for the survey, staging, discovery, inventory, and onboarding phases.</p><h3 id="h_01K4MC077K0820ZKVMDQSHV67G">Invite Users</h3><p>Facilitate team collaboration by inviting users and defining their access rights within asset workflows.</p><p>Click <strong>Add Users</strong> and refer to the <a href="#h_01K3G0R2AF5SAMTKR9SYT4JMKP">Users</a><a href="#table-of-contents"> </a>section to add the relevant users and assign each of them a role to assist with completing the asset inventory process.</p></section><section class="docSection" id="h_01K4MCB02T2YK0H9PWZQFMA9TQ"><div class="stickySectionHeader"><h2 id="h_01K4MCB02T2YK0H9PWZQFMA9TQ">Ready to Launch</h2></div><p>Create and deploy your first survey to start collecting valuable insights about your asset.</p><h3 id="h_01K4MCF91XBD8FJZANPM2BMMXX">Create Your First Survey</h3><p>Follow the complete workflow to see how your setup works together to collect meaningful data about assets.</p><p>Click <strong>Create Survey</strong> and refer to the <a href="#h_01K06JKMTRQBK98D5755XSN4YT">Admin Workflow: Creating and Managing Asset Surveys</a> section to create and manage surveys aimed to gather preliminary information about IT assets.</p></section><section class="docSection" id="h_01K4MCSRGE60VZN1EJAYJG0VHP"><div class="stickySectionHeader"><h2 id="h_01K4MCSRGE60VZN1EJAYJG0VHP">Optional Enhancement</h2></div><p>Complete the following settings if you would like to further customize your platform beyond the basics:</p><h3 id="h_01K4MCVSQKMJ0PJKKFZX0SG1AS">Add More Organization Details</h3><p>Provide comprehensive information about your organization to enrich workflows and reporting.</p><p>Click <strong>Complete Profile</strong> and refer to the <a href="#h_01K71PV55Z21QZ98NCPD73WKKP">Basic Details</a> section under <a href="#h_01K49FK5KP6SEE59X7V5FV066M">Organization</a> to add more organization details.</p><h3 id="h_01K4MD3PQ9834EWMZ8NVTNJEXG">Configure Email Templates</h3><p>Streamline communication with branded, automated templates for emails (for example, invites and notifications).</p><p>Click <strong>Configure</strong> and refer to the <a href="#h_01KPQ9Z4XTH73ZKQXGN0Y36QRH">Email Templates</a> section to customize email templates for communication across all processes.</p></section><section class="docSection" id="h_01K9W1XTMZNZZMCJF7BFX1KMVF"><div class="stickySectionHeader"><h2 id="h_01K9W1XTMZNZZMCJF7BFX1KMVF">Dashboard</h2></div><p>This section explains each part of your dashboard, its purpose, and how to interpret the data for effective asset management.</p><h3 id="h_01K9W237A480S7GESH93AR3VMY">Summary Metrics</h3><p>This section provides a clear visual overview of all assets currently in the pipeline. It shows the total number of assets being managed and how they are distributed across different phases: <strong>Staging</strong>, <strong>Discovery</strong>, and <strong>Inventory</strong>. This helps you quickly assess overall activity, track progress, and identify areas that may need more attention or resources.<br/><img alt="Dashboard.png" src="images/38073394431255.png"/></p><h3 id="h_01K9W2FAD578J2HZZ2B4BWFDC6">Phase Breakdown Charts</h3><p>This phase breakdown chart visually displays the number of assets in each phase: Staging, Discovery, and Inventory. Each chart uses different colors to represent asset statuses, giving a quick snapshot of progress within each phase.<br/><img alt="Stage Breakdown.png" src="images/38073394432151.png"/></p><h3 id="h_01K9W2X676WSSX33ZXMN72D5PS">Asset Ownership Overview</h3><p>This section displays the distribution of assets among asset owners and indicates the current stage of each asset.<br/><img alt="Asset Ownership Overview.png" src="images/38073369957143.png"/></p><h3 id="h_01K9W322D256TFHCFZ4QV7YQ35">Asset Types Distribution</h3><p>The asset types distribution bar chart shows the number of assets by type, such as Application, Cloud, Cloud Storage, Data Storage, SaaS Application, and others. It helps you understand which types of assets are most common and how they are distributed across different phases.<br/><img alt="Assets by Type.png" src="images/38073369958423.png"/></p><h3 id="h_01K9W37MVHDVH8EEBNENJZ4TMR">Questionnaire Progress</h3><p>The questionnaire management bar chart tracks progress by questionnaire status. It shows how much of each questionnaire has been completed, not started, and pending, and helps you identify which ones need follow-up or additional effort.<br/><img alt="Questionnaire Progress.png" src="images/38073369958935.png"/></p><h3 id="h_01K9W3C4HJF5MAGCPX11G9GT47">Questionnaires by Asset Type</h3><p>The questionnaires by asset type pie chart shows the percentage of active questionnaires distributed by asset type. This helps you see which types of assets require the most attention for questionnaire completion, aiding in resource planning for compliance and data collection.<br/><img alt="Questionnaires by Asset Type.png" src="images/38073369959959.png"/></p><h3 id="h_01K9W4H765J291FNE88JMZXSFG">Question Completion Quality</h3><p>This section displays the completeness of the questionnaires, indicating the percentage of mandatory fields and optional fields that have been filled out.<br/> </p><p><img alt="Questionnaire Completion Summary.png" src="images/38073394435735.png"/>On the right, a list shows the completion percentage for each questionnaire section.</p><p>This breakdown helps identify which sections need more attention, allowing teams to focus on improving overall completion rates.</p></section><section class="docSection" id="h_01K4PGX7W3FZ1G7VZYGZK1F32M"><div class="stickySectionHeader"><h1 id="h_01K4PGX7W3FZ1G7VZYGZK1F32M">Collection</h1></div><p>The <strong>Collection</strong> tab serves as your operational hub, where you initiate and manage surveys, staging, and discovery workflows.</p></section><section class="docSection" id="h_01K3G1KBF09FFAP9R7H3HHEN95"><div class="stickySectionHeader"><h2 id="h_01K3G1KBF09FFAP9R7H3HHEN95">Lifecycle of the Asset</h2></div><p>The Asset Lifecycle consists of several key stages that represent the journey of an IT asset from identification to full cataloging:</p><p><img alt="LifeCycle of the Asset.png" src="images/36090423611927.png"/></p><ol>
 <li>
 <strong>Survey</strong>: The initial phase involves administrators sending simple questionnaires to asset owners or relevant stakeholders to collect basic information about IT assets.</li>
 <li>
@@ -1656,7 +1794,7 @@
 <td>Extend</td>
 </tr>
 </tbody></table></figure><h3 id="h_01K06JKMTRQBK98D5755XSN4YT">Admin Workflow: Creating and Managing Asset Surveys</h3><p>As an Admin, perform the following steps to create and manage a survey:</p><h4 id="h_01KG1JVQZXZV2PVZ2XDVVJK41S">Create Survey</h4><ol>
-<li>Log in to the Identity Survey Hub portal and navigate to the <strong>Survey</strong> tab located under <strong>Collection</strong> at the top left corner of the screen.</li>
+<li>Log in to the App Onboarding Hub portal and navigate to the <strong>Survey</strong> tab located under <strong>Collection</strong> at the top left corner of the screen.</li>
 <li>Click <strong>Create Survey</strong> at the top right of the screen, and the <strong>Asset Request Survey </strong>screen appears.</li>
 <li>Enter the following survey details on the <strong>Asset Request Survey</strong> screen:<ul>
 <li class="wysiwyg-list-bold">
@@ -1765,7 +1903,7 @@
 <li>
 <strong>Asset Name</strong>: Enter the asset name.</li>
 <li>
-<strong>Internal Name</strong>: (Optional) Add any internal identifier or nickname for the asset.</li>
+<strong>Internal Name</strong>: Enter a unique internal identifier name for the asset.<br/><strong>Note:</strong> As a best practice, ensure that each asset that you submit has a unique internal name. If duplicate internal names are provided, a processing error may occur when moving assets from Staging to Discovery.</li>
 <li>
 <strong>Asset Type</strong>: Select the asset type from the dropdown.</li>
 <li>
@@ -1923,7 +2061,7 @@
 <td>Escalate</td>
 </tr>
 </tbody></table></figure><h3 id="01K35WSK6QV72FDRWT4E7NG1Y9">Admin Workflow: Creating and Managing Collections</h3><p>As an Admin, perform the following steps to create and manage a collection:</p><h4 id="h_01KG1WXXSE4HQWPH3MTKJWDAP6">Create Collection</h4><ol>
-<li>Log in to the Identity Survey Hub portal and navigate to the <strong>Staging</strong> tab located under <strong>Collection</strong>.</li>
+<li>Log in to the App Onboarding Hub portal and navigate to the <strong>Staging</strong> tab located under <strong>Collection</strong>.</li>
 <li>Click <strong>Create Collection</strong> at the top right of the screen, and the <strong>Create Collection</strong> screen appears.</li>
 <li>Enter the following collection details on the <strong>Create Collection</strong> screen:<ul>
 <li class="wysiwyg-list-bold">
@@ -2101,7 +2239,11 @@
 <li>Select the required assets using the checkboxes.</li>
 <li>Click <strong>Move to Discovery</strong>. The <strong>Confirm to move to discovery</strong> pop-up window appears.</li>
 <li>In the confirmation pop-up, click <strong>Move</strong>. All selected assets are moved to the Discovery stage.</li>
-</ol><h5 id="h_01KG6PKTGN2BQC5ZQDP5759QBP">Add Assets to a Collection</h5><ol>
+</ol><p>If multiple assets have the same internal name while moving from Staging to Discovery, a <strong>Duplicate assets found</strong> screen appears. In this screen, you can perform the following:<br/><img alt="2026-05-04_16-45-02.png" src="images/40232595213079.png"/></p><ul>
+<li>Update the <strong>Internal Name</strong> to provide a unique name for each asset and proceed with moving them to Discovery.</li>
+<li>Click <strong>Remove</strong> to remove the asset from the current action and decide on the appropriate internal name later. The <strong>Remove Asset</strong> pop-up window appears. Click <strong>Remove</strong> to confirm the action.</li>
+<li>Click <strong>Ignore</strong> to exclude the asset. The <strong>Ignore Asset</strong> pop-up window appears. Click <strong>Ignore</strong>, which changes its status to <strong>Ignored</strong>.</li>
+</ul><h5 id="h_01KG6PKTGN2BQC5ZQDP5759QBP">Add Assets to a Collection</h5><ol>
 <li>Select assets with <strong>Listed</strong> status using the checkboxes.</li>
 <li>
 <p>Click <strong>Add to Collection</strong> to open the <strong>Create Collection </strong>screen. Refer to the <a href="#h_01KG1WXXSE4HQWPH3MTKJWDAP6">Create Collection</a> section for more details on assigning questionnaires, setting email templates, and defining due dates for completing the collection.</p>
@@ -2123,7 +2265,7 @@
 <li>
 <strong>Owner Email</strong>: Enter the asset owner's email ID.</li>
 <li>
-<strong>Internal Name</strong>: Enter the internal or nickname for the asset.</li>
+<strong>Internal Name</strong>: Enter a unique internal name for the asset.</li>
 <li>
 <strong>Vendor Name</strong>: Enter the vendor name of the asset.</li>
 </ul>
@@ -2161,8 +2303,8 @@
 <li>Use the <strong>Search Suggested Edits</strong> search bar to locate a specific suggested edit.</li>
 <li>Click the <strong>Download</strong> icon to download the suggested edits report. You can then sort the entries in the report by suggestion ID, asset name, suggested by, status, or suggestion date.</li>
 </ol><h5 id="h_01KG219CBGKK2ZEEZ0R994ACBZ">Download</h5><p>Use the <strong>Download icon</strong> to export a collection of asset data for reporting or offline analysis.</p><h3 id="h_01K3T0RY28ZF6395MBHEF8NXYM">Asset Owner Workflow: Completing and Responding to Asset Questionnaires</h3><p>As an Asset Owner, perform the following steps to complete the asset questionnaire:</p><ol>
-<li>Click <strong>Open Questionnaire</strong> to log in to the Identity Survey Hub portal by entering your email ID and authentication code after receiving an email notification for the completion of the asset questionnaire. You will then be directed to the questionnaire page.</li>
-<li>Alternatively, log in to the Identity Survey Hub portal to view the list of assets assigned to you and click <strong>Respond</strong>. Then select the questionnaire on the <strong>Asset Questionnaires</strong> panel to open the questionnaire page. If no questionnaire is assigned, the <strong>No questionnaires assigned</strong> pop‑up appears.<br/><strong>Note</strong>: The asset owner or collaborator can see only the <strong>Staging</strong> and <strong>Discovery</strong> tabs under <strong>Collection</strong>. The <strong>Survey</strong> and <strong>Inventory</strong> tabs are not visible to them. Those are accessible only to Admins.</li>
+<li>Click <strong>Open Questionnaire</strong> to log in to the App Onboarding Hub portal by entering your email ID and authentication code after receiving an email notification for the completion of the asset questionnaire. You will then be directed to the questionnaire page.</li>
+<li>Alternatively, log in to the App Onboarding Hub portal to view the list of assets assigned to you and click <strong>Respond</strong>. Then select the questionnaire on the <strong>Asset Questionnaires</strong> panel to open the questionnaire page. If no questionnaire is assigned, the <strong>No questionnaires assigned</strong> pop‑up appears.<br/><strong>Note</strong>: The asset owner or collaborator can see only the <strong>Staging</strong> and <strong>Discovery</strong> tabs under <strong>Collection</strong>. The <strong>Survey</strong> and <strong>Inventory</strong> tabs are not visible to them. Those are accessible only to Admins.</li>
 <li>In the questionnaire page, you can see or do the following:<ul>
 <li>Asset Owner name</li>
 <li>Provision to add Collaborators. Perform the following steps to add collaborators:<ul>
@@ -2211,9 +2353,9 @@
 <li>Click <strong>Submit </strong>once all questions are answered and reviewed.</li>
 <li>Repeat steps 1 through 7 for each questionnaire if multiple questionnaires are assigned to the asset.</li>
 <li>When all questionnaires are answered for the asset, the status of the asset changes from <strong>Pending</strong> to <strong>Review</strong>. Refer to the <a href="#01K3JVYS1TA83JHWFAY35XZ155">Asset Lifecycle Stages, Description, and Actions</a> section for more details on the asset status.</li>
-</ol><h3 id="01K3T8HZJQGYTZ095DWFY4YCDQ">Collaborator Workflow: Completing and Responding to Asset Questionnaires</h3><p>As a Collaborator, perform the following steps to complete the asset questionnaire:</p><p><strong>Note</strong>: If a collaborator is assigned at the questionnaire level, they can access all questions in the questionnaire. However, if the collaborator is assigned at the question level, only the delegated questions will be visible to them in the Identity Survey Hub portal.</p><ol>
-<li>Click <strong>Access Questionnaire</strong> to log in to the Identity Survey Hub portal by entering your email ID and authentication code after receiving an email notification for the completion of the asset questionnaire. You will then be directed to the questionnaire page.</li>
-<li>Alternatively, log in to the Identity Survey Hub portal to view the list of assets assigned to you and click <strong>Respond</strong>. Then select the questionnaire on the <strong>Asset Questionnaires</strong> panel to open the questionnaire page. If no questionnaire is assigned, the <strong>No questionnaires assigned</strong> pop‑up appears.<br/><strong>Note</strong>: The Collaborator can see only the <strong>Staging</strong> and <strong>Discovery</strong> tabs under <strong>Collection</strong>. The <strong>Survey</strong> and <strong>Inventory</strong> tabs are not visible to them. Those are accessible only to Admins.</li>
+</ol><h3 id="01K3T8HZJQGYTZ095DWFY4YCDQ">Collaborator Workflow: Completing and Responding to Asset Questionnaires</h3><p>As a Collaborator, perform the following steps to complete the asset questionnaire:</p><p><strong>Note</strong>: If a collaborator is assigned at the questionnaire level, they can access all questions in the questionnaire. However, if the collaborator is assigned at the question level, only the delegated questions will be visible to them in the App Onboarding Hub portal.</p><ol>
+<li>Click <strong>Access Questionnaire</strong> to log in to the App Onboarding Hub portal by entering your email ID and authentication code after receiving an email notification for the completion of the asset questionnaire. You will then be directed to the questionnaire page.</li>
+<li>Alternatively, log in to the App Onboarding Hub portal to view the list of assets assigned to you and click <strong>Respond</strong>. Then select the questionnaire on the <strong>Asset Questionnaires</strong> panel to open the questionnaire page. If no questionnaire is assigned, the <strong>No questionnaires assigned</strong> pop‑up appears.<br/><strong>Note</strong>: The Collaborator can see only the <strong>Staging</strong> and <strong>Discovery</strong> tabs under <strong>Collection</strong>. The <strong>Survey</strong> and <strong>Inventory</strong> tabs are not visible to them. Those are accessible only to Admins.</li>
 <li>In the questionnaire page, the top bar displays the following static details:<ul>
 <li>Asset Owner name</li>
 <li>Collaborator name</li>
@@ -2348,7 +2490,7 @@
 <td>Escalate</td>
 </tr>
 </tbody></table></figure><h3 id="01K44ADDQFNK1QXEY3WPHF5GGX">Admin Workflow: Creating and Managing Collections</h3><p>As an Admin, perform the following steps to create and manage a collection:</p><h4 id="h_01KG280SXZGSKJJ93HHDG9MQQP">Create Collection</h4><ol>
-<li>Log in to the Identity Survey Hub portal and navigate to the <strong>Discovery</strong> tab located under <strong>Collection</strong>.<br/><img alt="Discovery Tab.png" src="images/35591605719319.png"/>
+<li>Log in to the App Onboarding Hub portal and navigate to the <strong>Discovery</strong> tab located under <strong>Collection</strong>.<br/><img alt="Discovery Tab.png" src="images/35591605719319.png"/>
 </li>
 <li>Click <strong>Create Collection</strong> at the top right of the screen, and the <strong>Create Collection</strong> screen appears.</li>
 <li>Enter the following collection details on the <strong>Create Collection</strong> screen:<ul>
@@ -2524,8 +2666,8 @@
 <li>Reminder Date</li>
 <li>Escalated Date</li>
 </ul><h5 id="h_01KG293CJ7DXZFSYZ3QZX5MA3Q">Download</h5><p>Use the <strong>Download icon</strong> to export a collection of asset data for reporting or offline analysis.</p><h3 id="01K44K4KN8X67HGK3YDACQGHTD">Asset Owner Workflow: Completing and Responding to Asset Questionnaires</h3><p>As an Asset Owner, perform the following steps to complete the asset questionnaire:</p><ol>
-<li>Click <strong>Open Questionnaire</strong> to log in to the Identity Survey Hub portal by entering your email ID and authentication code after receiving an email notification for the completion of the asset questionnaire. You will then be directed to the questionnaire page.</li>
-<li>Alternatively, log in to the Identity Survey Hub portal to view the list of assets assigned to you and click <strong>Respond</strong>. Then select the questionnaire on the <strong>Asset Questionnaires</strong> panel to open the questionnaire page. If no questionnaire is assigned, the <strong>No questionnaires assigned</strong> pop‑up appears.<br/><strong>Note</strong>: The asset owner or collaborator can see only the <strong>Staging</strong> and <strong>Discovery</strong> tabs under <strong>Collection</strong>. The <strong>Survey</strong> and <strong>Inventory</strong> tabs are not visible to them. Those are accessible only to Admins.</li>
+<li>Click <strong>Open Questionnaire</strong> to log in to the App Onboarding Hub portal by entering your email ID and authentication code after receiving an email notification for the completion of the asset questionnaire. You will then be directed to the questionnaire page.</li>
+<li>Alternatively, log in to the App Onboarding Hub portal to view the list of assets assigned to you and click <strong>Respond</strong>. Then select the questionnaire on the <strong>Asset Questionnaires</strong> panel to open the questionnaire page. If no questionnaire is assigned, the <strong>No questionnaires assigned</strong> pop‑up appears.<br/><strong>Note</strong>: The asset owner or collaborator can see only the <strong>Staging</strong> and <strong>Discovery</strong> tabs under <strong>Collection</strong>. The <strong>Survey</strong> and <strong>Inventory</strong> tabs are not visible to them. Those are accessible only to Admins.</li>
 <li>In the questionnaire page, you can see or do the following:<ul>
 <li>Asset Owner name</li>
 <li>Provision to add Collaborators. Perform the following steps to add collaborators:<ul>
@@ -2574,9 +2716,9 @@
 <li>Click <strong>Submit </strong>once all questions are answered and reviewed.</li>
 <li>Repeat steps 1 through 7 for each questionnaire if multiple questionnaires are assigned to the asset.</li>
 <li>When all questionnaires are answered for the asset, the asset's status changes from <strong>Pending</strong> to <strong>Review</strong>. Refer to the <a href="#01K44DE1BKDWY5HHN147M6KQ4W">Asset Lifecycle Stages, Description, and Actions</a> section for more details on the asset's status.</li>
-</ol><h3 id="01K44KB0ZEEDHXRB0GB6NQG6AA">Collaborator Workflow: Completing and Responding to Asset Questionnaires</h3><p>As a Collaborator, perform the following steps to complete the asset questionnaire:</p><p><strong>Note</strong>: If a collaborator is assigned at the questionnaire level, they can access all questions in the questionnaire. However, if the collaborator is assigned at the question level, only the delegated questions will be visible to them in the Identity Survey Hub portal.</p><ol>
-<li>Click <strong>Access Questionnaire</strong> to log in to the Identity Survey Hub portal by entering your email ID and authentication code, after receiving an email notification for the completion of the asset questionnaire. You will then be directed to the questionnaire page.</li>
-<li>Alternatively, log in to the Identity Survey Hub portal to view the list of assets assigned to you and click <strong>Respond</strong>. Then select the questionnaire on the <strong>Asset Questionnaires</strong> panel to open the questionnaire page. If no questionnaire is assigned, the <strong>No questionnaires assigned</strong> pop‑up appears.<br/><strong>Note</strong>: The Collaborator can see only the <strong>Staging</strong> and <strong>Discovery</strong> tabs under <strong>Collection</strong>. The <strong>Survey</strong> and <strong>Inventory</strong> tabs are not visible to them. Those are accessible only to Admins.</li>
+</ol><h3 id="01K44KB0ZEEDHXRB0GB6NQG6AA">Collaborator Workflow: Completing and Responding to Asset Questionnaires</h3><p>As a Collaborator, perform the following steps to complete the asset questionnaire:</p><p><strong>Note</strong>: If a collaborator is assigned at the questionnaire level, they can access all questions in the questionnaire. However, if the collaborator is assigned at the question level, only the delegated questions will be visible to them in the App Onboarding Hub portal.</p><ol>
+<li>Click <strong>Access Questionnaire</strong> to log in to the App Onboarding Hub portal by entering your email ID and authentication code, after receiving an email notification for the completion of the asset questionnaire. You will then be directed to the questionnaire page.</li>
+<li>Alternatively, log in to the App Onboarding Hub portal to view the list of assets assigned to you and click <strong>Respond</strong>. Then select the questionnaire on the <strong>Asset Questionnaires</strong> panel to open the questionnaire page. If no questionnaire is assigned, the <strong>No questionnaires assigned</strong> pop‑up appears.<br/><strong>Note</strong>: The Collaborator can see only the <strong>Staging</strong> and <strong>Discovery</strong> tabs under <strong>Collection</strong>. The <strong>Survey</strong> and <strong>Inventory</strong> tabs are not visible to them. Those are accessible only to Admins.</li>
 <li>In the questionnaire page, the top bar displays the following static details:<ul>
 <li>Asset Owner name</li>
 <li>Collaborator name</li>
@@ -2618,7 +2760,7 @@
 <li>Click <strong>Submit </strong>once all questions are answered and reviewed. An email notification will then be sent to the corresponding asset owner.</li>
 <li>Repeat steps 1 through 7 for each questionnaire if multiple questionnaires are assigned to the asset.</li>
 <li>When all questionnaires are answered for the asset, the asset's status changes from <strong>Pending</strong> to <strong>Review</strong>. Refer to the <a href="#01K44DE1BKDWY5HHN147M6KQ4W">Asset Lifecycle Stages, Description, and Actions</a> section for more details on the asset's status.</li>
-</ol></section><section class="docSection" id="h_01K44Q6FDNEM1BTZCH6MG9XF0J"><div class="stickySectionHeader"><h1 id="h_01K44Q6FDNEM1BTZCH6MG9XF0J">Inventory</h1></div><p>The final stage involves transferring fully validated and enriched asset data into the official asset catalog and onboarding it to the IGA/SSO platform. This ensures accurate tracking, compliance, and effective lifecycle management of IT assets. Maintaining an up-to-date IT inventory is essential as it boosts operational efficiency, enhances cybersecurity, supports regulatory compliance, and drives informed decisions on budgeting, maintenance, procurement, and asset retirement. Additionally, it helps prevent waste from duplicate purchases, over-licensing, and underutilization, while maximizing asset utilization and overall productivity.</p><p>To access the Inventory tab, log in to the Identity Survey Hub portal and navigate to the <strong>Inventory</strong> tab located on the main screen.</p><!--Note--><div class="note-callout">
+</ol></section><section class="docSection" id="h_01K44Q6FDNEM1BTZCH6MG9XF0J"><div class="stickySectionHeader"><h1 id="h_01K44Q6FDNEM1BTZCH6MG9XF0J">Inventory</h1></div><p>The final stage involves transferring fully validated and enriched asset data into the official asset catalog and onboarding it to the IGA/SSO platform. This ensures accurate tracking, compliance, and effective lifecycle management of IT assets. Maintaining an up-to-date IT inventory is essential as it boosts operational efficiency, enhances cybersecurity, supports regulatory compliance, and drives informed decisions on budgeting, maintenance, procurement, and asset retirement. Additionally, it helps prevent waste from duplicate purchases, over-licensing, and underutilization, while maximizing asset utilization and overall productivity.</p><p>To access the Inventory tab, log in to the App Onboarding Hub portal and navigate to the <strong>Inventory</strong> tab located on the main screen.</p><!--Note--><div class="note-callout">
 <div class="note-icon" id="custom-note-icon">
 <p><strong>Note</strong>:</p>
 </div>
@@ -2795,11 +2937,67 @@
 </ul>
 </li>
 </ol><h3 id="h_01KGANSA6B5MA32CAQEQAVFBT0">Create SP Config Task</h3><p>For assets with <strong>IDP Configured</strong> status, the <strong>Create SP Config Task</strong> option is available. After clicking this option, you are navigated to the <strong>SSO Onboarding Wizard</strong> screen to complete the SSO onboarding process. Refer to the <a href="#h_01KH15FKV7CG1FERT3V5DPNSFD">Admin Creates a Review Task for the Asset Owner</a> section for detailed instructions on completing SSO onboarding.</p></section><section class="docSection" id="h_01KGARYNX25T5Z0K2K4VDWWQB0"><div class="stickySectionHeader"><h2 id="h_01KGARYNX25T5Z0K2K4VDWWQB0">Scheduling Assets for File Collection</h2></div><p>This section describes how to schedule assets in Inventory for file collection.</p><p>Perform the following steps to create a schedule for the assets in Inventory:</p><ol>
-<li>Select the checkboxes to the left of the <strong>Assets</strong> column in the asset list table. Click the checkbox in the <strong>Assets</strong> column header to select all assets.<br/><img alt="Inventory Scheduling.png" src="images/38074661452695.png"/>
+<li>Select the checkboxes next to the <strong>Assets</strong> column in the asset list table. Click the checkbox in the <strong>Assets</strong> column header to select all assets.<br/><img alt="Inventory Scheduling.png" src="images/38074661452695.png"/>
 </li>
 <li>Once assets are selected, the <strong>Schedule</strong> option appears above the asset list table.</li>
-<li>Click <strong>Schedule</strong>. The <strong>Create Schedule</strong> screen appears, displaying all selected assets. </li>
-<li>Refer to the <a href="#01HQJMS45XPRRDVNFQ3N81X0WS">Create Schedule</a> section for detailed instructions on scheduling file collection for assets.</li>
+<li>Click <strong>Schedule</strong>. The <strong>Create Schedule</strong> screen appears, displaying all selected assets.</li>
+<li>Enter the required details in the following sections:<ul>
+<li class="wysiwyg-list-bold">
+<span role="text"><strong>Basic Details</strong></span><ul>
+<li>
+<strong>Name of the Schedule</strong>: Enter a name for your schedule.</li>
+<li>
+<strong>Assets Section</strong>: This section displays all selected assets by default. To select additional assets for the schedule, perform the following steps:<ol>
+<li>Click <strong>Add More</strong>. The <strong>Add New Application</strong> screen appears. The <strong>Application</strong><strong> Library</strong> table displays all assets available in the inventory.</li>
+<li>Select the required assets and click <strong>Add</strong> to move them one by one to the <strong>Added </strong><strong>Applications</strong> table.</li>
+<li>Use the <strong>Search Application</strong> bar to find a specific asset if needed.</li>
+<li>To remove an asset, click <strong>Remove</strong> in the <strong>Added </strong><strong>Applications</strong> table.</li>
+<li>Click <strong>Save</strong> after adding all required assets. The added assets will appear under the <strong>Basic Details</strong> section.</li>
+</ol>
+</li>
+</ul>
+</li>
+<li class="wysiwyg-list-bold">
+<span role="text"><strong>Schedule Configuration</strong></span><ul>
+<li>
+<strong>File Upload Frequency</strong>: Select how often files should be uploaded:<ul>
+<li>
+<strong>Weekly</strong>: Upload on a specific day of the week.</li>
+<li>
+<strong>Monthly</strong>: Upload on a specific date of the month.</li>
+<li>
+<strong>Quarterly</strong>: Upload on a specific date of the quarter.</li>
+<li>
+<strong>Yearly</strong>: Upload on a specific date of the year.</li>
+</ul>
+</li>
+<li>
+<strong>Next File Upload Date</strong>: Select the next upload date. The schedule is calculated based on this date and the selected frequency.</li>
+<li>
+<strong>Timezone</strong>: Select the appropriate timezone. This ensures accurate scheduling across teams in different geographic locations, and the due date is calculated based on this setting.</li>
+</ul>
+</li>
+<li class="wysiwyg-list-bold">
+<span role="text"><strong>Reminder Configuration</strong></span><ul>
+<li>
+<strong>Reminder Email Template</strong>: Select the template for reminder notifications. Click the <strong>Preview</strong> option located above the dropdown to view the selected reminder email template in the <strong>Preview</strong> panel.</li>
+<li>
+<strong>Remind (Days before due date)</strong>: Specify how many days before the due date the reminder should be sent.</li>
+</ul>
+</li>
+<li class="wysiwyg-list-bold">
+<span role="text"><strong>Escalation Configuration</strong></span><ul>
+<li>
+<strong>Escalate To</strong>: Enter the email address of the user who will receive escalation notifications.</li>
+<li>
+<strong>Days After Deadline to Escalate</strong>: Specify the number of days after the due date when escalation should occur.</li>
+<li>
+<strong>Escalation Email Template</strong>: Select the template for escalation notifications. Click the <strong>Preview</strong> option located above the dropdown to preview the selected escalation email template in the <strong>Preview</strong> panel.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Click <strong>Create</strong> after completing all required fields and configurations. The newly created schedule group will appear in the left panel under the <strong>File Collection</strong> tab. Refer to the <a href="#h_01KKBGYVKPAMA84ABT5DEX59WW">Schedule Group Details</a> section for more details.</li>
 </ol></section><section class="docSection" id="h_01KG454S3FG2X2ZFP8WXE330FT"><div class="stickySectionHeader"><h2 id="h_01KG454S3FG2X2ZFP8WXE330FT">Manage Correlation Rules</h2></div><p>The <strong>Manage Correlation Rules</strong> option allows you to configure correlation rules for assets. For example, when an asset in the inventory is onboarded to the IGA application, the correlation key is essential to identify the same users between the inventory application and the IGA application, ensuring a smoother IGA process.</p><h3 id="h_01KGARMTBF29R045K9ZAT2Y6AT">Add a New Correlation Rule</h3><p>Perform the following steps to add a new correlation rule:</p><ol>
 <li>Click <strong>Manage Correlation Rules</strong>. The <strong>Manage Correlation Rules</strong> screen appears.</li>
 <li>On the <strong>Manage Correlation Rules</strong> screen, click <strong>Add New Correlation</strong> <strong>Rule</strong>. The <strong>Add New Correlation Rule</strong> screen appears.</li>
@@ -2816,7 +3014,7 @@
 <li>To update an existing correlation rule, click the <strong>Edit</strong> icon and make the necessary changes.</li>
 <li>To delete a correlation rule, click the <strong>Delete</strong> icon corresponding to the rule.</li>
 <li>Use the <strong>Correlation Rule Name</strong> search bar to quickly find a specific rule.</li>
-</ol></section><section class="docSection" id="h_01KGASYW46PS7SNZDP1SASGP5K"><div class="stickySectionHeader"><h2 id="h_01KGASYW46PS7SNZDP1SASGP5K">Download</h2></div><p>Click the <strong>download</strong> icon on the right side of the search bar, enabling users to export the asset list for offline use or reporting.</p></section><section class="docSection" id="h_01KG454YSH901Q1XJPN02M2YBW"><div class="stickySectionHeader"><h2 id="h_01KG454YSH901Q1XJPN02M2YBW">Create Task</h2></div><p>Use the <strong>Create Task</strong> button to create a task for yourself as an Admin or assign it to the appropriate asset owner. Refer to the <a href="#h_01KGAN38PNX6G5RZZNPV5MPY49">Create Task</a> section for detailed instructions on creating a task.</p></section><section class="docSection" id="h_01KETZHVJX6JFS6TNS76E32042"><div class="stickySectionHeader"><h1 id="h_01KETZHVJX6JFS6TNS76E32042">File Collection</h1></div><p>Identity Survey Hub enables the system to collect and display identity data from a disconnected application using a file-based approach. Disconnected applications are those that do not provide APIs for direct integration with other applications, databases, or services. In such scenarios, files act as the primary source of identity data.</p><p>This section explains how administrators manage files using the File Collection module. It describes the procedures for scheduling file uploads, configuring reminder and escalation emails, setting up audit file uploads, and configuring SFTP connections. You can also configure the IGA global settings to determine whether a correlation check is performed against an IGA file during file uploads. This approach helps keep data up to date and supports the overall integrity of the application.</p><p>In the file collection workflow, administrators must add file-based applications, after which scheduled groups are created. The added applications can then be selected and assigned to the appropriate scheduled group for file upload processing.</p></section><section class="docSection" id="h_01KE6QZQ512JF927ZT99M3DRRX"><div class="stickySectionHeader"><h2 id="h_01KE6QZQ512JF927ZT99M3DRRX">Accessing File Collection</h2></div><p>Log in to the Identity Survey Hub portal and navigate to the <strong>File Collection</strong> tab located on the main screen.</p><p><strong>Note</strong>: The <strong>File Collection</strong> tab is not visible by default. It is available only to users who have opted in. If you can't see the tab, you can contact the Aquera Support team to enable access.</p></section><section class="docSection" id="h_01KK99V74GZS0GMJ4GRBAGR0P3"><div class="stickySectionHeader"><h2 id="h_01KK99V74GZS0GMJ4GRBAGR0P3">Add Application</h2></div><p>Applications in the Inventory with an attached resource file are automatically added to the File Collection. Perform the following steps to add more applications manually:</p><p><strong>Note</strong>: The fields marked with a red asterisk <span>(</span><span>*</span><span>)</span> are mandatory.</p><ol>
+</ol></section><section class="docSection" id="h_01KGASYW46PS7SNZDP1SASGP5K"><div class="stickySectionHeader"><h2 id="h_01KGASYW46PS7SNZDP1SASGP5K">Download</h2></div><p>Click the <strong>download</strong> icon on the right side of the search bar, enabling users to export the asset list for offline use or reporting.</p></section><section class="docSection" id="h_01KG454YSH901Q1XJPN02M2YBW"><div class="stickySectionHeader"><h2 id="h_01KG454YSH901Q1XJPN02M2YBW">Create Task</h2></div><p>Use the <strong>Create Task</strong> button to create a task for yourself as an Admin or assign it to the appropriate asset owner. Refer to the <a href="#h_01KGAN38PNX6G5RZZNPV5MPY49">Create Task</a> section for detailed instructions on creating a task.</p></section><section class="docSection" id="h_01KETZHVJX6JFS6TNS76E32042"><div class="stickySectionHeader"><h1 id="h_01KETZHVJX6JFS6TNS76E32042">File Collection</h1></div><p>App Onboarding Hub enables the system to collect and display identity data from a disconnected application using a file-based approach. Disconnected applications are those that do not provide APIs for direct integration with other applications, databases, or services. In such scenarios, files act as the primary source of identity data.</p><p>This section explains how administrators manage files using the File Collection module. It describes the procedures for scheduling file uploads, configuring reminder and escalation emails, setting up audit file uploads, and configuring SFTP connections. You can also configure the IGA global settings to determine whether a correlation check is performed against an IGA file during file uploads. This approach helps keep data up to date and supports the overall integrity of the application.</p><p>In the file collection workflow, administrators must add file-based applications, after which scheduled groups are created. The added applications can then be selected and assigned to the appropriate scheduled group for file upload processing.</p></section><section class="docSection" id="h_01KE6QZQ512JF927ZT99M3DRRX"><div class="stickySectionHeader"><h2 id="h_01KE6QZQ512JF927ZT99M3DRRX">Accessing File Collection</h2></div><p>Log in to the App Onboarding Hub portal and navigate to the <strong>File Collection</strong> tab located on the main screen.</p><p><strong>Note</strong>: The <strong>File Collection</strong> tab is not visible by default. It is available only to users who have opted in. If you can't see the tab, you can contact the Aquera Support team to enable access.</p></section><section class="docSection" id="h_01KK99V74GZS0GMJ4GRBAGR0P3"><div class="stickySectionHeader"><h2 id="h_01KK99V74GZS0GMJ4GRBAGR0P3">Add Application</h2></div><p>Applications in the Inventory with an attached resource file are automatically added to the File Collection. Perform the following steps to add more applications manually:</p><p><strong>Note</strong>: The fields marked with a red asterisk <span>(</span><span>*</span><span>)</span> are mandatory.</p><ol>
 <li>Click <strong>Add Application</strong>. The <strong>Add New Application</strong> screen appears.<br/><img alt="Add Application.png" src="images/39873759458839.png"/>
 </li>
 <li>Enter the following details in the <strong>Add New Application</strong> screen:<ul>
@@ -2885,7 +3083,7 @@
 <li class="wysiwyg-text-align-left">Click <strong>Save Changes</strong> to finalize the configuration.</li>
 </ol><h3 id="h_01GEPS85S61SB56MJFYHX1EJKV">Aquera Tenant Attributes</h3><p>The following are the Aquera tenant attributes:</p><ul>
 <li>
-<strong>SFTP Server Folder Name</strong>: Enter the folder path on the SFTP server where the application should read the files. This field is required only if you are using <strong>SFTP Storage</strong>. The path entered here will be appended to the <strong>FTP Server Directory Path</strong> configured in your <a href="#h_01KE8NYQMQWTFHJKPQ4066QCVJ"><strong>FTP Configuration</strong></a>. For example, if the <strong>FTP Server Directory Path</strong> is /Aquera/Files and the folder path specified in this tenant attribute is /Userdata, the application will read the data files from /Aquera/Files/Userdata on the SFTP server.</li>
+<strong>SFTP Server Folder Name</strong>: Enter the folder path on the SFTP server where the application should read the files. This field is required only if you are using <strong>SFTP Storage</strong>. The path entered here will be appended to the <strong>FTP Server Directory Path</strong> configured in your <a href="#h_01KE8NYQMQWTFHJKPQ4066QCVJ">FTP Configuration</a>. For example, if the <strong>FTP Server Directory Path</strong> is /Aquera/Files and the folder path specified in this tenant attribute is /Userdata, the application will read the data files from /Aquera/Files/Userdata on the SFTP server.</li>
 <li>
 <strong>Validate Headers</strong>: Select to validate the header row in the uploaded file. When selected, the AI assistant automatically generates mappings for all columns in the file.<br/>If you want to map only specific columns instead of all columns, do not select this checkbox. In this case, data will be retrieved only from the mapped columns, and any data in the remaining columns will be ignored.<br/><strong>Note</strong>: If your file does not contain a header row, do not select this checkbox.</li>
 <li>
@@ -2893,9 +3091,9 @@
 <li>
 <strong>Is Using SFTP Server</strong>: Select this checkbox if your <strong>Storage Type</strong> is set to <strong>SFTP Storage</strong>.</li>
 <li>
-<strong>Match the Users Against the Uploaded IGA File</strong>: Select to match users in the uploaded data file against the list of users in the uploaded IGA file.<br/><strong>Note</strong>: This option works only if the <strong>Global Correlation Check</strong> option is enabled in the <a href="#h_01KF0FJ9WVBSA6ZC2RGKZ4HNCC"><strong>IGA Configuration</strong></a>.</li>
+<strong>Match the Users Against the Uploaded IGA File</strong>: Select to match users in the uploaded data file against the list of users in the uploaded IGA file.<br/><strong>Note</strong>: This option works only if the <strong>Enable</strong> <strong>Global Correlation Check</strong> option is enabled in the <a href="#h_01KF0FJ9WVBSA6ZC2RGKZ4HNCC">Identity Correlation</a> tab.</li>
 <li>
-<strong>IGA File Correlation Attribute</strong>: Enter the correlation attribute used to match users in the uploaded data file with users in the IGA file. When you upload the data file through the <strong>Upload</strong> tab, the user data will be matched against the users in the latest IGA file based on the specified correlation attribute. A report will then be generated listing any non-matching users in the <strong>Non-Matched Users</strong> column on the <a href="#h_01HZ1YJVZ0VH7BETREHP9ST7CX"><strong>File Upload History</strong></a> section. <br/>If you fail to provide the correlation attribute, the system will be unable to match the uploaded user data with the users in the IGA file, and the upload process will fail.<br/><strong>Note</strong>: Before uploading the user data file, you must first upload the IGA file used for matching through the <a href="#h_01KF0FJ9WVBSA6ZC2RGKZ4HNCC"><strong>IGA Configuration</strong></a> settings.</li>
+<strong>IGA File Correlation Attribute</strong>: Enter the correlation attribute used to match users in the uploaded data file with users in the IGA file. When you upload the data file through the <strong>Upload</strong> tab, the user data will be matched against the users in the latest IGA file based on the specified correlation attribute. A report will then be generated listing any non-matching users in the <strong>Non-Matched Users</strong> column on the <a href="#h_01HZ1YJVZ0VH7BETREHP9ST7CX">File Upload History</a> section. <br/>If you fail to provide the correlation attribute, the system will be unable to match the uploaded user data with the users in the IGA file, and the upload process will fail.<br/><strong>Note</strong>: Before uploading the user data file, you must first upload the IGA file used for matching through the <a href="#h_01KF0FJ9WVBSA6ZC2RGKZ4HNCC">Identity Correlation</a><strong> tab</strong>.</li>
 </ul><h3 id="h_01K9P94VMG8AQC5D9S11P2HJ2S">Generated Configuration</h3><p>This section describes how the AI automatically generates a mapping configuration, either on its own or based on the user’s prompt. It explains how user, group, role, and entitlement data from uploaded files (CSV, XLS, XLSX, or ZIP) are automatically mapped to the corresponding SCIM attributes.</p><p>Perform the following steps to generate a mapping configuration:</p><ol>
 <li>Click the <strong>Proceed to Configure</strong> button, and the <strong>Mapping &amp; Transformation Assistant</strong> screen appears.</li>
 <li>Click the attachment icon at the prompt input box in the <strong>Assistant</strong> panel.</li>
@@ -2942,10 +3140,10 @@
 <li>The supported image formats are JPG, JPEG, JPE, JFIF, JFE, PNG, GIF, BMP, DIB, TIFF, TIF, WEBP, ICO, XBM, HEIC, HEIF, APNG, and AVIF. The maximum file size allowed is 50 MB.</li>
 <li>The supported video formats are MP4, WMV, MPG, MPEG, OGV, AVI, MKV, MOV, and WEBM. The maximum file size allowed is 50 MB.</li>
 </ul>
-<p>After uploading audit proof files, the resource file is uploaded under the Upload tab. If the<strong> IGA File Correlation Attribute</strong> tenant attribute is configured and the IGA file is attached in the <a href="#h_01KF0FJ9WVBSA6ZC2RGKZ4HNCC">IGA Configuration</a> to enable correlation checks, the system automatically correlates the data between the IGA file and the resource file for every upload, and shows the report of mismatched records generated during each data file upload in the upload page.</p>
+<p>After uploading audit proof files, the resource file is uploaded under the Upload tab. If the<strong> IGA File Correlation Attribute</strong> tenant attribute is configured and the IGA file is attached in the <a href="#h_01KF0FJ9WVBSA6ZC2RGKZ4HNCC">Identity Correlation</a> tab to enable correlation checks, the system automatically correlates the data between the IGA file and the resource file for every upload, and shows the report of mismatched records generated during each data file upload in the upload page.</p>
 </li>
 <li>Click <strong>Submit</strong> to finalize the upload.</li>
-</ol><p>After the upload is submitted or canceled, a new row will appear under the <strong>File Upload History</strong> section. Refer to the <a href="#h_01HZ1YJVZ0VH7BETREHP9ST7CX"><strong>File Upload History</strong></a> section for more details.</p><h4 id="h_01HZ1YJVZ0VH7BETREHP9ST7CX">File Upload History</h4><p>You can view the file upload history of your application. The following are the available column headers:</p><figure class="wysiwyg-table"><table class="wysiwyg-table-resized">
+</ol><p>After the upload is submitted or canceled, a new row will appear under the <strong>File Upload History</strong> section. Refer to the <a href="#h_01HZ1YJVZ0VH7BETREHP9ST7CX">File Upload History</a> section for more details.</p><h4 id="h_01HZ1YJVZ0VH7BETREHP9ST7CX">File Upload History</h4><p>You can view the file upload history of your application. The following are the available column headers:</p><figure class="wysiwyg-table"><table class="wysiwyg-table-resized">
 <colgroup>
 <col/>
 <col/>
@@ -3293,35 +3491,35 @@
 <li>Which users belong to which groups</li>
 <li>What roles, entitlements, or permission levels are assigned to those users</li>
 </ul><p>This tab allows you to search for users, groups, roles, or entitlements across multiple applications listed in the <strong>Inventory</strong>. You can also filter by a specific application to view users associated with that application, along with their group memberships, roles, and entitlements, all displayed in a tree graph format.<br/>Click <strong>Applications</strong> to view the application list from the <strong>Inventory</strong> and search for identity data associated with a specific set of applications. By default, all applications will be selected. To search for a specific application, enter its name in the <strong>Search Application</strong> text box. Click the checkbox adjacent to each application to select or deselect applications for your analysis. Your selection will be retained unless you change it again.</p></section><section class="docSection" id="h_01K6Z8B8150M2WD8WDMY4VBP6M"><div class="stickySectionHeader"><h2 id="h_01K6Z8B8150M2WD8WDMY4VBP6M">Resource Search</h2></div><p>You can search for a resource type across multiple applications by selecting the resource type, attribute, operator, and entering its respective value under the <strong>Access Graph</strong> tab.</p><p>Below are a few examples of different search functions based on the different resource types:</p><h3 id="h_01K6Z8E83ATKWRXPNNZCCPCZWT">User Search</h3><p>Perform the following steps to search for a specific user record across multiple applications:</p><ol>
-<li>Log in to the Identity Survey Hub portal and navigate to the <strong>Access Graph</strong> tab located in the top menu.</li>
+<li>Log in to the App Onboarding Hub portal and navigate to the <strong>Access Graph</strong> tab located in the top menu.</li>
 <li>Select <strong>User</strong> from the <strong>Select Resource Type</strong> dropdown.</li>
 <li>Select the user attribute from the <strong>Select Attribute Filter</strong> dropdown menu.</li>
 <li>Select the operator from the <strong>Select Operator</strong> dropdown.</li>
 <li>Enter the search value in the <strong>Enter Value</strong> textbox and click <strong>Apply</strong>. For example, select <strong>id</strong> as the attribute filter, <strong>Equal</strong> as the operator, and enter <em><strong>2</strong></em> as the search value, and click <strong>Apply</strong>. You can similarly search for a user using other attributes such as <strong>userName</strong>, <strong>displayName</strong>, <strong>title</strong>, <strong>userType</strong>, etc., by choosing the appropriate operator and specifying the corresponding value.</li>
 <li>All user data, including groups, roles, and entitlements across different applications where the user exists, will be displayed.</li>
 </ol><h3 id="h_01K6ZA1CQNZ9HZ087H1VYKFVJQ">Group Search</h3><p>Perform the following steps to search for groups across multiple applications:</p><ol>
-<li>Log in to the Identity Survey Hub portal and navigate to the <strong>Access Graph</strong> tab located in the top menu.</li>
+<li>Log in to the App Onboarding Hub portal and navigate to the <strong>Access Graph</strong> tab located in the top menu.</li>
 <li>Select <strong>Group</strong> from the <strong>Select Resource Type</strong> dropdown.</li>
 <li>Select the group attribute from the <strong>Select Attribute Filter</strong> dropdown menu.</li>
 <li>Select the operator from the <strong>Select Operator</strong> dropdown.</li>
 <li>Enter the search value in the <strong>Enter Value</strong> textbox and click <strong>Apply</strong>. For example, select <strong>id</strong> as the attribute filter, <strong>Equal</strong> as the operator, and enter <strong>2</strong> as the search value, and click <strong>Apply</strong>. You can similarly search for a group using other attributes such as <strong>displayName</strong>, <strong>IANOwnerId</strong>, etc., by choosing the appropriate operator and specifying the corresponding value.</li>
 <li>All group data matching the search criteria will be displayed.</li>
 </ol><p>When a group is expanded using this icon <img alt="Expand Icon.png" class="inline-icon" src="images/35483271735191.png"/>, it will display the mapped users associated with that group. Check the <strong>Show Other Groups</strong> checkbox to display additional groups that exist for the selected application(s). If the number of users and groups exceeds five, pagination will be applied. Use the down and up arrows to navigate through all users and groups.</p><p>Click the vertical ellipsis (⋮) next to the group to display the <strong>Show Details</strong> option. Selecting <strong>Show Details</strong> will provide additional information about the group, including group ID, display name, description, and owner ID.</p><h3 id="01K716KZKN1J8949GXHTXXEZN6">Role Search</h3><p>Perform the following steps to search for roles across multiple applications:</p><ol>
-<li>Log in to the Identity Survey Hub portal and navigate to the <strong>Access Graph</strong> tab located in the top menu.</li>
+<li>Log in to the App Onboarding Hub portal and navigate to the <strong>Access Graph</strong> tab located in the top menu.</li>
 <li>Select <strong>Roles</strong> from the <strong>Select Resource Type</strong> dropdown.</li>
 <li>Select the group attribute from the <strong>Select Attribute Filter</strong> dropdown menu.</li>
 <li>Select the operator from the <strong>Select Operator</strong> dropdown.</li>
 <li>Enter the search value in the <strong>Enter Value</strong> textbox and click <strong>Apply</strong>. For example, select <strong>id</strong> as the attribute filter, <strong>Equal</strong> as the operator, and enter <strong>2</strong> as the search value, and click <strong>Apply</strong>. You can similarly search for a group using other attributes such as <strong>displayName</strong>, <strong>IANOwnerId</strong>, etc., by choosing the appropriate operator and specifying the corresponding value.</li>
 <li>All role data matching the search criteria will be displayed.</li>
 </ol><p>When a role is expanded using this icon <img alt="Expand Icon.png" class="inline-icon" src="images/35483271735191.png"/>, it will display the mapped users associated with that role. Check the <strong>Show Other Role</strong> checkbox to display additional roles that exist for the selected application(s). If the number of users and roles exceeds five, pagination will be applied. Use the down and up arrows to navigate through all users and roles.</p><p>Click the vertical ellipsis (⋮) next to the role to display the <strong>Show Details</strong> option. Selecting <strong>Show Details</strong> will provide additional information about the role, including role ID, display name, and description.</p><h3 id="01K718BD0C90GBMSKG7CX5329P">Entitlements Search</h3><p>Perform the following steps to search for entitlements across multiple applications:</p><ol>
-<li>Log in to the Identity Survey Hub portal and navigate to the <strong>Access Graph</strong> tab located in the top menu.</li>
+<li>Log in to the App Onboarding Hub portal and navigate to the <strong>Access Graph</strong> tab located in the top menu.</li>
 <li>Select <strong>Entitlements</strong> from the <strong>Select Resource Type</strong> dropdown.</li>
 <li>Select the group attribute from the <strong>Select Attribute Filter</strong> dropdown menu.</li>
 <li>Select the operator from the <strong>Select Operator</strong> dropdown.</li>
 <li>Enter the search value in the <strong>Enter Value</strong> textbox and click <strong>Apply</strong>. For example, select <strong>id</strong> as the attribute filter, <strong>Equal</strong> as the operator, and enter <strong>2</strong> as the search value, and click <strong>Apply</strong>. You can similarly search for a group using other attributes such as <strong>displayName</strong>, <strong>IANOwnerId</strong>, etc., by choosing the appropriate operator and specifying the corresponding value.</li>
 <li>All entitlements data matching the search criteria will be displayed.</li>
 </ol><p>When an entitlement is expanded using this icon <img alt="Expand Icon.png" class="inline-icon" src="images/35483271735191.png"/>, it will display the mapped users associated with that entitlement. Check the <strong>Show Other Entitlements</strong> checkbox to display additional entitlements that exist for the selected application(s). If the number of users and entitlements exceeds five, pagination will be applied. Use the down and up arrows to navigate through all users and entitlements.</p><p>Click the vertical ellipsis (⋮) next to the entitlements to display the <strong>Show Details</strong> option. Selecting <strong>Show Details</strong> will provide additional information about the entitlements, including entitlement ID, display name, and description.</p><h3 id="01K7195ZWF36D3VPQBNGSNQ5EZ">Application Search</h3><p>Perform the following steps to search for a specific application and its related information:</p><ol>
-<li>Log in to the Identity Survey Hub portal and navigate to the <strong>Access Graph</strong> tab located in the top menu.</li>
+<li>Log in to the App Onboarding Hub portal and navigate to the <strong>Access Graph</strong> tab located in the top menu.</li>
 <li>Select <strong>Application</strong> from the <strong>Select Resource Type</strong> dropdown.</li>
 <li>Select the required application from the <strong>Select Application</strong> dropdown menu. For example, <em>Asset1290</em>.</li>
 <li>All application data, including all resource types, such as users, groups, roles, and entitlements, will be displayed.</li>
@@ -3339,7 +3537,7 @@
 </ul>
 </li>
 </ul><h3 id="01K0E1VYXFCPVGYCKX1BWVTHBF">Create and Manage Questionnaires</h3><p>Perform the following steps to create and manage a questionnaire:</p><ol>
-<li>Log in to the Identity Survey Hub portal and navigate to the <strong>Questionnaire</strong> tab located in the top menu.</li>
+<li>Log in to the App Onboarding Hub portal and navigate to the <strong>Questionnaire</strong> tab located in the top menu.</li>
 <li>Click the <strong>Questionnaires </strong>tab under the <strong>Manage</strong> <strong>Questionnaire </strong>section.</li>
 <li>Click <strong>Create</strong> <strong>Questionnaire, </strong>and the<strong> Create New Questionnaire </strong>screen appears<strong>.</strong>
 </li>
@@ -3420,7 +3618,7 @@
 <li>Click <strong>Edit</strong> to modify the questionnaire as per your requirement.</li>
 <li>Click <strong>Save as Copy </strong>to apply changes to a new copy of the questionnaire.</li>
 <li>Alternatively, click the vertical ellipsis (<strong>⋮</strong>) next to the questionnaire name, select <strong>Create Copy</strong> to create a duplicate of the questionnaire with a different name. Modify and use the copied questionnaire without affecting the original.</li>
-</ol><h3 id="h_01KGH5T1EE76ZMNJ03FJG66022">Include app-specific questionnaires</h3><p>Enable the <strong>Include app-specific questionnaires </strong>checkbox to display questionnaires that are specific to each application. These questionnaires are named after the application itself and are designed specifically for that app. Instead of using a generic questionnaire for every asset type, you can use these application-specific questionnaires during the inventory process.</p></section><section class="docSection" id="h_01KB51NPVWWHCG9C73Q6EP6YT4"><div class="stickySectionHeader"><h1 id="h_01KB51NPVWWHCG9C73Q6EP6YT4">Task</h1></div><p>Task Management provides a centralized workspace for tracking all Identity Survey Hub activities assigned to users. Tasks are generated during the Survey, Staging, Discovery, and Inventory Maintenance phases, and ensure that asset data is captured, validated, and reviewed in a timely manner.</p></section><section class="docSection" id="01KEV8C4JHEGZ9SRMBN7GNFS74"><div class="stickySectionHeader"><h2 id="01KEV8C4JHEGZ9SRMBN7GNFS74">Accessing the Tasks Tab</h2></div><p>Log in to the Identity Survey Hub portal and navigate to the <strong>Task</strong> tab located in the main screen. The page displays the summary of task metrics at the top, search and filtering options, along with the task creation option, and a list of created tasks in a table format.</p></section><section class="docSection" id="h_01KGEBCEAVEC0D8XRRCGYN4WNR"><div class="stickySectionHeader"><h2 id="h_01KGEBCEAVEC0D8XRRCGYN4WNR">Task Dashboard Overview</h2></div><p>The task dashboard provides a quick snapshot of all tasks in the system. At the top of the page, key metrics give real-time visibility into task progress, priorities, and due dates.</p><h3 id="h_01KGEBNF818R2657XC21XS0B9A">Task Status Summary</h3><ul>
+</ol><h3 id="h_01KGH5T1EE76ZMNJ03FJG66022">Include app-specific questionnaires</h3><p>Enable the <strong>Include app-specific questionnaires </strong>checkbox to display questionnaires that are specific to each application. These questionnaires are named after the application itself and are designed specifically for that app. Instead of using a generic questionnaire for every asset type, you can use these application-specific questionnaires during the inventory process.</p></section><section class="docSection" id="h_01KB51NPVWWHCG9C73Q6EP6YT4"><div class="stickySectionHeader"><h1 id="h_01KB51NPVWWHCG9C73Q6EP6YT4">Task</h1></div><p>Task Management provides a centralized workspace for tracking all App Onboarding Hub activities assigned to users. Tasks are generated during the Survey, Staging, Discovery, and Inventory Maintenance phases, and ensure that asset data is captured, validated, and reviewed in a timely manner.</p></section><section class="docSection" id="01KEV8C4JHEGZ9SRMBN7GNFS74"><div class="stickySectionHeader"><h2 id="01KEV8C4JHEGZ9SRMBN7GNFS74">Accessing the Tasks Tab</h2></div><p>Log in to the App Onboarding Hub portal and navigate to the <strong>Task</strong> tab located in the main screen. The page displays the summary of task metrics at the top, search and filtering options, along with the task creation option, and a list of created tasks in a table format.</p></section><section class="docSection" id="h_01KGEBCEAVEC0D8XRRCGYN4WNR"><div class="stickySectionHeader"><h2 id="h_01KGEBCEAVEC0D8XRRCGYN4WNR">Task Dashboard Overview</h2></div><p>The task dashboard provides a quick snapshot of all tasks in the system. At the top of the page, key metrics give real-time visibility into task progress, priorities, and due dates.</p><h3 id="h_01KGEBNF818R2657XC21XS0B9A">Task Status Summary</h3><ul>
 <li>
 <strong>Total Tasks</strong>: Total number of tasks in the system.</li>
 <li>
@@ -3569,7 +3767,7 @@
 </ul>
 </li>
 <li>Click <strong>Update</strong>. The status of the selected tasks will be changed to the status you selected.</li>
-</ol></section><section class="docSection" id="h_01KKXRJMCD01ATFKR7W9NAYJNZ"><div class="stickySectionHeader"><h1 id="h_01KKXRJMCD01ATFKR7W9NAYJNZ">Logs</h1></div><p>The Logs tab helps you easily track and review activities happening within the system. It provides a clear record of system events, user actions, and application transactions, making it easier to monitor operations and troubleshoot issues when required.</p><p>To access the Logs tab, log in to the Identity Survey Hub portal and navigate to the <strong>Logs</strong> tab located on the main screen.</p><p><strong>Note</strong>: The <strong>Logs</strong> tab is not visible by default. It is only available to users who have opted into the <strong>File Collection</strong> feature. If you do not see the tab, you can contact the Aquera Support team to enable access.</p><p>The Logs tab includes the following sub-tabs:</p><ul>
+</ol></section><section class="docSection" id="h_01KKXRJMCD01ATFKR7W9NAYJNZ"><div class="stickySectionHeader"><h1 id="h_01KKXRJMCD01ATFKR7W9NAYJNZ">Logs</h1></div><p>The Logs tab helps you easily track and review activities happening within the system. It provides a clear record of system events, user actions, and application transactions, making it easier to monitor operations and troubleshoot issues when required.</p><p>To access the Logs tab, log in to the App Onboarding Hub portal and navigate to the <strong>Logs</strong> tab located on the main screen.</p><p><strong>Note</strong>: The <strong>Logs</strong> tab is not visible by default. It is only available to users who have opted into the <strong>File Collection</strong> feature. If you do not see the tab, you can contact the Aquera Support team to enable access.</p><p>The Logs tab includes the following sub-tabs:</p><ul>
 <li>
 <strong>Application</strong>: Displays all transaction details related to applications.</li>
 <li>

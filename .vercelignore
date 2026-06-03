@@ -1,0 +1,38 @@
+# Ignore virtual envs
+venv/
+venv_new/
+**/venv/
+**/venv_new/
+__pycache__/
+**/__pycache__/
+
+# Ignore Git files
+.git/
+.gitignore
+
+# Ignore build artifacts and macOS bundles
+build/
+dist/
+*.spec
+*.app/
+*.zip
+*.pdf
+Aquera Hub.app/
+Aquera Hub 2.app/
+Aquera_Hub_Distribution/
+Aquera_Insights_Distribution/
+DOC_HUB_FINAL/
+DOC_GEN/
+insights_tabbed/
+backups/
+published_guides/
+backup_full/
+
+# Ignore local env and reports
+.env
+.env.local
+.env.vercel*
+.env.development.local
+broken_links_report.txt
+server.log
+launcher_debug.log

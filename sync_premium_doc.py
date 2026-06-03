@@ -20,7 +20,7 @@ def generate_premium_doc(article_id: int):
     # We'll just save the cleaned body here.
     # The sophisticated styling is handled by apply_premium_style.py
     
-    output_path = Path("Identity_Survey_Hub_User_Guide.html")
+    output_path = cfg.project_root / "Identity_Survey_Hub_User_Guide.html"
     output_path.write_text(str(soup), encoding="utf-8")
     
     print(f"✅ Success! Content fetched to: {output_path.absolute()}")

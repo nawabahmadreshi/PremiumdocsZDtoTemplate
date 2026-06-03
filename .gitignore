@@ -19,3 +19,17 @@ Thumbs.db
 
 # Project specific
 launcher_debug.log
+server.log
+build/
+dist/
+*.spec
+Aquera Hub.app/
+Aquera_Hub_Distribution/
+Aquera_Insights_Distribution/
+*.zip
+*.pdf
+backups/
+insights_tabbed/
+published_guides/
+.vercel
+.env*

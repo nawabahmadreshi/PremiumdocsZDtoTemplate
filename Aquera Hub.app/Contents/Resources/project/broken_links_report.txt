@@ -1,15 +1,9 @@
 === BROKEN LINKS REPORT ===
-Generated on: Wed Apr 29 14:38:47 IST 2026
+Generated on: Fri May 15 11:40:23 IST 2026
 
-Total Broken Links Found: 7
-Links Automatically Fixed: 7
+Total Broken Links Found: 1
+Links Automatically Fixed: 1
 
 LINK TEXT                                | OLD TARGET                     | STATUS                    | NEW TARGET
 ------------------------------------------------------------------------------------------------------------------------
-Asset Types                              | #h_01KG1VPTPQ5RGHVTNG1M0ESQ5   | FIXED                     | #h_01K9W322D256TFHCFZ4QV7YQ35
-Add and Manage Users                     | #h_01K0DZTSYJV4Y87M3KJ2X98N1   | FIXED                     | #users
-Create and Manage Email Templates        | #h_01K0E9224204C918MRE4R7430   | FIXED                     | #h_01KPQ9Z4XTH73ZKQXGN0Y36QRH
                                          | #h_01K0DZTSYJV4Y87M3KJ2X98N1   | FIXED                     | #table-of-contents
-Create Schedule                          | #h_01KEV84804NY54ZJQME214AR2   | FIXED                     | #01HQJMS45XPRRDVNFQ3N81X0WS
-Escalation                               | #01HQJW7KHP5STYKS95HG622PNW    | FIXED                     | #h_01KKBH2E9T7YJTTCM8Z2XG4BMX
-Send Reminder and Escalation             | #h_01KKB7SQ7DKB1NF1JQB75R5FV   | FIXED                     | #h_01KKE2E22R7MAV6RA0YP1BEZZD

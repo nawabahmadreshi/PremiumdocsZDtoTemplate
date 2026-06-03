@@ -1,60 +1,89 @@
-# Premium Documentation Hub
+# Aquera Hub 🚀
 
-A portable, beautifully styled documentation hub for Aquera. This project transforms Zendesk help articles into a premium, responsive local documentation experience and packages it into a portable macOS application for easy distribution.
+A premium, portable documentation generation platform for Aquera. This tool automatically fetches Zendesk help center articles, refines their layout with high-fidelity styled components (including responsive sidebars, customized typography, and polished content cards), and generates gorgeous, shareable standalone HTML guides & PDF manuals.
 
-## 🚀 For End-Users (How to use)
-
-If you have received the **Aquera_Hub_Portable.zip** file, follow these steps to view the documentation:
-
-1.  **Unzip**: Extract the `A_Hub_Portable.zip` file to your folder of choice.
-2.  **Launch**: Right-click on **`A Hub.app`** and select **Open** (the first time you open it, macOS may ask for confirmation—simply click "Open").
-3.  **Wait for Setup**: A terminal window will briefly appear to ensure you have the necessary components.
-4.  **View**: Your default browser will automatically open to `http://127.0.0.1:5001`, where you can browse the documentation.
-
-> **Note**: You must have Python 3 installed on your Mac for the launcher to work.
+It is packaged as a **self-contained standalone macOS Application (`Aquera Hub.app`)** that runs with zero configurations.
 
 ---
 
-## 🛠 For Developers / Documentation Managers
+## 📂 Project Structure
 
-### Project Structure
-- `app/`: The Flask backend and documentation processor.
-- `app/static/`: CSS and HTML templates for the premium look.
-- `outputfile.html`: The final generated documentation file.
-- `apply_premium_style.py`: The core script that applies the premium template to the raw content.
-- `sync_premium_doc.py`: Fetches the latest content from Zendesk.
-
-### Updating the Documentation
-To pull the latest changes from Zendesk and re-apply the premium styling:
-
-1.  **Sync from Zendesk**:
-    ```bash
-    python3 sync_premium_doc.py
-    ```
-2.  **Apply Premium Styling**:
-    ```bash
-    python3 apply_premium_style.py
-    ```
-
-### Rebuilding the Portable App
-If you have updated the styles or the documentation content, you should sync it to the app bundle before redistributing:
-
-1.  Copy the updated files into the bundle:
-    ```bash
-    cp app/static/template.html "Aquera Hub.app/Contents/Resources/project/app/static/"
-    cp app/static/viewer.css "Aquera Hub.app/Contents/Resources/project/app/static/"
-    cp Identity_Survey_Hub_Styled.html "Aquera Hub.app/Contents/Resources/project/"
-    ```
-2.  Re-zip the app:
-    ```bash
-    zip -r Aquera_Hub_Portable.zip "Aquera Hub.app"
-    ```
-
-## ✨ UI Improvements
-- **Clean Layout**: No dashed section dividers.
-- **Minimalist Tables**: Transparent backgrounds with bold headers for a professional look.
-- **Responsive Design**: Works perfectly on mobile and desktop.
-- **Sticky Headers**: Section titles stay visible while scrolling for easy navigation.
+```
+├── Aquera Hub.app           # Standalone macOS app bundle (compiled version)
+├── Double-Click To Setup    # Setup script to automatically whitelist the app
+├── README.md                # This guide
+├── main.py                  # Entrypoint script (runs Flask + browser watchdog)
+├── apply_premium_style.py   # Style engine injecting CSS & structuring components
+├── sync_premium_doc.py      # Zendesk API article synchronizer
+├── build_mac_app.sh         # Re-packaging script to compile the app
+└── app/
+    ├── static/              # Branding styles, icons, and page templates
+    └── tracking_processor.py# User analytics & log processor
+```
 
 ---
-© 2026 Documentation Hub
+
+## ⚡ Quick Start for Team Mates (Using the Standalone App)
+
+No Python, terminal configuration, or package managers are required. Just follow these steps to launch:
+
+### 1️⃣ Bypass macOS Gatekeeper (First-Time Only)
+Because the app is built locally and is not signed/notarized with an Apple Developer account, macOS will initially restrict it from running. We've built an automated helper to bypass this:
+
+1. Open the **Terminal** app on your Mac.
+2. **Drag and drop** the file **`Double-Click To Setup.command`** from Finder directly into the Terminal window.
+3. Press **Enter**.
+4. This automatically registers the application and clears the quarantine flag. You can now close the terminal window.
+
+### 2️⃣ Open the App
+* **Double-click `Aquera Hub.app`**.
+* The application will launch, boot up the local backend, and automatically open your default browser to the control panel at `http://127.0.0.1:5001`.
+
+---
+
+## 💓 Intelligent Port Watchdog (New Feature)
+Previously, starting the app twice or closing it could leave the background server running, blocking port `5001` and causing future launch errors. 
+
+We have implemented an **Auto-Shutdown Watchdog**:
+* The dashboard page and generated pages send a small keep-alive heartbeat ping to the backend every 2 seconds.
+* **Auto-Exit:** The moment you close your browser tab or window, the pings stop. After 8 seconds of no heartbeat, the backend server **automatically terminates itself**, cleanly releasing port `5001`.
+
+---
+
+## 🛠️ Developer Guide (Running from Source Code)
+
+If you are modifying the builder code or style sheets, you can run the source code directly:
+
+### 1. Set Up Environment
+Ensure you have Python 3.12+ installed, then run:
+```bash
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 2. Launch in Development Mode
+```bash
+python3 main.py
+```
+This runs the development Flask server and automatically launches the app dashboard in your browser.
+
+### 3. Rebuilding the Standalone App
+To compile your modifications into the final `.app` package:
+```bash
+# Clean old builds and execute compilation
+bash build_mac_app.sh
+```
+The compiled bundle will be outputted to the `dist/` directory as `Aquera Hub.app`.
+
+---
+
+## 📋 Features Overview
+
+* **Zero-Config PDF Engine:** On the first PDF download request, the app silently downloads and configures the Playwright chromium binary internally. No system packages required.
+* **Responsive Layouts:** Converts flat Zendesk articles into interactive multi-level sidebars with a collapsible table of contents.
+* **Branded Design System:** Standardized typography (Outfit & Inter), matching Aquera teal gradients, customized tables, alerts, and notice blocks.
+* **Persistent Data Storage:** Generated document assets, templates, and branding options are stored under `~/Documents/Aquera Hub Data/` so your modifications remain intact across builds.

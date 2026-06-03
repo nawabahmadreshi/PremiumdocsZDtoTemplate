@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquera | Product Documentation Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --aquera: #0060a4;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --ink: #0f172a;
+            --muted: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+
+        header { text-align: center; margin-bottom: 64px; }
+        .logo { height: 42px; margin-bottom: 24px; }
+        h1 { font-size: 42px; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 12px; }
+        p.subtitle { color: var(--muted); font-size: 18px; max-width: 600px; margin: 0 auto; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 32px; }
+
+        .guide-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 32px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .guide-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-color: var(--aquera);
+        }
+
+        .guide-meta { font-size: 11px; font-weight: 800; color: var(--aquera); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; }
+        .guide-title { font-size: 20px; font-weight: 900; margin-bottom: 24px; color: var(--ink); line-height: 1.3; }
+
+        .guide-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 24px; border-top: 1px solid #f1f5f9; }
+        .guide-info { font-size: 12px; color: var(--muted); font-weight: 600; }
+        
+        .view-btn {
+            background: var(--aquera);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .view-btn:hover { opacity: 0.9; }
+
+        #empty { text-align: center; padding: 100px 0; color: var(--muted); }
+
+        /* Loader */
+        .loader { width: 48px; height: 48px; border: 5px solid #e2e8f0; border-bottom-color: var(--aquera); border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+    <!-- Vercel Web Analytics -->
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <!-- Vercel Speed Insights -->
+    <script>
+      window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="/static/images/logo.svg" alt="Aquera" class="logo">
+            <h1>Documentation Hub</h1>
+            <p class="subtitle">Access premium product guides and technical specifications in high-fidelity PDF format.</p>
+        </header>
+
+        <div id="loader" style="text-align: center; padding: 50px;"><span class="loader"></span></div>
+        
+        <div id="grid" class="grid" style="display: none;"></div>
+        
+        <div id="empty" style="display: none;">
+            <h2>No guides published yet.</h2>
+            <p>Please check back later for updated product documentation.</p>
+        </div>
+    </div>
+
+    <script>
+        async function fetchGuides() {
+            try {
+                const response = await fetch('/api/guides');
+                const guides = await response.json();
+                
+                document.getElementById('loader').style.display = 'none';
+                
+                if (guides.length === 0) {
+                    document.getElementById('empty').style.display = 'block';
+                    return;
+                }
+
+                const grid = document.getElementById('grid');
+                grid.style.display = 'grid';
+                grid.innerHTML = guides.map(g => `
+                    <div class="guide-card" onclick="window.location.href='/v/${g.id}'">
+                        <div>
+                            <div class="guide-meta">Premium Guide • ${g.id}</div>
+                            <div class="guide-title">${g.title}</div>
+                        </div>
+                        <div class="guide-footer">
+                            <div class="guide-info">${g.date} • ${g.size}</div>
+                            <a href="/v/${g.id}" class="view-btn">View Guide</a>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("Failed to load guides", err);
+                document.getElementById('loader').innerHTML = '<p style="color:red">Error loading documentation. Please try again.</p>';
+            }
+        }
+
+        window.onload = fetchGuides;
+    </script>
+</body>
+</html>

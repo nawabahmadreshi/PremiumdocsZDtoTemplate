@@ -465,6 +465,8 @@
     }
 
     .docSection {
+      padding: 30px 0 30px;
+      border-bottom: 1px dashed rgba(229, 231, 235, .95);
       scroll-margin-top: var(--scrollOffset);
     }
 
@@ -476,8 +478,11 @@
       position: sticky;
       top: calc(var(--scrollOffset) - 58px);
       z-index: 5;
+      background: rgba(255, 255, 255, .92);
+      backdrop-filter: blur(8px);
       padding: 10px 0 10px;
-      /* Removed background, backdrop-filter, border, and shadow for a cleaner look */
+      border-bottom: 1px solid rgba(229, 231, 235, .95);
+      box-shadow: 0 10px 22px rgba(2, 6, 23, .06);
     }
 
     .stickySectionHeader h2 {
@@ -751,8 +756,9 @@
     /* Brand first row of bodyless tables */
     .docSection table:not(:has(thead)) tr:first-child td,
     table.simpleTable:not(:has(thead)) tr:first-child td {
-      font-weight: 950;
-      text-align: center;
+      background: rgba(0, 96, 164, .06);
+      color: var(--aquera);
+      font-weight: 900;
     }
 
     /* Zebra + strong first column for 2+ column tables */
@@ -765,13 +771,8 @@
     table.simpleTable tbody tr:not(.tableBrandRow) td:first-child {
       font-weight: 900;
       color: var(--ink);
+      background: rgba(0, 96, 164, .04);
       width: 220px;
-    }
-
-    /* Ensure header cell in first column still looks consistent */
-    .docSection table thead th:first-child,
-    .docSection table:not(:has(thead)) tr:first-child td:first-child {
-      font-weight: 950;
     }
 
     @media(max-width:680px) {
