@@ -1037,24 +1037,10 @@
       
       if (!dailyBtn || !monthlyBtn) return;
       
-      // Determine if monthly resolution is allowed based on active filter.
-      // Monthly resolution is disabled for short/specific ranges (weekly, monthly (30 days), custom, or month-select)
-      const isShortRange = (activeTimeFilter === 'weekly' || activeTimeFilter === 'monthly' || activeTimeFilter === 'by-month' || activeTimeFilter === 'custom');
-      
-      if (isShortRange) {
-        monthlyBtn.style.opacity = '0.4';
-        monthlyBtn.style.pointerEvents = 'none';
-        monthlyBtn.title = 'Monthly resolution is only available for All Time filter';
-        // Force resolution to daily if it was monthly
-        if (timelineResolution === 'monthly') {
-          timelineResolution = 'daily';
-          resolution = 'daily';
-        }
-      } else {
-        monthlyBtn.style.opacity = '1';
-        monthlyBtn.style.pointerEvents = 'auto';
-        monthlyBtn.title = '';
-      }
+      // Make both buttons always active and clickable
+      monthlyBtn.style.opacity = '1';
+      monthlyBtn.style.pointerEvents = 'auto';
+      monthlyBtn.title = '';
       
       if (resolution === 'daily') {
         dailyBtn.classList.add('active');
@@ -1136,7 +1122,7 @@
         const title = e.article_title || 'Unknown';
         articleMap[title] = (articleMap[title] || 0) + 1;
         
-        const d = e.log_timestamp ? (timelineResolution === 'monthly' ? e.log_timestamp.substring(0,7) : e.log_timestamp.substring(0,10)) : null;
+        const d = e.log_timestamp ? (timelineResolution === 'monthly' ? e.log_timestamp.substring(0,7) + '-01' : e.log_timestamp.substring(0,10)) : null;
         if (d) { 
             dateMap[d] = (dateMap[d] || 0) + 1; 
             if (isExternal) {
