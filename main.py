@@ -614,8 +614,8 @@ def send_slack_digest():
         with open(settings_path, 'r') as f:
             settings = json.load(f)
 
-        webhook = settings.get('slack_webhook')
-        if not webhook:
+        webhook = os.getenv('SLACK_WEBHOOK') or settings.get('slack_webhook')
+        if not webhook or webhook == "https://hooks.slack.com/services/YOUR_WEBHOOK_HERE":
             return jsonify({"success": False, "error": "No Slack webhook configured"}), 400
 
         # Load full event data
@@ -885,15 +885,62 @@ def trigger_local_sync():
     threading.Thread(target=run_thread).start()
     return jsonify({"success": True, "message": "Local backup sync started."})
 
+def update_env_file(key, value):
+    env_path = PROJECT_ROOT / ".env"
+    lines = []
+    found = False
+    
+    if env_path.exists():
+        with open(env_path, 'r') as f:
+            lines = f.readlines()
+            
+    for i, line in enumerate(lines):
+        if line.strip().startswith(f"{key}="):
+            lines[i] = f"{key}={value}\n"
+            found = True
+            break
+            
+    if not found:
+        if lines and not lines[-1].endswith('\n'):
+            lines.append('\n')
+        lines.append(f"{key}={value}\n")
+        
+    with open(env_path, 'w') as f:
+        f.writelines(lines)
+
 @app.route('/branding', methods=['GET', 'POST'])
 def handle_branding():
     settings_path = PROJECT_ROOT / "branding_settings.json"
-    if request.method == 'GET':
-        if settings_path.exists(): return send_file(settings_path)
-        return jsonify({"company_name": "Aquera", "primary_color": "#0060a4"})
     
-    data = request.get_json()
-    with open(settings_path, 'w') as f: json.dump(data, f, indent=2)
+    if request.method == 'GET':
+        settings = {"company_name": "Aquera", "primary_color": "#0060a4"}
+        if settings_path.exists():
+            with open(settings_path, 'r') as f:
+                try:
+                    settings = json.load(f)
+                except Exception:
+                    pass
+        # Load Slack webhook from environment variable
+        webhook = os.getenv('SLACK_WEBHOOK', '').strip()
+        if webhook:
+            settings['slack_webhook'] = webhook
+        return jsonify(settings)
+    
+    data = request.get_json() or {}
+    webhook = data.get('slack_webhook', '').strip()
+    
+    # Save the webhook to .env if it is set and not the placeholder
+    if webhook and webhook != "https://hooks.slack.com/services/YOUR_WEBHOOK_HERE":
+        update_env_file("SLACK_WEBHOOK", webhook)
+        # Put placeholder in branding_settings.json to avoid exposure
+        data['slack_webhook'] = "https://hooks.slack.com/services/YOUR_WEBHOOK_HERE"
+    elif webhook == "":
+        update_env_file("SLACK_WEBHOOK", "")
+        data['slack_webhook'] = ""
+        
+    with open(settings_path, 'w') as f:
+        json.dump(data, f, indent=2)
+        
     return jsonify({"success": True})
 
 @app.route('/upload-logo', methods=['POST'])
