@@ -22,17 +22,14 @@
   var INGEST_KEY = 'TgGDFhRb2wIASiM6DzmQjcgh2uG5GwVCpP7yO3ED6qc';
   // ────────────────────────────────────────────────────────────────────────────
 
-  // Only fire on article pages
-  if (!/\/hc\/[a-z-]+\/articles\//.test(window.location.pathname)) return;
+  // Extract article ID from URL (e.g. /hc/en-us/articles/12345 or /articles/12345)
+  var articleMatch = window.location.pathname.match(/\/articles\/(\d+)/i);
+  if (!articleMatch) return;
+  var articleId = articleMatch[1];
 
   // Prevent duplicate fires on the same page load
   if (window.__aquera_tracked) return;
   window.__aquera_tracked = true;
-
-  // Extract article ID from URL
-  var articleMatch = window.location.pathname.match(/\/articles\/(\d+)/);
-  if (!articleMatch) return;
-  var articleId = articleMatch[1];
 
   // Get article title from the page
   var titleEl = document.querySelector('h1.article-title') || 
@@ -69,17 +66,11 @@
       timestamp: new Date().toISOString()
     };
 
-    // Fire-and-forget POST using navigator.sendBeacon (survives page unload)
-    // Falls back to fetch if sendBeacon isn't available
     var body = JSON.stringify(payload);
     
-    if (navigator.sendBeacon) {
-      // sendBeacon doesn't support custom headers, so pass key as query param
-      var url = INGEST_URL + '?key=' + encodeURIComponent(INGEST_KEY);
-      var blob = new Blob([body], { type: 'application/json' });
-      navigator.sendBeacon(url, blob);
-    } else {
-      fetch(INGEST_URL, {
+    // Primary: fetch with keepalive (supports custom headers & works across modern browsers)
+    try {
+      fetch(INGEST_URL + '?key=' + encodeURIComponent(INGEST_KEY), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +78,22 @@
         },
         body: body,
         keepalive: true
-      }).catch(function() {});
+      }).then(function(res) {
+        if (res.ok) {
+          console.log('[Aquera Insights] View logged:', articleTitle, '(' + user.user_email + ')');
+        }
+      }).catch(function(err) {
+        // Fallback: sendBeacon
+        if (navigator.sendBeacon) {
+          var url = INGEST_URL + '?key=' + encodeURIComponent(INGEST_KEY);
+          navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
+        }
+      });
+    } catch(e) {
+      if (navigator.sendBeacon) {
+        var url = INGEST_URL + '?key=' + encodeURIComponent(INGEST_KEY);
+        navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
+      }
     }
   }
 
