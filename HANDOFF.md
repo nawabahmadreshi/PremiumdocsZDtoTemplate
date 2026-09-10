@@ -12,7 +12,9 @@
 - Local instances can pull tracking data from Vercel KV using `backup_sync.py`, but they no longer attempt to clean or archive Zendesk comments.
 
 ## Next Steps / Current Status
-1. **Live Production**: Successfully deployed to [https://aquera-insights.vercel.app](https://aquera-insights.vercel.app) (Inspector: [HQYTVpX9KwH6PrHNMxXcUSu4zgRh](https://vercel.com/nawabreshi-9255s-projects/aquera-insights/HQYTVpX9KwH6PrHNMxXcUSu4zgRh)).
-2. **Verified**: Direct tracking ingest (`/api/tracking/ingest`) is live and accepting events, Zendesk alert banners are removed, and the `/admin` path isolation is active.
-3. If you need to embed the tracking script into your Zendesk theme, use the contents of `zendesk_tracking_snippet.js`.
-4. If you want to bundle the standalone Insights project into a local executable, you can run the PyInstaller scripts as before.
+1. **Live Production Confirmed**: Successfully deployed and verified with real traffic from Zendesk!
+   - Latest visit captured: `nawab.ahmad@aquera.com` viewing `15Five Configuration Guide` (Location: Bengaluru, India).
+   - Direct Ingest URL: `https://aquera-insights.vercel.app/api/tracking/ingest`.
+   - Production Dashboard: [https://aquera-insights.vercel.app](https://aquera-insights.vercel.app).
+2. **Complete Decoupling**: Zendesk comment tracking is officially fully replaced with direct, high-performance, silent telemetry.
+3. If you want to bundle the standalone Insights project into a local executable, you can run PyInstaller as needed.
