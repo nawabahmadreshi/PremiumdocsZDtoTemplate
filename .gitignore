@@ -33,3 +33,12 @@ insights_tabbed/
 published_guides/
 .vercel
 .env*
+
+data/
+DOC_HUB_FINAL/
+backup_full/
+.env
+*.recovered
+*.bak
+*.pyc
+
