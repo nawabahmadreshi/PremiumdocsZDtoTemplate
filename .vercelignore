@@ -21,12 +21,16 @@ Aquera Hub.app/
 Aquera Hub 2.app/
 Aquera_Hub_Distribution/
 Aquera_Insights_Distribution/
+Aquera_Insights_Standalone/
 DOC_HUB_FINAL/
 DOC_GEN/
 insights_tabbed/
 backups/
+data/
 published_guides/
 backup_full/
+aquera_rag_assistant/
+Entra_ID_SAML_Integration_Doc/
 
 # Ignore local env and reports
 .env
