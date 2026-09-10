@@ -224,65 +224,7 @@ OUTPUT_HTML = PROJECT_ROOT / "Identity_Survey_Hub_Styled.html"
 IMAGES_DIR = PROJECT_ROOT / "images"
 ZIP_PATH = PROJECT_ROOT / "documentation_bundle.zip"
 
-def perform_maintenance(force_cleanup=False):
-    """
-    Archive new Zendesk comments to KV and update parsed cache.
-    NOTE: Zendesk deletion is handled exclusively by backup_sync.py
-    running locally — never on Vercel (10s timeout risk).
-    """
-    def run():
-        try:
-            cfg = Config()
-            client = cfg.get_zendesk_client()
-            live_comments = client.get_article_comments(TRACKING_ARTICLE_ID)
-            
-            # 1. Archive: ALWAYS merge ALL live comments into archive and save
-            # This ensures archive is confirmed fresh before any deletion
-            archived = read_json_data('archived_logs.json', [])
-            
-            seen_ids = {c.get('id') for c in archived}
-            new_to_archive = [c for c in live_comments if c.get('id') not in seen_ids]
-            
-            # Merge live into archive (live data wins on conflict)
-            merged_archive = {c.get('id'): c for c in archived}
-            for c in live_comments:
-                merged_archive[c.get('id')] = c
-            merged_archive_list = sorted(merged_archive.values(), key=lambda x: x.get('created_at', ''), reverse=True)
-            
-            save_success = write_json_data('archived_logs.json', merged_archive_list)
-            if not save_success:
-                print("CRITICAL: Failed to save archive to database! Aborting cleanup to prevent data loss.")
-                return
-            
-            print(f"DEBUG: Archive saved. {len(merged_archive_list)} total, {len(new_to_archive)} new.")
-            
-            # 2. Save latest live snapshot
-            write_json_data('last_live_comments.json', live_comments)
 
-            # 3. Update maintenance notice (no cleanup on Vercel)
-            import datetime
-            write_json_data('maintenance_notice.json', {
-                "timestamp": datetime.datetime.now().isoformat(),
-                "total_live": len(live_comments),
-                "total_archived": len(merged_archive_list),
-                "last_action_archived": len(new_to_archive),
-                "last_action_cleaned": 0,
-                "note": "Run backup_sync.py --cleanup locally to trim Zendesk"
-            })
-
-            # 4. Warn if Zendesk is filling up
-            if len(live_comments) >= 900:
-                print(f"WARNING: {len(live_comments)}/990 Zendesk comments. Run: python3 backup_sync.py --cleanup")
-
-        except Exception as e:
-            print(f"Maintenance Error: {e}")
-            import traceback
-            traceback.print_exc()
-        finally:
-            CLEANUP_PROGRESS["active"] = False
-            CLEANUP_PROGRESS["status"] = "Idle"
-
-    threading.Thread(target=run).start()
 
 @app.after_request
 def add_header(response):
@@ -651,81 +593,9 @@ def ingest_tracking_event():
 @app.route('/api/tracking', methods=['GET'])
 def get_tracking():
     try:
-        refresh = request.args.get('refresh', 'false').lower() == 'true'
-        
-        # Load Cache
+        # Load Cache directly
         all_events = read_json_data('parsed_event_cache.json', [])
         print(f"DEBUG: Loaded {len(all_events)} cached events")
-        
-        # Load Live Comments
-        live_comments = []
-        if refresh:
-            print("DEBUG: Fetching live comments from Zendesk...")
-            cfg = Config()
-            client = cfg.get_zendesk_client()
-            live_comments = client.get_article_comments(TRACKING_ARTICLE_ID)
-            write_json_data('last_live_comments.json', live_comments)
-            
-            # Auto-run local sync & cleanup if threshold reached/exceeded and running locally
-            is_on_vercel = os.environ.get('VERCEL') == '1'
-            if not is_on_vercel and len(live_comments) >= 900:
-                global CLEANUP_PROGRESS
-                if not CLEANUP_PROGRESS.get("active"):
-                    CLEANUP_PROGRESS["active"] = True
-                    CLEANUP_PROGRESS["status"] = "Auto-cleaning..."
-                    CLEANUP_PROGRESS["current"] = 0
-                    CLEANUP_PROGRESS["total"] = 0
-                    
-                    def progress_callback(current, total):
-                        global CLEANUP_PROGRESS
-                        CLEANUP_PROGRESS["current"] = current
-                        CLEANUP_PROGRESS["total"] = total
-                        CLEANUP_PROGRESS["status"] = f"Auto-cleaning {current}/{total}..."
-                        
-                    def run_auto_cleanup():
-                        try:
-                            from backup_sync import run_backup_sync
-                            print(f"AUTO-CLEAN TRIGGERED via manual refresh: {len(live_comments)} comments on Zendesk.")
-                            run_backup_sync(do_cleanup=True, force_cleanup=False, progress_cb=progress_callback)
-                        except Exception as e:
-                            print(f"Auto-Clean Sync Error: {e}")
-                        finally:
-                            global CLEANUP_PROGRESS
-                            CLEANUP_PROGRESS["active"] = False
-                            CLEANUP_PROGRESS["status"] = "Idle"
-                            
-                    threading.Thread(target=run_auto_cleanup).start()
-        else:
-            live_comments = read_json_data('last_live_comments.json', [])
-
-        # Always load the master archive
-        archived_comments = read_json_data('archived_logs.json', [])
-
-        # Merge: archived + live, deduped by comment ID
-        all_raw = {c.get('id'): c for c in archived_comments}
-        for c in live_comments:
-            all_raw[c.get('id')] = c  # live data wins on conflict
-        all_raw_list = list(all_raw.values())
-
-        # Check which comments are not yet in the parsed event cache
-        seen_ids = {str(e.get('log_id')) for e in all_events}
-        unparsed = [c for c in all_raw_list if str(c.get('id')) not in seen_ids]
-
-        if unparsed:
-            print(f"DEBUG: Parsing {len(unparsed)} new/archived comments...")
-            new_events = parse_tracking_logs(unparsed)
-            all_events.extend(new_events)
-            # Deduplicate by log_id to prevent cache inflation
-            seen_log_ids = {}
-            for e in all_events:
-                lid = e.get('log_id')
-                if lid not in seen_log_ids:
-                    seen_log_ids[lid] = e
-            all_events = list(seen_log_ids.values())
-            all_events.sort(key=lambda x: x.get('log_timestamp', ''), reverse=True)
-            write_json_data('parsed_event_cache.json', all_events)
-            print(f"DEBUG: Cache updated. Total unique events: {len(all_events)}")
-
         
         stats = calculate_stats(all_events)
         
@@ -738,7 +608,7 @@ def get_tracking():
             "success": True, 
             "events": all_events,
             "stats": stats, 
-            "live_comment_count": len(live_comments),
+            "live_comment_count": 0,
             "maintenance_notice": maintenance_notice
         })
     except Exception as e:
@@ -965,13 +835,6 @@ def export_tracking():
 def dismiss_maintenance():
     write_json_data('maintenance_notice.json', {})
     return jsonify({"success": True})
-
-@app.route('/api/tracking/backup', methods=['POST'])
-def manual_backup():
-    data = request.get_json(silent=True) or {}
-    force_cleanup = data.get('force_cleanup', False)
-    perform_maintenance(force_cleanup=force_cleanup)
-    return jsonify({"success": True, "message": "Maintenance cycle started."})
 
 @app.route('/api/backups', methods=['GET'])
 def list_backups():
@@ -1317,58 +1180,13 @@ Format the response using clean, bold markdown headers and lists. Keep it profes
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
-def start_auto_clean_scheduler():
-    def check_loop():
-        # Delay startup check by 15 seconds to allow Flask server to fully bind and load
-        time.sleep(15)
-        print("Auto-Clean Scheduler thread active. Checking Zendesk logs periodically...")
-        while True:
-            try:
-                cfg = Config()
-                client = cfg.get_zendesk_client()
-                live_comments = client.get_article_comments(TRACKING_ARTICLE_ID)
-                write_json_data('last_live_comments.json', live_comments)
-                
-                # Check limit
-                if len(live_comments) >= 900:
-                    global CLEANUP_PROGRESS
-                    if not CLEANUP_PROGRESS.get("active"):
-                        CLEANUP_PROGRESS["active"] = True
-                        CLEANUP_PROGRESS["status"] = "Auto-cleaning..."
-                        CLEANUP_PROGRESS["current"] = 0
-                        CLEANUP_PROGRESS["total"] = 0
-                        
-                        def progress_callback(current, total):
-                            global CLEANUP_PROGRESS
-                            CLEANUP_PROGRESS["current"] = current
-                            CLEANUP_PROGRESS["total"] = total
-                            CLEANUP_PROGRESS["status"] = f"Auto-cleaning {current}/{total}..."
-                        
-                        print(f"AUTO-CLEAN SCHEDULER TRIGGERED: {len(live_comments)} comments on Zendesk.")
-                        from backup_sync import run_backup_sync
-                        run_backup_sync(do_cleanup=True, force_cleanup=False, progress_cb=progress_callback)
-                        
-                        CLEANUP_PROGRESS["active"] = False
-                        CLEANUP_PROGRESS["status"] = "Idle"
-            except Exception as e:
-                print(f"Auto-Clean Scheduler loop error: {e}")
-            
-            # Poll every 10 minutes (600 seconds)
-            time.sleep(600)
-            
-    threading.Thread(target=check_loop, daemon=True).start()
-
 if __name__ == '__main__':
-    # Start the background auto-clean scheduler if running locally (and avoid duplicate running in Flask debug reload)
     is_on_vercel = os.environ.get('VERCEL') == '1'
     if not is_on_vercel:
-        # Only start scheduler in the child process when reloading, or start directly if not reloading
         if app.debug:
             if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
-                start_auto_clean_scheduler()
                 threading.Timer(1.5, lambda: webbrowser.open("http://127.0.0.1:5001/admin")).start()
         else:
-            start_auto_clean_scheduler()
             threading.Timer(1.5, lambda: webbrowser.open("http://127.0.0.1:5001/admin")).start()
 
     # Run locally on port 5001 to avoid conflicts
