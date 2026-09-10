@@ -1263,6 +1263,24 @@
       }
     }
 
+    function getEventDomain(e) {
+      const email = (e.user_email || '').toLowerCase().trim();
+      let domain = (e.email_domain || '').toLowerCase().trim();
+      if ((!domain || domain === 'unknown') && email.includes('@')) {
+        domain = email.split('@')[1].toLowerCase().trim();
+      }
+      return domain || 'unknown';
+    }
+
+    function isExternalEvent(e) {
+      const email = (e.user_email || '').toLowerCase().trim();
+      const domain = getEventDomain(e);
+      if (domain === 'aquera.com' || email.endsWith('@aquera.com')) {
+        return false;
+      }
+      return true;
+    }
+
     function computeStatsFromEvents(events) {
       let cs = 0, tc = 0, ext = 0;
       const articleMap = {};
@@ -1272,8 +1290,8 @@
       const countryMap = {};
       
       events.forEach(e => {
-        const domain = (e.email_domain || '').toLowerCase().trim();
-        const isExternal = domain !== 'aquera.com';
+        const domain = getEventDomain(e);
+        const isExternal = isExternalEvent(e);
         
         if (isExternal) {
             ext++;
@@ -1352,14 +1370,15 @@
         if (currentFilter === 'all') return true;
         if (currentFilter === 'cs') return e.is_cs;
         if (currentFilter === 'tc') return e.is_tc;
-        if (currentFilter === 'ext') return (e.email_domain || '').toLowerCase() !== 'aquera.com';
+        if (currentFilter === 'ext') return isExternalEvent(e);
         return true;
       });
 
       tbody.innerHTML = filtered.slice(0, 100).map(e => {
-        const isInternal = (e.email_domain || '').toLowerCase() === 'aquera.com';
+        const isInternal = !isExternalEvent(e);
         const color = e.is_cs ? '#f59e0b' : (e.is_tc ? '#0ea5e9' : 'inherit');
         const isAnonymous = !e.user_email || e.user_email.toLowerCase() === 'anonymous';
+        const displayDomain = getEventDomain(e);
         const btnHtml = isAnonymous ? 
           `<span style="color: var(--muted); font-size: 11px;">-</span>` : 
           `<button onclick="event.stopPropagation(); showUserJourney('${e.user_email}')" style="padding: 4px 10px; border-radius: 6px; border: 1px solid var(--aquera); background: transparent; color: var(--aquera); font-size: 10px; font-weight: 800; cursor: pointer; transition: all 0.2s; white-space: nowrap;" onmouseover="this.style.background='var(--aquera)'; this.style.color='white'" onmouseout="this.style.background='transparent'; this.style.color='var(--aquera)'">Analyze</button>`;
@@ -1367,7 +1386,7 @@
           <tr onclick="showUserJourney('${e.user_email}')" style="cursor: pointer;">
             <td><b style="color: ${color}">${e.user_email || 'Anonymous'}</b></td>
             <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${e.article_title || '-'}</td>
-            <td><span style="font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${e.email_domain || 'unknown'}</span></td>
+            <td><span style="font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${displayDomain}</span></td>
             <td style="font-size: 11px; color: var(--muted)">${new Date(e.log_timestamp).toLocaleString()}</td>
             <td style="text-align: right; padding-right: 20px;">${btnHtml}</td>
           </tr>
@@ -1409,8 +1428,8 @@
     function renderTopCompanies(events) {
       const companies = {};
       events.forEach(e => {
-        const domain = (e.email_domain || '').toLowerCase().trim();
-        if (domain && domain !== 'aquera.com' && domain !== 'unknown') {
+        const domain = getEventDomain(e);
+        if (isExternalEvent(e) && domain && domain !== 'aquera.com' && domain !== 'unknown') {
           companies[domain] = (companies[domain] || 0) + 1;
         }
       });
@@ -2075,8 +2094,8 @@
       const domains = {};
       
       events.forEach(e => {
-        const domain = (e.email_domain || '').toLowerCase().trim();
-        if (!domain || domain === 'aquera.com' || domain === 'unknown') return;
+        const domain = getEventDomain(e);
+        if (!isExternalEvent(e) || !domain || domain === 'aquera.com' || domain === 'unknown') return;
         
         const eventDate = new Date(e.log_timestamp);
         if (isNaN(eventDate.getTime())) return;
@@ -2146,8 +2165,8 @@
       events.forEach(e => {
         const email = e.user_email;
         if (!email || email.toLowerCase() === 'anonymous') return;
-        const domain = (e.email_domain || '').toLowerCase().trim();
-        if (!domain || domain === 'aquera.com' || domain === 'unknown') return;
+        const domain = getEventDomain(e);
+        if (!isExternalEvent(e) || !domain || domain === 'aquera.com' || domain === 'unknown') return;
         
         if (!usersMap[email]) {
           usersMap[email] = {

@@ -285,8 +285,12 @@ def ingest_tracking_event():
         # Build normalized event matching existing parsed event format
         import hashlib
         ts = data.get('timestamp') or datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.000Z')
-        user_email = (data.get('user_email') or 'anonymous').lower()
-        email_domain = (data.get('email_domain') or 'unknown').lower().strip()
+        user_email = (data.get('user_email') or 'anonymous').lower().strip()
+        email_domain = (data.get('email_domain') or '').lower().strip()
+        if (not email_domain or email_domain == 'unknown') and '@' in user_email:
+            email_domain = user_email.split('@')[-1].lower().strip()
+        if not email_domain:
+            email_domain = 'unknown'
         
         # Generate a unique log_id (no Zendesk comment ID for direct ingest)
         raw_id = f"direct_{article_id}_{user_email}_{ts}"
