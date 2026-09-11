@@ -631,15 +631,19 @@ def get_tracking():
 def send_slack_digest():
     """Send a rich Slack summary digest matching the dashboard view."""
     try:
-        settings_path = PROJECT_ROOT / "branding_settings.json"
-        if not settings_path.exists():
-            return jsonify({"success": False, "error": "No branding settings found"}), 400
-        with open(settings_path, 'r') as f:
-            settings = json.load(f)
+        settings = read_json_data('branding_settings.json', {})
+        if not settings:
+            settings_path = PROJECT_ROOT / "branding_settings.json"
+            if settings_path.exists():
+                try:
+                    with open(settings_path, 'r') as f:
+                        settings = json.load(f)
+                except Exception:
+                    pass
 
         webhook = os.getenv('SLACK_WEBHOOK') or settings.get('slack_webhook')
         if not webhook or webhook == "https://hooks.slack.com/services/YOUR_WEBHOOK_HERE":
-            return jsonify({"success": False, "error": "No Slack webhook configured"}), 400
+            return jsonify({"success": False, "error": "No Slack webhook configured. Please set your Slack Incoming Webhook in the Branding tab."}), 400
 
         # Load full event data
         all_events = read_json_data('parsed_event_cache.json', [])
@@ -975,14 +979,17 @@ def handle_branding():
     settings_path = PROJECT_ROOT / "branding_settings.json"
     
     if request.method == 'GET':
-        settings = {"company_name": "Aquera", "primary_color": "#0060a4"}
-        if settings_path.exists():
-            with open(settings_path, 'r') as f:
-                try:
+        settings = read_json_data('branding_settings.json', {})
+        if not settings and settings_path.exists():
+            try:
+                with open(settings_path, 'r') as f:
                     settings = json.load(f)
-                except Exception:
-                    pass
-        # Load Slack webhook from environment variable
+            except Exception:
+                pass
+        if not settings:
+            settings = {"company_name": "Aquera", "primary_color": "#0060a4"}
+
+        # Load Slack webhook from environment variable if set
         webhook = os.getenv('SLACK_WEBHOOK', '').strip()
         if webhook:
             settings['slack_webhook'] = webhook
@@ -991,17 +998,32 @@ def handle_branding():
     data = request.get_json() or {}
     webhook = data.get('slack_webhook', '').strip()
     
-    # Save the webhook to .env if it is set and not the placeholder
-    if webhook and webhook != "https://hooks.slack.com/services/YOUR_WEBHOOK_HERE":
-        update_env_file("SLACK_WEBHOOK", webhook)
-        # Put placeholder in branding_settings.json to avoid exposure
-        data['slack_webhook'] = "https://hooks.slack.com/services/YOUR_WEBHOOK_HERE"
-    elif webhook == "":
-        update_env_file("SLACK_WEBHOOK", "")
-        data['slack_webhook'] = ""
+    # Load existing settings from KV or local file fallback
+    existing = read_json_data('branding_settings.json', {})
+    if not existing and settings_path.exists():
+        try:
+            with open(settings_path, 'r') as f:
+                existing = json.load(f)
+        except Exception:
+            pass
+    if not existing:
+        existing = {"company_name": "Aquera", "primary_color": "#0060a4"}
         
-    with open(settings_path, 'w') as f:
-        json.dump(data, f, indent=2)
+    existing.update(data)
+    if webhook:
+        existing['slack_webhook'] = webhook
+    elif 'slack_webhook' in data and not webhook:
+        existing['slack_webhook'] = ""
+        
+    # Persist in Vercel KV (Upstash Redis)
+    write_json_data('branding_settings.json', existing)
+    
+    # Also save to local file for local development
+    try:
+        with open(settings_path, 'w') as f:
+            json.dump(existing, f, indent=2)
+    except Exception:
+        pass
         
     return jsonify({"success": True})
 
@@ -1084,17 +1106,20 @@ def system_info():
         (os.environ.get('BACKUP_RECEIVER_EMAIL') or os.environ.get('ZENDESK_EMAIL'))
     )
     
-    # Check branding settings file for slack webhook as fallback
+    # Check branding settings for slack webhook
     slack_webhook = os.environ.get('SLACK_WEBHOOK')
     if not slack_webhook:
-        try:
-            settings_path = Path(os.getcwd()) / "branding_settings.json"
-            if settings_path.exists():
-                with open(settings_path, 'r') as f:
-                    settings = json.load(f)
-                    slack_webhook = settings.get('slack_webhook')
-        except:
-            pass
+        settings = read_json_data('branding_settings.json', {})
+        slack_webhook = settings.get('slack_webhook')
+        if not slack_webhook:
+            try:
+                settings_path = Path(os.getcwd()) / "branding_settings.json"
+                if settings_path.exists():
+                    with open(settings_path, 'r') as f:
+                        settings = json.load(f)
+                        slack_webhook = settings.get('slack_webhook')
+            except Exception:
+                pass
             
     slack_configured = bool(slack_webhook and "YOUR_WEBHOOK_HERE" not in slack_webhook)
     

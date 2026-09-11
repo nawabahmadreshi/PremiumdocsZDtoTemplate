@@ -10,11 +10,5 @@
       "src": "/(.*)",
       "dest": "main.py"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/slack/send-digest",
-      "schedule": "0 3 * * *"
-    }
   ]
 }
