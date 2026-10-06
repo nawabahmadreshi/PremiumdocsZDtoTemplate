@@ -81,16 +81,33 @@ def read_json_data(filename, default_val=None):
                     if manifest_val:
                         manifest = json.loads(manifest_val)
                         num_chunks = manifest.get('chunks', 0)
-                        all_items = []
-                        for idx in range(num_chunks):
+                        import concurrent.futures
+                        
+                        def fetch_chunk(idx):
                             chunk_url = f"{url.rstrip('/')}/get/{urllib.parse.quote(f'{key_base}_chunk_{idx}.json')}"
                             c_req = urllib.request.Request(chunk_url, method='GET')
                             c_req.add_header('Authorization', f'Bearer {token}')
-                            with urllib.request.urlopen(c_req) as c_resp:
-                                c_res = json.loads(c_resp.read().decode())
-                                c_val = c_res.get('result')
-                                if c_val:
-                                    all_items.extend(json.loads(c_val))
+                            try:
+                                with urllib.request.urlopen(c_req, timeout=8) as c_resp:
+                                    c_res = json.loads(c_resp.read().decode())
+                                    c_val = c_res.get('result')
+                                    if c_val:
+                                        return idx, json.loads(c_val)
+                            except Exception as e:
+                                print(f"Chunk {idx} fail: {e}")
+                            return idx, []
+
+                        chunks_data = [[]] * num_chunks
+                        with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
+                            futures = [executor.submit(fetch_chunk, i) for i in range(num_chunks)]
+                            for future in concurrent.futures.as_completed(futures):
+                                idx, data = future.result()
+                                chunks_data[idx] = data
+
+                        all_items = []
+                        for data in chunks_data:
+                            all_items.extend(data)
+
                         if all_items:
                             return all_items
             except Exception as e:
