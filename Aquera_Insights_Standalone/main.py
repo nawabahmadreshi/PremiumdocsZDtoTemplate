@@ -328,16 +328,31 @@ def ingest_tracking_event():
             "source": "direct_ingest"
         }
 
-        # Append to parsed event cache (deduped by log_id)
-        all_events = read_json_data('parsed_event_cache.json', [])
-        existing_ids = {str(e.get('log_id')) for e in all_events}
-        
-        if log_id not in existing_ids:
-            all_events.insert(0, event)  # newest first
-            write_json_data('parsed_event_cache.json', all_events)
-            print(f"INGEST: New event from {user_email} ({email_domain}) viewing '{article_title[:50]}'")
+        # Append to parsed event cache (using LPUSH queue for KV to save bandwidth)
+        if use_kv():
+            url = os.environ.get('KV_REST_API_URL')
+            token = os.environ.get('KV_REST_API_TOKEN')
+            event_str = json.dumps(event)
+            req_url = f"{url.rstrip('/')}/lpush/tracking_ingest_queue"
+            req = urllib.request.Request(req_url, data=event_str.encode('utf-8'), method='POST')
+            req.add_header('Authorization', f'Bearer {token}')
+            req.add_header('Content-Type', 'application/json')
+            try:
+                with urllib.request.urlopen(req) as response:
+                    pass
+                print(f"INGEST: Fast-queued event from {user_email} ({email_domain}) viewing '{article_title[:50]}'")
+            except Exception as e:
+                print(f"INGEST: KV queue error: {e}")
         else:
-            print(f"INGEST: Duplicate event skipped: {log_id}")
+            all_events = read_json_data('parsed_event_cache.json', [])
+            existing_ids = {str(e.get('log_id')) for e in all_events}
+            
+            if log_id not in existing_ids:
+                all_events.insert(0, event)  # newest first
+                write_json_data('parsed_event_cache.json', all_events)
+                print(f"INGEST: New event from {user_email} ({email_domain}) viewing '{article_title[:50]}'")
+            else:
+                print(f"INGEST: Duplicate event skipped: {log_id}")
 
         resp = jsonify({"success": True, "log_id": log_id})
         return _add_cors_headers(resp)
@@ -352,6 +367,42 @@ def ingest_tracking_event():
 @app.route('/api/tracking', methods=['GET'])
 def get_tracking():
     try:
+        # Merge ingest queue if using KV to update cache
+        if use_kv():
+            url = os.environ.get('KV_REST_API_URL')
+            token = os.environ.get('KV_REST_API_TOKEN')
+            try:
+                req_url = f"{url.rstrip('/')}/lrange/tracking_ingest_queue/0/-1"
+                req = urllib.request.Request(req_url, method='GET')
+                req.add_header('Authorization', f'Bearer {token}')
+                with urllib.request.urlopen(req) as resp:
+                    res = json.loads(resp.read().decode())
+                    new_events_strs = res.get('result', [])
+                
+                if new_events_strs:
+                    new_events = [json.loads(s) for s in new_events_strs]
+                    all_events = read_json_data('parsed_event_cache.json', [])
+                    existing_ids = {str(e.get('log_id')) for e in all_events}
+                    
+                    merged = []
+                    for ev in new_events:
+                        if ev['log_id'] not in existing_ids:
+                            merged.append(ev)
+                            existing_ids.add(ev['log_id'])
+                            
+                    if merged:
+                        all_events = merged + all_events
+                        write_json_data('parsed_event_cache.json', all_events)
+                        print(f"MERGE: Merged {len(merged)} queued events into cache.")
+                        
+                    # Clear queue
+                    del_url = f"{url.rstrip('/')}/del/tracking_ingest_queue"
+                    del_req = urllib.request.Request(del_url, method='POST')
+                    del_req.add_header('Authorization', f'Bearer {token}')
+                    urllib.request.urlopen(del_req)
+            except Exception as e:
+                print(f"MERGE ERROR: {e}")
+
         # Load Cache directly
         all_events = read_json_data('parsed_event_cache.json', [])
         print(f"DEBUG: Loaded {len(all_events)} cached events")

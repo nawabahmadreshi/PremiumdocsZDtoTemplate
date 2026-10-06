@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dotenv import load_dotenv
 load_dotenv()
 
-from app.tracking_processor import calculate_stats
+# from app.tracking_processor import calculate_stats
 
 # ── Config ────────────────────────────────────────────────────────────────────
 TRACKING_ARTICLE_ID = 40121816692119
@@ -226,6 +226,39 @@ def run_backup_sync(progress_cb=None):
     print(f"\n{'='*60}")
     print(f"  🔄 Aquera Backup Sync (Vercel KV)  —  {ts_start.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"{'='*60}\n")
+
+    # ── Step 0: Merge Ingest Queue ──────────────
+    if KV_URL and KV_TOKEN:
+        print("Step 0 › Merging tracking ingest queue...")
+        try:
+            req_url = f"{KV_URL}/lrange/tracking_ingest_queue/0/-1"
+            req = urllib.request.Request(req_url, method='GET')
+            req.add_header('Authorization', f'Bearer {KV_TOKEN}')
+            with urllib.request.urlopen(req) as resp:
+                res = json.loads(resp.read().decode())
+                new_events_strs = res.get('result', [])
+            
+            if new_events_strs:
+                new_events = [json.loads(s) for s in new_events_strs]
+                all_events = kv_get('parsed_event_cache.json') or []
+                existing_ids = {str(e.get('log_id')) for e in all_events}
+                merged = []
+                for ev in new_events:
+                    if ev['log_id'] not in existing_ids:
+                        merged.append(ev)
+                        existing_ids.add(ev['log_id'])
+                
+                if merged:
+                    all_events = merged + all_events
+                    kv_set('parsed_event_cache.json', all_events)
+                    print(f"  → Merged {len(merged)} events to KV cache.")
+                    
+                del_url = f"{KV_URL}/del/tracking_ingest_queue"
+                del_req = urllib.request.Request(del_url, method='POST')
+                del_req.add_header('Authorization', f'Bearer {KV_TOKEN}')
+                urllib.request.urlopen(del_req)
+        except Exception as e:
+            print(f"  ⚠️ Queue merge failed: {e}")
 
     # ── Step 1: Load existing cache from KV ─────
     print("Step 1 › Loading parsed events from KV...")

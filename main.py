@@ -579,14 +579,30 @@ def ingest_tracking_event():
             "source": "direct_ingest"
         }
 
-        # Append to parsed event cache (deduped by log_id)
-        all_events = read_json_data('parsed_event_cache.json', [])
-        existing_ids = {str(e.get('log_id')) for e in all_events}
+        # Append to recent events queue (deduped locally)
+        recent_events = read_json_data('recent_events_queue.json', [])
+        existing_recent_ids = {str(e.get('log_id')) for e in recent_events}
         
-        if log_id not in existing_ids:
-            all_events.insert(0, event)  # newest first
-            write_json_data('parsed_event_cache.json', all_events)
-            print(f"INGEST: New event from {user_email} ({email_domain}) viewing '{article_title[:50]}'")
+        if log_id not in existing_recent_ids:
+            recent_events.insert(0, event)  # newest first
+            
+            if len(recent_events) >= 100:
+                # Time to flush to main cache
+                all_events = read_json_data('parsed_event_cache.json', [])
+                existing_ids = {str(e.get('log_id')) for e in all_events}
+                
+                # Append in correct order (newest first)
+                for e in reversed(recent_events):
+                    if str(e.get('log_id')) not in existing_ids:
+                        all_events.insert(0, e)
+                        existing_ids.add(str(e.get('log_id')))
+                
+                write_json_data('parsed_event_cache.json', all_events)
+                write_json_data('recent_events_queue.json', [])
+                print(f"INGEST: Flushed {len(recent_events)} events to main cache. Newest from {user_email} ({email_domain}) viewing '{article_title[:50]}'")
+            else:
+                write_json_data('recent_events_queue.json', recent_events)
+                print(f"INGEST: Queued new event from {user_email} ({email_domain}) viewing '{article_title[:50]}'. Queue size: {len(recent_events)}")
         else:
             print(f"INGEST: Duplicate event skipped: {log_id}")
 
@@ -603,9 +619,19 @@ def ingest_tracking_event():
 @app.route('/api/tracking', methods=['GET'])
 def get_tracking():
     try:
-        # Load Cache directly
+        # Load Cache and Recent Queue
         all_events = read_json_data('parsed_event_cache.json', [])
-        print(f"DEBUG: Loaded {len(all_events)} cached events")
+        recent_events = read_json_data('recent_events_queue.json', [])
+        
+        # Merge them for the frontend
+        if recent_events:
+            existing_ids = {str(e.get('log_id')) for e in all_events}
+            for e in reversed(recent_events):
+                if str(e.get('log_id')) not in existing_ids:
+                    all_events.insert(0, e)
+                    existing_ids.add(str(e.get('log_id')))
+
+        print(f"DEBUG: Loaded {len(all_events)} cached events (including {len(recent_events)} queued)")
         
         stats = calculate_stats(all_events)
         
@@ -787,6 +813,7 @@ def sync_archive():
 
         # Also invalidate the parsed cache so next load re-parses with full data
         write_json_data('parsed_event_cache.json', [])
+        write_json_data('recent_events_queue.json', [])
 
         return jsonify({
             "success": True,

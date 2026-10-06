@@ -230,6 +230,17 @@ def run_backup_sync(progress_cb=None):
     # ── Step 1: Load existing cache from KV ─────
     print("Step 1 › Loading parsed events from KV...")
     kv_events = kv_get('parsed_event_cache.json') or []
+    recent_events = kv_get('recent_events_queue.json') or []
+    
+    # Merge recent events into kv_events
+    if recent_events:
+        existing_ids = {str(e.get('log_id')) for e in kv_events}
+        for e in reversed(recent_events):
+            if str(e.get('log_id')) not in existing_ids:
+                kv_events.insert(0, e)
+                existing_ids.add(str(e.get('log_id')))
+        print(f"  → Merged {len(recent_events)} queued events into KV cache.")
+
     local_events = local_load('parsed_event_cache.json', [])
     
     base_events = kv_events if len(kv_events) >= len(local_events) else local_events

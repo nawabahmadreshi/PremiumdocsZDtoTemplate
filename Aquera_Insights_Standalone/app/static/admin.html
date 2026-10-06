@@ -932,11 +932,11 @@
           // Always fetch live data first so the Auto-Clean Radar shows real numbers
           fetchTracking().then(() => fetchSysInfo());
           fetchBackups();
-          // Start live polling every 30s
+          // Start live polling every 5 minutes
           if (radarPollInterval) clearInterval(radarPollInterval);
           radarPollInterval = setInterval(() => {
               fetchTracking().then(() => fetchSysInfo());
-          }, 30000);
+          }, 300000);
       } else {
           // Stop polling when leaving the settings tab
           if (radarPollInterval) { clearInterval(radarPollInterval); radarPollInterval = null; }
